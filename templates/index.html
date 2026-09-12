@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MPLAD AI Monitoring System</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                <span>🏛</span>
+            </div>
+
+            <div>
+                <h2>MPLAD</h2>
+                <p>AI MONITORING SYSTEM</p>
+            </div>
+
+        </div>
+
+
+        <div class="menu-title">
+            MAIN MENU
+        </div>
+
+
+        <nav>
+
+            <a href="/" class="nav-item active">
+                <span class="nav-icon">▦</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="/projects" class="nav-item">
+                <span class="nav-icon">▤</span>
+                <span>Projects</span>
+            </a>
+
+            <a href="/risk-analysis" class="nav-item">
+                <span class="nav-icon">◈</span>
+                <span>Risk Analysis</span>
+            </a>
+
+            <a href="/projects?risk=High" class="nav-item">
+                <span class="nav-icon">⚠</span>
+                <span>Anomaly Alerts</span>
+
+                <span class="menu-badge">
+                    {{ statistics.high_risk }}
+                </span>
+            </a>
+
+            <a href="/projects" class="nav-item">
+                <span class="nav-icon">⌖</span>
+                <span>Map View</span>
+            </a>
+
+            <a href="/projects" class="nav-item">
+                <span class="nav-icon">▥</span>
+                <span>Reports</span>
+            </a>
+
+        </nav>
+
+
+        <div class="menu-title bottom-menu">
+            SYSTEM
+        </div>
+
+        <nav>
+
+            <a href="#" class="nav-item">
+                <span class="nav-icon">⚙</span>
+                <span>Settings</span>
+            </a>
+
+            <a href="#" class="nav-item">
+                <span class="nav-icon">?</span>
+                <span>Help & Support</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="government-mark">
+                <span>🇮🇳</span>
+            </div>
+
+            <div>
+                <strong>Government Project</strong>
+                <small>Monitoring & Analysis</small>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN CONTENT ================= -->
+
+    <main class="main">
+
+        <!-- HEADER -->
+
+        <header class="topbar">
+
+            <div>
+
+                <div class="breadcrumb">
+                    Government Monitoring
+                    <span>/</span>
+                    Dashboard
+                </div>
+
+                <h1>Project Monitoring Dashboard</h1>
+
+                <p>
+                    AI-powered monitoring of MPLAD projects,
+                    expenditure and implementation risks.
+                </p>
+
+            </div>
+
+
+            <div class="top-actions">
+
+                <button class="outline-button"
+                        onclick="window.location.reload()">
+                    ↻ Refresh
+                </button>
+
+                <button class="primary-button"
+                        onclick="window.location.href='/projects'">
+                    View Projects →
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- FILTER BAR -->
+
+        <section class="filter-bar">
+
+            <div class="filter-item">
+
+                <label>State</label>
+
+                <select>
+                    <option>All States</option>
+                    <option>Karnataka</option>
+                    <option>Kerala</option>
+                    <option>Tamil Nadu</option>
+                </select>
+
+            </div>
+
+
+            <div class="filter-item">
+
+                <label>District</label>
+
+                <select>
+                    <option>All Districts</option>
+                    <option>Dakshina Kannada</option>
+                    <option>Udupi</option>
+                    <option>Mysuru</option>
+                    <option>Belagavi</option>
+                </select>
+
+            </div>
+
+
+            <div class="filter-item">
+
+                <label>Project Category</label>
+
+                <select>
+                    <option>All Categories</option>
+                    <option>Education</option>
+                    <option>Healthcare</option>
+                    <option>Roads</option>
+                    <option>Water Supply</option>
+                    <option>Community Infrastructure</option>
+                </select>
+
+            </div>
+
+
+            <div class="filter-item">
+
+                <label>Risk Level</label>
+
+                <select id="riskFilter">
+
+                    <option value="All">All Risk Levels</option>
+                    <option value="High">High Risk</option>
+                    <option value="Medium">Medium Risk</option>
+                    <option value="Low">Low Risk</option>
+
+                </select>
+
+            </div>
+
+
+            <button class="filter-button"
+                    onclick="applyRiskFilter()">
+                Apply Filters
+            </button>
+
+        </section>
+
+
+        <!-- KPI CARDS -->
+
+        <section class="stats-grid">
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-icon blue">
+                        ▤
+                    </div>
+
+                    <span class="stat-label">
+                        TOTAL PROJECTS
+                    </span>
+
+                </div>
+
+                <div class="stat-number">
+                    {{ statistics.total_projects }}
+                </div>
+
+                <div class="stat-footer">
+                    <span class="positive">● Active monitoring</span>
+                    <span>Current</span>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-icon green">
+                        ₹
+                    </div>
+
+                    <span class="stat-label">
+                        SANCTIONED AMOUNT
+                    </span>
+
+                </div>
+
+                <div class="stat-number money">
+                    ₹{{ "%.1f"|format(statistics.total_sanctioned / 10000000) }} Cr
+                </div>
+
+                <div class="stat-footer">
+                    <span class="positive">● Approved funds</span>
+                    <span>MPLAD</span>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-icon orange">
+                        ₹
+                    </div>
+
+                    <span class="stat-label">
+                        FUND UTILIZATION
+                    </span>
+
+                </div>
+
+                <div class="stat-number">
+                    {{ statistics.utilization }}%
+                </div>
+
+                <div class="progress-line">
+                    <span style="width: {{ statistics.utilization }}%"></span>
+                </div>
+
+                <div class="stat-footer">
+                    <span>₹{{ "%.1f"|format(statistics.total_spent / 10000000) }} Cr spent</span>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card risk-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-icon red">
+                        ⚠
+                    </div>
+
+                    <span class="stat-label">
+                        HIGH RISK PROJECTS
+                    </span>
+
+                </div>
+
+                <div class="stat-number red-text">
+                    {{ statistics.high_risk }}
+                </div>
+
+                <div class="stat-footer">
+                    <span class="danger">● Requires attention</span>
+                    <span>AI detected</span>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-icon purple">
+                        ◔
+                    </div>
+
+                    <span class="stat-label">
+                        AVG. PROGRESS
+                    </span>
+
+                </div>
+
+                <div class="stat-number">
+                    {{ statistics.average_progress }}%
+                </div>
+
+                <div class="stat-footer">
+                    <span>Physical progress</span>
+                    <span>Overall</span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- DASHBOARD CONTENT -->
+
+        <section class="dashboard-grid">
+
+
+            <!-- PROJECT PROGRESS -->
+
+            <div class="panel large-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>Project Implementation Overview</h2>
+
+                        <p>
+                            Physical progress across monitored projects
+                        </p>
+
+                    </div>
+
+                    <select class="small-select">
+                        <option>Current Year</option>
+                        <option>Previous Year</option>
+                    </select>
+
+                </div>
+
+
+                <div class="progress-overview">
+
+                    {% for project in projects[:5] %}
+
+                    <div class="project-progress">
+
+                        <div class="project-progress-info">
+
+                            <div>
+
+                                <strong>
+                                    {{ project.name }}
+                                </strong>
+
+                                <small>
+                                    {{ project.district }} ·
+                                    {{ project.category }}
+                                </small>
+
+                            </div>
+
+                            <strong>
+                                {{ project.progress }}%
+                            </strong>
+
+                        </div>
+
+
+                        <div class="bar">
+
+                            <span
+                                class="{% if project.risk == 'High' %}bar-danger{% elif project.risk == 'Medium' %}bar-warning{% else %}bar-normal{% endif %}"
+                                style="width: {{ project.progress }}%">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+
+            <!-- RISK DISTRIBUTION -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>Risk Distribution</h2>
+
+                        <p>AI risk engine assessment</p>
+
+                    </div>
+
+                    <span class="ai-badge">
+                        ✦ AI
+                    </span>
+
+                </div>
+
+
+                <div class="risk-chart">
+
+                    <div class="donut">
+
+                        <div class="donut-center">
+
+                            <strong>
+                                {{ statistics.total_projects }}
+                            </strong>
+
+                            <small>Projects</small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="risk-legend">
+
+                    <div>
+                        <span class="legend-dot high"></span>
+                        <span>High Risk</span>
+                        <strong>{{ statistics.high_risk }}</strong>
+                    </div>
+
+                    <div>
+                        <span class="legend-dot medium"></span>
+                        <span>Medium Risk</span>
+                        <strong>{{ statistics.medium_risk }}</strong>
+                    </div>
+
+                    <div>
+                        <span class="legend-dot low"></span>
+                        <span>Low Risk</span>
+                        <strong>{{ statistics.low_risk }}</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- SECOND ROW -->
+
+        <section class="dashboard-grid second-row">
+
+
+            <!-- ANOMALY ALERTS -->
+
+            <div class="panel large-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>AI Risk & Anomaly Alerts</h2>
+
+                        <p>
+                            Projects requiring investigation
+                        </p>
+
+                    </div>
+
+                    <a href="/projects?risk=High"
+                       class="view-link">
+                        View all →
+                    </a>
+
+                </div>
+
+
+                <div class="alert-list">
+
+                    {% for project in projects if project.risk == "High" %}
+
+                    <div class="alert-row">
+
+                        <div class="alert-icon">
+                            ⚠
+                        </div>
+
+                        <div class="alert-content">
+
+                            <strong>
+                                {{ project.name }}
+                            </strong>
+
+                            <span>
+                                {{ project.district }} ·
+                                Risk Score {{ project.risk_score }}/100
+                            </span>
+
+                        </div>
+
+                        <div class="alert-reason">
+
+                            {% if project.anomalies %}
+                                {{ project.anomalies[0] }}
+                            {% endif %}
+
+                        </div>
+
+                        <span class="risk-badge high-badge">
+                            HIGH
+                        </span>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+
+            <!-- FUND UTILIZATION -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>Fund Utilization</h2>
+
+                        <p>Sanctioned vs expenditure</p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="fund-chart">
+
+                    {% for project in projects[:5] %}
+
+                    <div class="fund-row">
+
+                        <div class="fund-label">
+                            <span>
+                                {{ project.category }}
+                            </span>
+
+                            <strong>
+                                {{ ((project.spent / project.sanctioned) * 100)|round|int }}%
+                            </strong>
+                        </div>
+
+                        <div class="fund-bar">
+
+                            <span
+                                style="width: {{ ((project.spent / project.sanctioned) * 100)|round|int }}%">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- MAP / REGIONAL OVERVIEW -->
+
+        <section class="panel map-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>Regional Project Overview</h2>
+
+                    <p>
+                        Distribution of monitored MPLAD projects
+                    </p>
+
+                </div>
+
+                <button class="outline-button">
+                    ⌖ Map View
+                </button>
+
+            </div>
+
+
+            <div class="map-container">
+
+                <div class="map-background">
+
+                    <div class="map-grid"></div>
+
+                    <div class="map-label label-one">
+                        Karnataka
+                    </div>
+
+                    <div class="map-label label-two">
+                        Udupi
+                    </div>
+
+                    <div class="map-label label-three">
+                        Mysuru
+                    </div>
+
+                    <div class="map-label label-four">
+                        Belagavi
+                    </div>
+
+
+                    <span class="map-marker marker-1"></span>
+                    <span class="map-marker marker-2"></span>
+                    <span class="map-marker marker-3"></span>
+                    <span class="map-marker marker-4"></span>
+                    <span class="map-marker marker-5"></span>
+                    <span class="map-marker marker-6"></span>
+
+                </div>
+
+
+                <div class="map-side-info">
+
+                    <h3>Project Locations</h3>
+
+                    <p>
+                        Projects monitored across districts
+                    </p>
+
+                    <div class="location-stat">
+                        <strong>{{ statistics.total_projects }}</strong>
+                        <span>Total Projects</span>
+                    </div>
+
+                    <div class="location-stat">
+                        <strong>{{ statistics.high_risk }}</strong>
+                        <span>High Risk</span>
+                    </div>
+
+                    <div class="location-stat">
+                        <strong>{{ statistics.delayed }}</strong>
+                        <span>Delayed</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- PROJECT TABLE -->
+
+        <section class="panel project-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>Recent Projects</h2>
+
+                    <p>
+                        Latest monitored project records
+                    </p>
+
+                </div>
+
+                <a href="/projects"
+                   class="view-link">
+                    View all projects →
+                </a>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+
+                        <th>PROJECT</th>
+                        <th>LOCATION</th>
+                        <th>CATEGORY</th>
+                        <th>BUDGET</th>
+                        <th>PROGRESS</th>
+                        <th>RISK</th>
+                        <th>STATUS</th>
+
+                    </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    {% for project in projects %}
+
+                    <tr>
+
+                        <td>
+
+                            <div class="project-name">
+
+                                <div class="project-symbol">
+                                    {{ loop.index }}
+                                </div>
+
+                                <div>
+
+                                    <strong>
+                                        {{ project.name }}
+                                    </strong>
+
+                                    <small>
+                                        {{ project.id }}
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+                            {{ project.district }}
+                        </td>
+
+
+                        <td>
+                            {{ project.category }}
+                        </td>
+
+
+                        <td>
+                            ₹{{ "%.1f"|format(project.sanctioned / 100000) }} L
+                        </td>
+
+
+                        <td>
+
+                            <div class="table-progress">
+
+                                <span>
+                                    {{ project.progress }}%
+                                </span>
+
+                                <div>
+                                    <i style="width: {{ project.progress }}%"></i>
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            {% if project.risk == "High" %}
+
+                            <span class="risk-badge high-badge">
+                                High · {{ project.risk_score }}
+                            </span>
+
+                            {% elif project.risk == "Medium" %}
+
+                            <span class="risk-badge medium-badge">
+                                Medium · {{ project.risk_score }}
+                            </span>
+
+                            {% else %}
+
+                            <span class="risk-badge low-badge">
+                                Low · {{ project.risk_score }}
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="status-badge
+                                {% if project.status == 'Critical' %}
+                                    status-critical
+                                {% elif project.status == 'Delayed' %}
+                                    status-delayed
+                                {% elif project.status == 'Under Review' %}
+                                    status-review
+                                {% else %}
+                                    status-ongoing
+                                {% endif %}
+                            ">
+
+                                {{ project.status }}
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- FOOTER -->
+
+        <footer>
+
+            <span>
+                MPLAD AI Monitoring System
+            </span>
+
+            <span>
+                AI-assisted decision support ·
+                Not a final fraud determination
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script>
+
+function applyRiskFilter() {
+
+    const value =
+        document.getElementById("riskFilter").value;
+
+    if (value === "All") {
+        window.location.href = "/projects";
+    }
+    else {
+        window.location.href =
+            "/projects?risk=" + value;
+    }
+
+}
+
+</script>
+
+</body>
+</html>
