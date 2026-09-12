@@ -1,0 +1,24 @@
+Commands used to push the project to GitHub
+I used these commands in the project folder:
+
+git switch -C frontend
+git add -A
+git commit -m "Push frontend project to GitHub"
+git push -u origin frontend
+
+When the remote branch was behind and rejected the push, I resolved it with:
+
+git fetch origin --prune
+git push --force-with-lease origin frontend
+
+Then I finalized the repo state with:
+
+git add -A
+git commit -m "Finalize frontend project snapshot"
+git push --force-with-lease origin frontend
+git status -sb
+
+Notes
+The project was pushed to the remote branch named frontend.
+The remote repository was:
+https://github.com/Arpithbhat-07/MPLAD.git
