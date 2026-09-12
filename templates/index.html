@@ -19,7 +19,7 @@
 
     <aside class="sidebar">
 
-        <div class="brand">
+        <a href="/" class="brand">
 
             <div class="brand-logo">
                 <span>🏛</span>
@@ -30,7 +30,7 @@
                 <p>AI MONITORING SYSTEM</p>
             </div>
 
-        </div>
+        </a>
 
 
         <div class="menu-title">
@@ -50,7 +50,7 @@
                 <span>Projects</span>
             </a>
 
-            <a href="/risk-analysis" class="nav-item">
+            <a href="/analytics" class="nav-item">
                 <span class="nav-icon">◈</span>
                 <span>Risk Analysis</span>
             </a>
@@ -64,12 +64,12 @@
                 </span>
             </a>
 
-            <a href="/projects" class="nav-item">
+            <a href="/map" class="nav-item">
                 <span class="nav-icon">⌖</span>
                 <span>Map View</span>
             </a>
 
-            <a href="/projects" class="nav-item">
+            <a href="/reports" class="nav-item">
                 <span class="nav-icon">▥</span>
                 <span>Reports</span>
             </a>
@@ -83,12 +83,12 @@
 
         <nav>
 
-            <a href="#" class="nav-item">
+            <a href="javascript:void(0)" onclick="openModal('settingsModal')" class="nav-item">
                 <span class="nav-icon">⚙</span>
                 <span>Settings</span>
             </a>
 
-            <a href="#" class="nav-item">
+            <a href="javascript:void(0)" onclick="openModal('helpModal')" class="nav-item">
                 <span class="nav-icon">?</span>
                 <span>Help & Support</span>
             </a>
@@ -157,17 +157,17 @@
 
         <!-- FILTER BAR -->
 
-        <section class="filter-bar">
+        <form method="GET" action="/projects" class="filter-bar">
 
             <div class="filter-item">
 
                 <label>State</label>
 
-                <select>
-                    <option>All States</option>
-                    <option>Karnataka</option>
-                    <option>Kerala</option>
-                    <option>Tamil Nadu</option>
+                <select name="state" id="stateFilter">
+                    <option value="All">All States</option>
+                    {% for st in filter_options.states %}
+                    <option value="{{ st }}">{{ st }}</option>
+                    {% endfor %}
                 </select>
 
             </div>
@@ -177,12 +177,11 @@
 
                 <label>District</label>
 
-                <select>
-                    <option>All Districts</option>
-                    <option>Dakshina Kannada</option>
-                    <option>Udupi</option>
-                    <option>Mysuru</option>
-                    <option>Belagavi</option>
+                <select name="district" id="districtFilter">
+                    <option value="All">All Districts</option>
+                    {% for dist in filter_options.districts %}
+                    <option value="{{ dist }}">{{ dist }}</option>
+                    {% endfor %}
                 </select>
 
             </div>
@@ -192,13 +191,11 @@
 
                 <label>Project Category</label>
 
-                <select>
-                    <option>All Categories</option>
-                    <option>Education</option>
-                    <option>Healthcare</option>
-                    <option>Roads</option>
-                    <option>Water Supply</option>
-                    <option>Community Infrastructure</option>
+                <select name="category" id="categoryFilter">
+                    <option value="All">All Categories</option>
+                    {% for cat in filter_options.categories %}
+                    <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
                 </select>
 
             </div>
@@ -208,24 +205,27 @@
 
                 <label>Risk Level</label>
 
-                <select id="riskFilter">
-
+                <select name="risk" id="riskFilter">
                     <option value="All">All Risk Levels</option>
                     <option value="High">High Risk</option>
                     <option value="Medium">Medium Risk</option>
                     <option value="Low">Low Risk</option>
-
                 </select>
 
             </div>
 
 
-            <button class="filter-button"
-                    onclick="applyRiskFilter()">
-                Apply Filters
-            </button>
+            <div class="filter-actions">
+                <button type="submit" class="filter-button">
+                    Apply Filters
+                </button>
 
-        </section>
+                <a href="/" class="reset-button">
+                    Reset
+                </a>
+            </div>
+
+        </form>
 
 
         <!-- KPI CARDS -->
@@ -233,7 +233,7 @@
         <section class="stats-grid">
 
 
-            <div class="stat-card">
+            <div class="stat-card" style="cursor:pointer;" onclick="window.location.href='/projects'">
 
                 <div class="stat-top">
 
@@ -247,13 +247,13 @@
 
                 </div>
 
-                <div class="stat-number">
+                <div class="stat-number kpi-number" data-value="{{ statistics.total_projects }}">
                     {{ statistics.total_projects }}
                 </div>
 
                 <div class="stat-footer">
                     <span class="positive">● Active monitoring</span>
-                    <span>Current</span>
+                    <span>All Districts</span>
                 </div>
 
             </div>
@@ -279,7 +279,7 @@
 
                 <div class="stat-footer">
                     <span class="positive">● Approved funds</span>
-                    <span>MPLAD</span>
+                    <span>MPLAD Scheme</span>
                 </div>
 
             </div>
@@ -314,7 +314,7 @@
             </div>
 
 
-            <div class="stat-card risk-card">
+            <div class="stat-card risk-card" style="cursor:pointer;" onclick="window.location.href='/projects?risk=High'">
 
                 <div class="stat-top">
 
@@ -328,13 +328,13 @@
 
                 </div>
 
-                <div class="stat-number red-text">
+                <div class="stat-number red-text kpi-number" data-value="{{ statistics.high_risk }}">
                     {{ statistics.high_risk }}
                 </div>
 
                 <div class="stat-footer">
                     <span class="danger">● Requires attention</span>
-                    <span>AI detected</span>
+                    <span>AI flagged</span>
                 </div>
 
             </div>
@@ -359,8 +359,8 @@
                 </div>
 
                 <div class="stat-footer">
-                    <span>Physical progress</span>
-                    <span>Overall</span>
+                    <span>Physical completion</span>
+                    <span>{{ statistics.delayed }} delayed</span>
                 </div>
 
             </div>
@@ -384,15 +384,12 @@
                         <h2>Project Implementation Overview</h2>
 
                         <p>
-                            Physical progress across monitored projects
+                            Physical progress across priority monitored projects
                         </p>
 
                     </div>
 
-                    <select class="small-select">
-                        <option>Current Year</option>
-                        <option>Previous Year</option>
-                    </select>
+                    <a href="/projects" class="view-link">View all →</a>
 
                 </div>
 
@@ -401,7 +398,7 @@
 
                     {% for project in projects[:5] %}
 
-                    <div class="project-progress">
+                    <div class="project-progress" style="cursor:pointer;" onclick="window.location.href='/project/{{ project.id }}'">
 
                         <div class="project-progress-info">
 
@@ -412,7 +409,7 @@
                                 </strong>
 
                                 <small>
-                                    {{ project.district }} ·
+                                    {{ project.district }}, {{ project.state }} ·
                                     {{ project.category }}
                                 </small>
 
@@ -485,19 +482,19 @@
 
                 <div class="risk-legend">
 
-                    <div>
+                    <div style="cursor:pointer;" onclick="window.location.href='/projects?risk=High'">
                         <span class="legend-dot high"></span>
                         <span>High Risk</span>
                         <strong>{{ statistics.high_risk }}</strong>
                     </div>
 
-                    <div>
+                    <div style="cursor:pointer;" onclick="window.location.href='/projects?risk=Medium'">
                         <span class="legend-dot medium"></span>
                         <span>Medium Risk</span>
                         <strong>{{ statistics.medium_risk }}</strong>
                     </div>
 
-                    <div>
+                    <div style="cursor:pointer;" onclick="window.location.href='/projects?risk=Low'">
                         <span class="legend-dot low"></span>
                         <span>Low Risk</span>
                         <strong>{{ statistics.low_risk }}</strong>
@@ -527,14 +524,14 @@
                         <h2>AI Risk & Anomaly Alerts</h2>
 
                         <p>
-                            Projects requiring investigation
+                            Projects requiring administrative review & inspection
                         </p>
 
                     </div>
 
                     <a href="/projects?risk=High"
                        class="view-link">
-                        View all →
+                        View all ({{ statistics.high_risk }}) →
                     </a>
 
                 </div>
@@ -542,9 +539,9 @@
 
                 <div class="alert-list">
 
-                    {% for project in projects if project.risk == "High" %}
+                    {% for project in alert_projects[:5] %}
 
-                    <div class="alert-row">
+                    <div class="alert-row" style="cursor:pointer;" onclick="window.location.href='/project/{{ project.id }}'">
 
                         <div class="alert-icon">
                             ⚠
@@ -557,7 +554,7 @@
                             </strong>
 
                             <span>
-                                {{ project.district }} ·
+                                {{ project.district }}, {{ project.state }} ·
                                 Risk Score {{ project.risk_score }}/100
                             </span>
 
@@ -567,6 +564,10 @@
 
                             {% if project.anomalies %}
                                 {{ project.anomalies[0] }}
+                            {% elif project.why_flagged %}
+                                {{ project.why_flagged }}
+                            {% else %}
+                                Elevated risk score requires review
                             {% endif %}
 
                         </div>
@@ -605,7 +606,7 @@
 
                     {% for project in projects[:5] %}
 
-                    <div class="fund-row">
+                    <div class="fund-row" style="cursor:pointer;" onclick="window.location.href='/project/{{ project.id }}'">
 
                         <div class="fund-label">
                             <span>
@@ -613,14 +614,14 @@
                             </span>
 
                             <strong>
-                                {{ ((project.spent / project.sanctioned) * 100)|round|int }}%
+                                {{ ((project.spent / project.sanctioned) * 100)|round|int if project.sanctioned > 0 else 0 }}%
                             </strong>
                         </div>
 
                         <div class="fund-bar">
 
                             <span
-                                style="width: {{ ((project.spent / project.sanctioned) * 100)|round|int }}%">
+                                style="width: {{ ((project.spent / project.sanctioned) * 100)|round|int if project.sanctioned > 0 else 0 }}%">
                             </span>
 
                         </div>
@@ -647,12 +648,12 @@
                     <h2>Regional Project Overview</h2>
 
                     <p>
-                        Distribution of monitored MPLAD projects
+                        Distribution of monitored MPLAD projects across districts
                     </p>
 
                 </div>
 
-                <button class="outline-button">
+                <button class="outline-button" onclick="window.location.href='/map'">
                     ⌖ Map View
                 </button>
 
@@ -670,23 +671,23 @@
                     </div>
 
                     <div class="map-label label-two">
-                        Udupi
+                        Maharashtra
                     </div>
 
                     <div class="map-label label-three">
-                        Mysuru
+                        Tamil Nadu
                     </div>
 
                     <div class="map-label label-four">
-                        Belagavi
+                        Uttar Pradesh
                     </div>
 
 
-                    <span class="map-marker marker-1"></span>
-                    <span class="map-marker marker-2"></span>
-                    <span class="map-marker marker-3"></span>
-                    <span class="map-marker marker-4"></span>
-                    <span class="map-marker marker-5"></span>
+                    <span class="map-marker marker-1" title="Karnataka Projects"></span>
+                    <span class="map-marker marker-2" title="Maharashtra Projects"></span>
+                    <span class="map-marker marker-3" title="Tamil Nadu Projects"></span>
+                    <span class="map-marker marker-4" title="Uttar Pradesh Projects"></span>
+                    <span class="map-marker marker-5" title="West Bengal Projects"></span>
                     <span class="map-marker marker-6"></span>
 
                 </div>
@@ -694,15 +695,15 @@
 
                 <div class="map-side-info">
 
-                    <h3>Project Locations</h3>
+                    <h3>Geographic Coverage</h3>
 
                     <p>
-                        Projects monitored across districts
+                        Monitored projects across active states & districts
                     </p>
 
                     <div class="location-stat">
                         <strong>{{ statistics.total_projects }}</strong>
-                        <span>Total Projects</span>
+                        <span>Total Works</span>
                     </div>
 
                     <div class="location-stat">
@@ -712,7 +713,7 @@
 
                     <div class="location-stat">
                         <strong>{{ statistics.delayed }}</strong>
-                        <span>Delayed</span>
+                        <span>Delayed Works</span>
                     </div>
 
                 </div>
@@ -730,17 +731,17 @@
 
                 <div>
 
-                    <h2>Recent Projects</h2>
+                    <h2>Recent Monitored Projects</h2>
 
                     <p>
-                        Latest monitored project records
+                        Latest project implementation and anomaly status
                     </p>
 
                 </div>
 
                 <a href="/projects"
                    class="view-link">
-                    View all projects →
+                    View all {{ statistics.total_projects }} projects →
                 </a>
 
             </div>
@@ -761,6 +762,7 @@
                         <th>PROGRESS</th>
                         <th>RISK</th>
                         <th>STATUS</th>
+                        <th>ACTION</th>
 
                     </tr>
 
@@ -771,7 +773,7 @@
 
                     {% for project in projects %}
 
-                    <tr>
+                    <tr onclick="window.location.href='/project/{{ project.id }}'">
 
                         <td>
 
@@ -783,9 +785,11 @@
 
                                 <div>
 
-                                    <strong>
-                                        {{ project.name }}
-                                    </strong>
+                                    <a class="project-link" href="/project/{{ project.id }}">
+                                        <strong>
+                                            {{ project.name }}
+                                        </strong>
+                                    </a>
 
                                     <small>
                                         {{ project.id }}
@@ -799,7 +803,7 @@
 
 
                         <td>
-                            {{ project.district }}
+                            {{ project.district }}, {{ project.state }}
                         </td>
 
 
@@ -875,6 +879,12 @@
 
                         </td>
 
+                        <td>
+                            <a href="/project/{{ project.id }}" class="table-action-btn" onclick="event.stopPropagation()">
+                                View Details →
+                            </a>
+                        </td>
+
                     </tr>
 
                     {% endfor %}
@@ -898,7 +908,7 @@
 
             <span>
                 AI-assisted decision support ·
-                Not a final fraud determination
+                Not a final fraud determination · Official Monitoring Dashboard
             </span>
 
         </footer>
@@ -908,24 +918,80 @@
 </div>
 
 
-<script>
+<!-- ================= SETTINGS MODAL ================= -->
+<div class="modal-backdrop" id="settingsModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><span>⚙</span> System Configuration & Settings</h3>
+            <button class="modal-close-btn" onclick="closeModal('settingsModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <p>Configure MPLADS AI Anomaly Detection parameters and inspection thresholds.</p>
+            <div class="modal-setting-row">
+                <div class="modal-setting-label">
+                    <strong>High Risk Threshold</strong>
+                    <small>Projects with risk score ≥ 70 are flagged as High Risk</small>
+                </div>
+                <span class="risk-badge high-badge">Score ≥ 70</span>
+            </div>
+            <div class="modal-setting-row">
+                <div class="modal-setting-label">
+                    <strong>Medium Risk Threshold</strong>
+                    <small>Projects with risk score between 40 and 69</small>
+                </div>
+                <span class="risk-badge medium-badge">Score 40 - 69</span>
+            </div>
+            <div class="modal-setting-row">
+                <div class="modal-setting-label">
+                    <strong>Active AI Heuristic Engines</strong>
+                    <small>Fund velocity, Timeline delay, Duplicate detector, ML Pattern</small>
+                </div>
+                <span class="positive">● 4/4 Active</span>
+            </div>
+            <div class="modal-setting-row">
+                <div class="modal-setting-label">
+                    <strong>Dataset Synchronisation</strong>
+                    <small>3,007 project records loaded from verified dataset</small>
+                </div>
+                <span class="positive">● Live Sync</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="primary-button" onclick="closeModal('settingsModal')">Done</button>
+        </div>
+    </div>
+</div>
 
-function applyRiskFilter() {
+<!-- ================= HELP MODAL ================= -->
+<div class="modal-backdrop" id="helpModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><span>?</span> MPLAD Monitoring Help & Guidelines</h3>
+            <button class="modal-close-btn" onclick="closeModal('helpModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <p><strong>About MPLADS AI Risk Management System</strong></p>
+            <p>This system assists district authorities, monitoring committees, and auditors in identifying potential anomalies in Member of Parliament Local Area Development Scheme (MPLADS) fund execution.</p>
+            <div class="important-note" style="margin-bottom: 14px;">
+                <strong>Responsible AI Disclosure</strong>
+                <p>All AI flags indicate potential irregularities and deviations from standard timelines or financial benchmarks. They do not constitute a legal or final determination of fraud and require on-site technical verification by authorized officers.</p>
+            </div>
+            <p><strong>Risk Categories Explained:</strong></p>
+            <ul style="padding-left: 20px; line-height: 1.8;">
+                <li><strong>High Risk:</strong> Significant variance between fund disbursements and physical progress, or milestone delays exceeding acceptable limits. Requires immediate physical verification.</li>
+                <li><strong>Medium Risk:</strong> Moderate variances or single-factor anomalies requiring desktop audit before releasing next fund tranche.</li>
+                <li><strong>Low Risk:</strong> Normal progress within anticipated parameters. Routine quarterly monitoring.</li>
+            </ul>
+        </div>
+        <div class="modal-footer">
+            <button class="primary-button" onclick="closeModal('helpModal')">Close Help</button>
+        </div>
+    </div>
+</div>
 
-    const value =
-        document.getElementById("riskFilter").value;
-
-    if (value === "All") {
-        window.location.href = "/projects";
-    }
-    else {
-        window.location.href =
-            "/projects?risk=" + value;
-    }
-
-}
-
-</script>
+<!-- Scripts -->
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='analytics.js') }}"></script>
 
 </body>
 </html>

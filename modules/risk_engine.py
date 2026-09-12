@@ -1,85 +1,235 @@
-import os
-import sys
-import traceback
 import pandas as pd
+from datetime import datetime
 
-
-# ============================================================
-# RISK ENGINE START
-# ============================================================
-
-print("\n" + "=" * 60)
-print("        MPLADS AI RISK DETECTION ENGINE")
-print("=" * 60)
-print("Risk engine file started successfully.")
-
-
-# ============================================================
-# PROJECT PATH
-# ============================================================
-
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, ".."))
-
-print(f"Project root: {PROJECT_ROOT}")
-
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
-
-
-# ============================================================
-# IMPORT DATA PROCESSOR
-# ============================================================
-
-try:
-    from utils.data_processor import load_projects
-    print("Data processor imported successfully.")
-except Exception as e:
-    print("\nERROR: Could not import data_processor.py")
-    print(e)
-    traceback.print_exc()
-    input("\nPress Enter to exit...")
-    sys.exit(1)
-
-
-# ============================================================
-# RISK ENGINE CLASS
-# ============================================================
 
 class RiskEngine:
 
-    def __init__(self):
-        print("\nLoading MPLADS dataset...")
+    def __init__(self, dataframe=None):
+        """
+        Risk engine.
 
-        try:
-            self.df = load_projects()
+        If a dataframe is supplied, use it directly.
+        This prevents the engine from accidentally loading
+        an empty dataset.
+        """
 
-            if self.df is None:
-                raise ValueError("load_projects() returned None")
+        if dataframe is not None:
+            self.df = dataframe.copy()
+        else:
+            self.df = pd.DataFrame()
 
-            if not isinstance(self.df, pd.DataFrame):
-                raise TypeError("Dataset is not a pandas DataFrame")
+        self._prepare_data()
 
-            print(f"Dataset loaded successfully.")
-            print(f"Number of projects: {len(self.df)}")
+        print("\n==============================")
+        print("RISK ENGINE INITIALIZED")
+        print("Projects loaded:", len(self.df))
+        print("==============================\n")
 
-            if len(self.df) == 0:
-                print("WARNING: Dataset contains 0 projects.")
+    # ---------------------------------------------------------
+    # PREPARE DATA
+    # ---------------------------------------------------------
 
-            print("\nAvailable columns:")
-            print(list(self.df.columns))
+    def _prepare_data(self):
 
-        except Exception as e:
-            print("\nERROR while loading dataset:")
-            print(e)
-            traceback.print_exc()
-            raise
+        if self.df is None:
+            self.df = pd.DataFrame()
 
-    # --------------------------------------------------------
+        if self.df.empty:
+            return
+
+        # Column aliases
+        rename_map = {
+            "id": "work_id",
+            "project_id": "work_id",
+            "name": "project_name",
+            "title": "project_name",
+            "category": "work_category",
+            "cost": "cost_estimate",
+            "estimated_cost": "cost_estimate",
+            "sanctioned": "sanctioned_amount",
+            "spent": "spent_amount",
+            "expenditure": "spent_amount",
+            "progress": "physical_progress",
+        }
+
+        for old, new in rename_map.items():
+            if old in self.df.columns and new not in self.df.columns:
+                self.df.rename(columns={old: new}, inplace=True)
+
+        # Required default columns
+        defaults = {
+            "work_id": "UNKNOWN",
+            "project_name": "Unnamed Project",
+            "mp_name": "Unknown MP",
+            "district": "Unknown",
+            "state": "Karnataka",
+            "work_category": "General",
+            "agency": "Unknown Agency",
+            "sanctioned_amount": 0,
+            "spent_amount": 0,
+            "physical_progress": 0,
+            "status": "Unknown",
+            "start_date": "",
+            "expected_date": "",
+            "contractor": "Unknown Contractor",
+        }
+
+        for column, default in defaults.items():
+            if column not in self.df.columns:
+                self.df[column] = default
+
+        # Numeric conversion
+        numeric_columns = [
+            "sanctioned_amount",
+            "spent_amount",
+            "physical_progress"
+        ]
+
+        for column in numeric_columns:
+            self.df[column] = pd.to_numeric(
+                self.df[column],
+                errors="coerce"
+            ).fillna(0)
+
+        # Progress range
+        self.df["physical_progress"] = (
+            self.df["physical_progress"]
+            .clip(0, 100)
+        )
+
+        # Text conversion
+        text_columns = [
+            "work_id",
+            "project_name",
+            "mp_name",
+            "district",
+            "state",
+            "work_category",
+            "agency",
+            "status",
+            "contractor",
+        ]
+
+        for column in text_columns:
+            self.df[column] = (
+                self.df[column]
+                .fillna("")
+                .astype(str)
+                .str.strip()
+            )
+
+        # Calculate utilization
+        self.df["utilization"] = self.df.apply(
+            lambda row:
+                round(
+                    (row["spent_amount"] /
+                     row["sanctioned_amount"]) * 100,
+                    2
+                )
+                if row["sanctioned_amount"] > 0
+                else 0,
+            axis=1
+        )
+
+        # Calculate risk
+        self.df["risk_score"] = self.df.apply(
+            self.calculate_risk_score,
+            axis=1
+        )
+
+        self.df["risk_level"] = self.df["risk_score"].apply(
+            self.get_risk_level
+        )
+
+    # ---------------------------------------------------------
+    # RISK SCORE
+    # ---------------------------------------------------------
+
+    def calculate_risk_score(self, row):
+
+        score = 0
+
+        sanctioned = float(row.get("sanctioned_amount", 0))
+        spent = float(row.get("spent_amount", 0))
+        progress = float(row.get("physical_progress", 0))
+        status = str(row.get("status", "")).lower()
+
+        # -----------------------------------------
+        # 1. Fund utilization vs physical progress
+        # -----------------------------------------
+
+        if sanctioned > 0:
+
+            utilization = (spent / sanctioned) * 100
+
+            if utilization > progress + 30:
+                score += 35
+
+            elif utilization > progress + 20:
+                score += 25
+
+            elif utilization > progress + 10:
+                score += 15
+
+        # -----------------------------------------
+        # 2. Delayed / critical status
+        # -----------------------------------------
+
+        if "critical" in status:
+            score += 35
+
+        elif "delay" in status:
+            score += 30
+
+        elif "pending" in status:
+            score += 20
+
+        elif "review" in status:
+            score += 15
+
+        elif "ongoing" in status:
+            score += 5
+
+        # -----------------------------------------
+        # 3. Low physical progress
+        # -----------------------------------------
+
+        if progress < 30:
+            score += 25
+
+        elif progress < 50:
+            score += 15
+
+        elif progress < 70:
+            score += 5
+
+        # -----------------------------------------
+        # 4. Very high spending
+        # -----------------------------------------
+
+        if sanctioned > 0:
+
+            utilization = (spent / sanctioned) * 100
+
+            if utilization >= 95 and progress < 80:
+                score += 20
+
+            elif utilization >= 85 and progress < 70:
+                score += 15
+
+        # -----------------------------------------
+        # Final score
+        # -----------------------------------------
+
+        return min(int(score), 100)
+
+    # ---------------------------------------------------------
     # RISK LEVEL
-    # --------------------------------------------------------
+    # ---------------------------------------------------------
 
     def get_risk_level(self, score):
+
+        score = float(score)
 
         if score >= 71:
             return "HIGH"
@@ -89,475 +239,470 @@ class RiskEngine:
 
         return "LOW"
 
-    # --------------------------------------------------------
+    # ---------------------------------------------------------
+    # FUND UTILIZATION ANOMALY
+    # ---------------------------------------------------------
+
+    def detect_fund_anomaly(self, row):
+
+        sanctioned = float(row.get("sanctioned_amount", 0))
+        spent = float(row.get("spent_amount", 0))
+        progress = float(row.get("physical_progress", 0))
+
+        if sanctioned <= 0:
+            return None
+
+        utilization = (spent / sanctioned) * 100
+
+        if utilization > progress + 30:
+            return {
+                "type": "Fund Utilization Anomaly",
+                "severity": "HIGH",
+                "message": (
+                    f"Financial utilization is {utilization:.1f}% "
+                    f"while physical progress is only {progress:.1f}%."
+                )
+            }
+
+        if utilization > progress + 15:
+            return {
+                "type": "Fund Utilization Anomaly",
+                "severity": "MEDIUM",
+                "message": (
+                    f"Spending ({utilization:.1f}%) is significantly "
+                    f"higher than physical progress ({progress:.1f}%)."
+                )
+            }
+
+        return None
+
+    # ---------------------------------------------------------
     # COST ANOMALY
-    # --------------------------------------------------------
+    # ---------------------------------------------------------
 
     def detect_cost_anomaly(self, row):
 
-        try:
+        if self.df.empty:
+            return None
 
-            if "cost_estimate_lakhs" not in self.df.columns:
-                return None
+        category = str(
+            row.get("work_category", "")
+        ).strip().lower()
 
-            cost = float(row.get("cost_estimate_lakhs", 0))
+        current_cost = float(
+            row.get("sanctioned_amount", 0)
+        )
 
-            if cost <= 0:
-                return None
+        if not category or current_cost <= 0:
+            return None
 
-            category = row.get("work_category", "")
+        category_rows = self.df[
+            self.df["work_category"]
+            .astype(str)
+            .str.lower()
+            == category
+        ]
 
-            category_data = self.df[
-                self.df["work_category"].astype(str).str.lower()
-                == str(category).lower()
-            ]
+        if len(category_rows) < 2:
+            return None
 
-            if len(category_data) < 2:
-                return None
+        average_cost = category_rows[
+            "sanctioned_amount"
+        ].mean()
 
-            average_cost = pd.to_numeric(
-                category_data["cost_estimate_lakhs"],
-                errors="coerce"
-            ).mean()
+        if average_cost <= 0:
+            return None
 
-            if pd.isna(average_cost) or average_cost <= 0:
-                return None
+        difference = (
+            (current_cost - average_cost)
+            / average_cost
+        ) * 100
 
-            percentage = ((cost - average_cost) / average_cost) * 100
+        if difference >= 50:
+            return {
+                "type": "Cost Anomaly",
+                "severity": "HIGH",
+                "message": (
+                    f"Project cost is {difference:.1f}% "
+                    f"above the category average."
+                )
+            }
 
-            if percentage >= 50:
-
-                return {
-                    "type": "COST_ANOMALY",
-                    "severity": "HIGH",
-                    "message": (
-                        f"Project cost is {percentage:.1f}% "
-                        f"higher than the category average."
-                    ),
-                    "project_cost": round(cost, 2),
-                    "category_average": round(average_cost, 2)
-                }
-
-        except Exception as e:
-            print(f"Cost anomaly error: {e}")
+        if difference >= 25:
+            return {
+                "type": "Cost Anomaly",
+                "severity": "MEDIUM",
+                "message": (
+                    f"Project cost is {difference:.1f}% "
+                    f"above the category average."
+                )
+            }
 
         return None
 
-    # --------------------------------------------------------
-    # DUPLICATE PROJECT DETECTION
-    # --------------------------------------------------------
+    # ---------------------------------------------------------
+    # DUPLICATE PROJECT
+    # ---------------------------------------------------------
 
     def detect_duplicate(self, row):
 
-        try:
+        if self.df.empty:
+            return None
 
-            required = [
-                "mp_name",
-                "district",
-                "work_category",
+        current_id = str(row.get("work_id", ""))
+
+        mp = str(row.get("mp_name", "")).strip().lower()
+        district = str(
+            row.get("district", "")
+        ).strip().lower()
+        category = str(
+            row.get("work_category", "")
+        ).strip().lower()
+
+        if not mp or not district or not category:
+            return None
+
+        matches = self.df[
+            (
+                self.df["mp_name"]
+                .astype(str)
+                .str.lower()
+                == mp
+            )
+            &
+            (
+                self.df["district"]
+                .astype(str)
+                .str.lower()
+                == district
+            )
+            &
+            (
+                self.df["work_category"]
+                .astype(str)
+                .str.lower()
+                == category
+            )
+            &
+            (
+                self.df["work_id"]
+                .astype(str)
+                != current_id
+            )
+        ]
+
+        if len(matches) > 0:
+            duplicate_ids = matches[
                 "work_id"
-            ]
+            ].astype(str).tolist()
 
-            for column in required:
-                if column not in self.df.columns:
-                    return None
-
-            mp = str(row.get("mp_name", "")).strip().lower()
-            district = str(row.get("district", "")).strip().lower()
-            category = str(row.get("work_category", "")).strip().lower()
-            work_id = str(row.get("work_id", "")).strip()
-
-            matches = self.df[
-                (self.df["mp_name"].astype(str).str.strip().str.lower() == mp)
-                &
-                (self.df["district"].astype(str).str.strip().str.lower() == district)
-                &
-                (
-                    self.df["work_category"]
-                    .astype(str)
-                    .str.strip()
-                    .str.lower()
-                    == category
-                )
-                &
-                (self.df["work_id"].astype(str).str.strip() != work_id)
-            ]
-
-            if len(matches) > 0:
-
-                return {
-                    "type": "DUPLICATE_PROJECT",
-                    "severity": "HIGH",
-                    "message": (
-                        f"Possible duplicate work detected. "
-                        f"{len(matches)} similar project(s) found."
-                    ),
-                    "similar_projects": matches[
-                        "work_id"
-                    ].astype(str).tolist()
-                }
-
-        except Exception as e:
-            print(f"Duplicate detection error: {e}")
+            return {
+                "type": "Duplicate Project Pattern",
+                "severity": "HIGH",
+                "message": (
+                    "Similar project found for the same "
+                    "MP, district and work category."
+                ),
+                "related_projects": duplicate_ids
+            }
 
         return None
 
-    # --------------------------------------------------------
-    # STATUS ANOMALY
-    # --------------------------------------------------------
-
-    def detect_status_anomaly(self, row):
-
-        try:
-
-            status = str(row.get("status", "")).strip().lower()
-
-            risk_score = float(row.get("risk_score", 0))
-
-            if status in [
-                "ongoing",
-                "delayed",
-                "pending",
-                "in progress"
-            ] and risk_score >= 70:
-
-                return {
-                    "type": "STATUS_ANOMALY",
-                    "severity": "HIGH",
-                    "message": (
-                        "Project has a high risk score while "
-                        f"status is '{status}'."
-                    )
-                }
-
-        except Exception as e:
-            print(f"Status anomaly error: {e}")
-
-        return None
-
-    # --------------------------------------------------------
-    # TIMELINE INCONSISTENCY
-    # --------------------------------------------------------
+    # ---------------------------------------------------------
+    # TIMELINE ANOMALY
+    # ---------------------------------------------------------
 
     def detect_timeline_anomaly(self, row):
 
-        try:
+        status = str(
+            row.get("status", "")
+        ).lower()
 
-            status = str(row.get("status", "")).lower()
+        progress = float(
+            row.get("physical_progress", 0)
+        )
 
-            if status in ["completed", "complete", "finished"]:
+        if (
+            ("delay" in status or
+             "pending" in status or
+             "critical" in status)
+            and progress < 50
+        ):
 
-                risk_score = float(row.get("risk_score", 0))
+            return {
+                "type": "Timeline Anomaly",
+                "severity": "HIGH",
+                "message": (
+                    "Project appears delayed with low "
+                    "physical progress."
+                )
+            }
 
-                if risk_score >= 70:
+        if progress < 30:
 
-                    return {
-                        "type": "TIMELINE_INCONSISTENCY",
-                        "severity": "MEDIUM",
-                        "message": (
-                            "Project is marked completed but "
-                            "has a very high risk score."
-                        )
-                    }
-
-        except Exception as e:
-            print(f"Timeline detection error: {e}")
+            return {
+                "type": "Timeline Anomaly",
+                "severity": "MEDIUM",
+                "message": (
+                    "Physical progress is unusually low."
+                )
+            }
 
         return None
 
-    # --------------------------------------------------------
-    # EXPLAINABLE AI
-    # --------------------------------------------------------
+    # ---------------------------------------------------------
+    # STATUS ANOMALY
+    # ---------------------------------------------------------
 
-    def explain_risk(self, row):
+    def detect_status_anomaly(self, row):
 
-        reasons = []
+        status = str(
+            row.get("status", "")
+        ).lower()
 
-        try:
+        score = float(
+            row.get("risk_score", 0)
+        )
 
-            score = float(row.get("risk_score", 0))
-
-            if score >= 71:
-                reasons.append(
-                    "Existing risk score indicates a high-risk project."
-                )
-
-            elif score >= 31:
-                reasons.append(
-                    "Existing risk score indicates a medium-risk project."
-                )
-
-            # Cost
-            cost_result = self.detect_cost_anomaly(row)
-
-            if cost_result:
-                reasons.append(
-                    cost_result["message"]
-                )
-
-            # Duplicate
-            duplicate_result = self.detect_duplicate(row)
-
-            if duplicate_result:
-                reasons.append(
-                    duplicate_result["message"]
-                )
-
-            # Status
-            status_result = self.detect_status_anomaly(row)
-
-            if status_result:
-                reasons.append(
-                    status_result["message"]
-                )
-
-            # Timeline
-            timeline_result = self.detect_timeline_anomaly(row)
-
-            if timeline_result:
-                reasons.append(
-                    timeline_result["message"]
-                )
-
-            if not reasons:
-                reasons.append(
-                    "No major anomaly detected by the current rules."
-                )
-
-        except Exception as e:
-
-            reasons.append(
-                f"Risk explanation error: {e}"
+        if (
+            score >= 71
+            and
+            (
+                "ongoing" in status
+                or "review" in status
+                or "pending" in status
             )
+        ):
 
-        return reasons
+            return {
+                "type": "Status Risk",
+                "severity": "HIGH",
+                "message": (
+                    "Project status and financial/physical "
+                    "indicators require investigation."
+                )
+            }
 
-    # --------------------------------------------------------
+        return None
+
+    # ---------------------------------------------------------
     # ANALYZE ONE PROJECT
-    # --------------------------------------------------------
+    # ---------------------------------------------------------
 
     def analyze_project(self, work_id):
 
-        if "work_id" not in self.df.columns:
+        if self.df.empty:
             return {
-                "error": "work_id column not found in dataset."
+                "success": False,
+                "error": "No projects loaded."
             }
 
         matches = self.df[
-            self.df["work_id"].astype(str) == str(work_id)
+            self.df["work_id"].astype(str)
+            == str(work_id)
         ]
 
         if matches.empty:
-
             return {
-                "error": f"Project '{work_id}' not found."
+                "success": False,
+                "error": f"Project {work_id} not found."
             }
 
         row = matches.iloc[0]
 
-        try:
-            score = float(row.get("risk_score", 0))
-        except:
-            score = 0
-
-        risk_level = self.get_risk_level(score)
-
         anomalies = []
 
-        cost = self.detect_cost_anomaly(row)
-        duplicate = self.detect_duplicate(row)
-        status = self.detect_status_anomaly(row)
-        timeline = self.detect_timeline_anomaly(row)
+        detectors = [
+            self.detect_fund_anomaly,
+            self.detect_cost_anomaly,
+            self.detect_duplicate,
+            self.detect_timeline_anomaly,
+            self.detect_status_anomaly
+        ]
 
-        for anomaly in [
-            cost,
-            duplicate,
-            status,
-            timeline
-        ]:
+        for detector in detectors:
 
-            if anomaly:
-                anomalies.append(anomaly)
+            try:
 
-        reasons = self.explain_risk(row)
+                result = detector(row)
 
-        result = {
-            "work_id": str(row.get("work_id", "")),
-            "mp_name": str(row.get("mp_name", "")),
-            "district": str(row.get("district", "")),
-            "work_category": str(
-                row.get("work_category", "")
-            ),
-            "cost_estimate_lakhs": row.get(
-                "cost_estimate_lakhs", 0
-            ),
-            "status": str(row.get("status", "")),
-            "risk_score": score,
+                if result:
+                    anomalies.append(result)
+
+            except Exception as error:
+
+                print(
+                    f"Detector error: {detector.__name__}: {error}"
+                )
+
+        risk_score = int(
+            row.get("risk_score", 0)
+        )
+
+        risk_level = self.get_risk_level(
+            risk_score
+        )
+
+        reasons = [
+            anomaly["message"]
+            for anomaly in anomalies
+        ]
+
+        return {
+            "success": True,
+            "project": {
+                "work_id": str(row["work_id"]),
+                "project_name": str(row["project_name"]),
+                "mp_name": str(row["mp_name"]),
+                "district": str(row["district"]),
+                "state": str(row["state"]),
+                "work_category": str(row["work_category"]),
+                "agency": str(row["agency"]),
+                "sanctioned_amount": float(
+                    row["sanctioned_amount"]
+                ),
+                "spent_amount": float(
+                    row["spent_amount"]
+                ),
+                "physical_progress": float(
+                    row["physical_progress"]
+                ),
+                "utilization": float(
+                    row["utilization"]
+                ),
+                "status": str(row["status"]),
+                "contractor": str(row["contractor"]),
+                "start_date": str(row["start_date"]),
+                "expected_date": str(row["expected_date"]),
+            },
+            "risk_score": risk_score,
             "risk_level": risk_level,
-            "reasons": reasons,
             "anomalies": anomalies,
+            "anomaly_count": len(anomalies),
+            "reasons": reasons,
             "inspection_priority": (
-                "IMMEDIATE"
-                if risk_level == "HIGH"
-                else "NORMAL"
+                "Immediate"
+                if risk_score >= 71
+                else
+                "Review"
+                if risk_score >= 31
+                else
+                "Normal"
             )
         }
 
-        return result
-
-    # --------------------------------------------------------
-    # ANALYZE ALL PROJECTS
-    # --------------------------------------------------------
+    # ---------------------------------------------------------
+    # ANALYZE ALL
+    # ---------------------------------------------------------
 
     def analyze_all(self):
 
         results = []
 
-        if "work_id" not in self.df.columns:
-            print("ERROR: work_id column not found.")
+        if self.df.empty:
             return results
 
-        for work_id in self.df["work_id"]:
+        for work_id in self.df["work_id"].tolist():
 
-            result = self.analyze_project(work_id)
+            result = self.analyze_project(
+                work_id
+            )
 
-            if "error" not in result:
+            if result.get("success"):
                 results.append(result)
 
         return results
 
+    # ---------------------------------------------------------
+    # STATISTICS
+    # ---------------------------------------------------------
 
-# ============================================================
-# MAIN TEST
-# ============================================================
+    def statistics(self):
 
-def main():
+        if self.df.empty:
 
-    print("\nStarting Risk Engine...\n")
+            return {
+                "total_projects": 0,
+                "total_sanctioned": 0,
+                "total_spent": 0,
+                "high_risk": 0,
+                "medium_risk": 0,
+                "low_risk": 0,
+                "delayed": 0,
+                "average_progress": 0,
+                "utilization": 0,
+                "total_anomalies": 0
+            }
 
-    try:
+        total_projects = len(self.df)
 
-        engine = RiskEngine()
-
-        if len(engine.df) == 0:
-            print("\nNo projects available for analysis.")
-            return
-
-        # ----------------------------------------------------
-        # TEST FIRST PROJECT
-        # ----------------------------------------------------
-
-        first_work_id = engine.df.iloc[0]["work_id"]
-
-        print("\n" + "=" * 60)
-        print("TESTING FIRST PROJECT")
-        print("=" * 60)
-
-        result = engine.analyze_project(first_work_id)
-
-        print("\nPROJECT DETAILS")
-        print("-" * 40)
-
-        print(f"Work ID       : {result.get('work_id')}")
-        print(f"MP Name       : {result.get('mp_name')}")
-        print(f"District      : {result.get('district')}")
-        print(f"Category      : {result.get('work_category')}")
-        print(f"Cost          : {result.get('cost_estimate_lakhs')} Lakhs")
-        print(f"Status        : {result.get('status')}")
-
-        print("\nRISK ANALYSIS")
-        print("-" * 40)
-
-        print(f"Risk Score    : {result.get('risk_score')}")
-        print(f"Risk Level    : {result.get('risk_level')}")
-        print(
-            f"Inspection    : {result.get('inspection_priority')}"
+        total_sanctioned = float(
+            self.df["sanctioned_amount"].sum()
         )
 
-        print("\nEXPLAINABLE AI REASONS")
-        print("-" * 40)
-
-        for i, reason in enumerate(
-            result.get("reasons", []),
-            start=1
-        ):
-            print(f"{i}. {reason}")
-
-        print("\nDETECTED ANOMALIES")
-        print("-" * 40)
-
-        anomalies = result.get("anomalies", [])
-
-        if anomalies:
-
-            for anomaly in anomalies:
-
-                print(
-                    f"• {anomaly.get('type')} "
-                    f"[{anomaly.get('severity')}]"
-                )
-
-                print(
-                    f"  {anomaly.get('message')}"
-                )
-
-        else:
-            print("No additional anomalies detected.")
-
-        # ----------------------------------------------------
-        # ANALYZE ALL
-        # ----------------------------------------------------
-
-        print("\n" + "=" * 60)
-        print("ANALYZING ALL PROJECTS")
-        print("=" * 60)
-
-        results = engine.analyze_all()
-
-        print(
-            f"\nTotal projects analyzed: {len(results)}"
+        total_spent = float(
+            self.df["spent_amount"].sum()
         )
 
-        high = sum(
-            1 for r in results
-            if r["risk_level"] == "HIGH"
+        high_risk = int(
+            (self.df["risk_level"] == "HIGH").sum()
         )
 
-        medium = sum(
-            1 for r in results
-            if r["risk_level"] == "MEDIUM"
+        medium_risk = int(
+            (self.df["risk_level"] == "MEDIUM").sum()
         )
 
-        low = sum(
-            1 for r in results
-            if r["risk_level"] == "LOW"
+        low_risk = int(
+            (self.df["risk_level"] == "LOW").sum()
         )
 
-        print(f"High Risk   : {high}")
-        print(f"Medium Risk : {medium}")
-        print(f"Low Risk    : {low}")
+        delayed = int(
+            self.df["status"]
+            .astype(str)
+            .str.lower()
+            .str.contains(
+                "delay|critical|pending",
+                regex=True
+            )
+            .sum()
+        )
 
-        print("\n" + "=" * 60)
-        print("RISK ENGINE COMPLETED SUCCESSFULLY")
-        print("=" * 60)
+        average_progress = round(
+            self.df["physical_progress"].mean(),
+            2
+        )
 
-    except Exception as e:
+        utilization = round(
+            (
+                total_spent /
+                total_sanctioned *
+                100
+            )
+            if total_sanctioned > 0
+            else 0,
+            2
+        )
 
-        print("\n" + "=" * 60)
-        print("RISK ENGINE FAILED")
-        print("=" * 60)
+        results = self.analyze_all()
 
-        print(f"\nError: {e}")
+        total_anomalies = sum(
+            result.get("anomaly_count", 0)
+            for result in results
+        )
 
-        traceback.print_exc()
-
-
-# ============================================================
-# RUN
-# ============================================================
-
-if __name__ == "__main__":
-
-    main()
-
-    input("\nPress Enter to close...")
+        return {
+            "total_projects": total_projects,
+            "total_sanctioned": round(
+                total_sanctioned, 2
+            ),
+            "total_spent": round(
+                total_spent, 2
+            ),
+            "high_risk": high_risk,
+            "medium_risk": medium_risk,
+            "low_risk": low_risk,
+            "delayed": delayed,
+            "average_progress": average_progress,
+            "utilization": utilization,
+            "total_anomalies": total_anomalies
+        }

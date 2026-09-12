@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Reports & Audit Export - MPLAD AI Monitoring System</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <a href="/" class="brand">
+
+            <div class="brand-logo">
+                🏛
+            </div>
+
+            <div>
+                <h2>MPLAD</h2>
+                <p>AI MONITORING SYSTEM</p>
+            </div>
+
+        </a>
+
+
+        <div class="menu-title">
+            MAIN MENU
+        </div>
+
+
+        <nav>
+
+            <a href="/" class="nav-item">
+                <span class="nav-icon">▦</span>
+                Dashboard
+            </a>
+
+            <a href="/projects"
+               class="nav-item">
+                <span class="nav-icon">▤</span>
+                Projects
+            </a>
+
+            <a href="/analytics"
+               class="nav-item">
+                <span class="nav-icon">◈</span>
+                Risk Analysis
+            </a>
+
+            <a href="/projects?risk=High"
+               class="nav-item">
+
+                <span class="nav-icon">⚠</span>
+
+                Anomaly Alerts
+
+                <span class="menu-badge">
+                    {{ statistics.high_risk }}
+                </span>
+
+            </a>
+
+            <a href="/map"
+               class="nav-item">
+
+                <span class="nav-icon">⌖</span>
+
+                Map View
+
+            </a>
+
+            <a href="/reports"
+               class="nav-item active">
+
+                <span class="nav-icon">▥</span>
+
+                Reports
+
+            </a>
+
+        </nav>
+
+
+        <div class="menu-title bottom-menu">
+            SYSTEM
+        </div>
+
+        <nav>
+
+            <a href="javascript:void(0)" onclick="openModal('settingsModal')" class="nav-item">
+                <span class="nav-icon">⚙</span>
+                Settings
+            </a>
+
+            <a href="javascript:void(0)" onclick="openModal('helpModal')" class="nav-item">
+                <span class="nav-icon">?</span>
+                Help & Support
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="government-mark">
+                🇮🇳
+            </div>
+
+            <div>
+
+                <strong>
+                    Government Project
+                </strong>
+
+                <small>
+                    Monitoring & Analysis
+                </small>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+
+                <div class="breadcrumb">
+                    <a href="/" style="color: inherit;">Dashboard</a>
+                    <span>/</span>
+                    Reports & Audit
+                </div>
+
+                <h1>
+                    System Audit Reports & Data Export
+                </h1>
+
+                <p>
+                    Download verified MPLADS risk assessment datasets, audit slips, and executive summaries.
+                </p>
+
+            </div>
+
+
+            <div class="top-actions">
+
+                <button class="outline-button" onclick="window.print()">
+                    🖨 Print Audit Report
+                </button>
+
+                <a href="/api/export" class="primary-button" style="display: inline-flex; align-items: center; gap: 6px;">
+                    📥 Export All (CSV)
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- STATS SUMMARY -->
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <div class="stat-icon blue">▤</div>
+                    <span class="stat-label">TOTAL WORKS AUDITED</span>
+                </div>
+
+                <div class="stat-number">
+                    {{ statistics.total_projects }}
+                </div>
+
+                <div class="stat-footer">
+                    <span class="positive">● 100% evaluated</span>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card risk-card">
+
+                <div class="stat-top">
+                    <div class="stat-icon red">⚠</div>
+                    <span class="stat-label">HIGH RISK AUDIT ITEMS</span>
+                </div>
+
+                <div class="stat-number red-text">
+                    {{ high_risk_count }}
+                </div>
+
+                <div class="stat-footer">
+                    <span class="danger">● Field verification due</span>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <div class="stat-icon orange">⏱</div>
+                    <span class="stat-label">DELAYED / CRITICAL WORKS</span>
+                </div>
+
+                <div class="stat-number">
+                    {{ delayed_count }}
+                </div>
+
+                <div class="stat-footer">
+                    <span>Over milestone targets</span>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <div class="stat-icon green">₹</div>
+                    <span class="stat-label">SANCTIONED AMOUNT</span>
+                </div>
+
+                <div class="stat-number money">
+                    ₹{{ "%.1f"|format(statistics.total_sanctioned / 10000000) }} Cr
+                </div>
+
+                <div class="stat-footer">
+                    <span class="positive">● Approved public funds</span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- QUICK EXPORT ACTIONS -->
+
+        <h2 style="font-size: 16px; margin: 25px 0 14px; color: var(--primary);">Instant Dataset Downloads</h2>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 30px;">
+
+            <div class="panel" style="padding: 20px;">
+                <div style="font-size: 24px; margin-bottom: 8px;">📊</div>
+                <strong style="font-size: 14px; display: block; margin-bottom: 6px;">Complete Project Registry</strong>
+                <p style="font-size: 12px; color: var(--muted); margin-bottom: 16px;">
+                    Full export of all 3,007 project records including budget, expenditures, physical progress, and risk scores.
+                </p>
+                <a href="/api/export" class="primary-button" style="width: 100%; text-align: center; justify-content: center;">
+                    Download Full CSV (3,007 Records)
+                </a>
+            </div>
+
+            <div class="panel" style="padding: 20px; border-top: 3px solid var(--red);">
+                <div style="font-size: 24px; margin-bottom: 8px;">⚠</div>
+                <strong style="font-size: 14px; display: block; margin-bottom: 6px;">High Risk / Anomaly Works</strong>
+                <p style="font-size: 12px; color: var(--muted); margin-bottom: 16px;">
+                    Filtered dataset of {{ high_risk_count }} works with elevated risk scores, flagged for urgent inspection.
+                </p>
+                <a href="/api/export?risk=High" class="primary-button" style="width: 100%; text-align: center; justify-content: center; background: var(--red);">
+                    Download High Risk CSV ({{ high_risk_count }} Works)
+                </a>
+            </div>
+
+            <div class="panel" style="padding: 20px; border-top: 3px solid var(--orange);">
+                <div style="font-size: 24px; margin-bottom: 8px;">⏱</div>
+                <strong style="font-size: 14px; display: block; margin-bottom: 6px;">Delayed & Critical Works</strong>
+                <p style="font-size: 12px; color: var(--muted); margin-bottom: 16px;">
+                    Specialized report of {{ delayed_count }} delayed and pending projects exceeding target timelines.
+                </p>
+                <a href="/api/export?status=Delayed" class="primary-button" style="width: 100%; text-align: center; justify-content: center; background: var(--orange);">
+                    Download Delayed CSV ({{ delayed_count }} Works)
+                </a>
+            </div>
+
+        </div>
+
+
+        <!-- AUDIT SUMMARY BY CATEGORY TABLE -->
+
+        <section class="panel project-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>Domain Audit Summary</h2>
+
+                    <p>
+                        Comprehensive fund allocation and high-risk flags categorized by sector
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+                        <th>CATEGORY DOMAIN</th>
+                        <th>TOTAL WORKS</th>
+                        <th>APPROVED BUDGET</th>
+                        <th>CUMULATIVE EXPENDITURE</th>
+                        <th>HIGH RISK ANOMALIES</th>
+                        <th>ACTION</th>
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    {% for cat_name, data in categories.items() %}
+
+                    <tr>
+
+                        <td>
+                            <strong>{{ cat_name }}</strong>
+                        </td>
+
+                        <td>
+                            {{ data.count }}
+                        </td>
+
+                        <td>
+                            ₹{{ "%.2f"|format(data.sanctioned / 10000000) }} Cr
+                        </td>
+
+                        <td>
+                            ₹{{ "%.2f"|format(data.spent / 10000000) }} Cr
+                        </td>
+
+                        <td>
+                            {% if data.high_risk > 0 %}
+                            <span class="risk-badge high-badge">
+                                {{ data.high_risk }} Flagged
+                            </span>
+                            {% else %}
+                            <span class="risk-badge low-badge">
+                                0 Flagged
+                            </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <a href="/projects?category={{ cat_name }}" class="table-action-btn">
+                                Filter Domain →
+                            </a>
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <footer>
+
+            <span>
+                MPLAD AI Monitoring System
+            </span>
+
+            <span>
+                Official Executive Audit Export · Government of India
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<!-- ================= SETTINGS MODAL ================= -->
+<div class="modal-backdrop" id="settingsModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><span>⚙</span> System Configuration & Settings</h3>
+            <button class="modal-close-btn" onclick="closeModal('settingsModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <p>Configure MPLADS AI Anomaly Detection parameters and inspection thresholds.</p>
+            <div class="modal-setting-row">
+                <div class="modal-setting-label">
+                    <strong>High Risk Threshold</strong>
+                    <small>Projects with risk score ≥ 70 are flagged as High Risk</small>
+                </div>
+                <span class="risk-badge high-badge">Score ≥ 70</span>
+            </div>
+            <div class="modal-setting-row">
+                <div class="modal-setting-label">
+                    <strong>Medium Risk Threshold</strong>
+                    <small>Projects with risk score between 40 and 69</small>
+                </div>
+                <span class="risk-badge medium-badge">Score 40 - 69</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="primary-button" onclick="closeModal('settingsModal')">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- ================= HELP MODAL ================= -->
+<div class="modal-backdrop" id="helpModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><span>?</span> MPLAD Monitoring Help & Guidelines</h3>
+            <button class="modal-close-btn" onclick="closeModal('helpModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <p><strong>Reports & Data Export Guide</strong></p>
+            <p>All CSV reports generated are compatible with standard audit tools, spreadsheet software, and government auditing suites.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="primary-button" onclick="closeModal('helpModal')">Close Help</button>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='analytics.js') }}"></script>
+
+</body>
+</html>

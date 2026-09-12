@@ -10,9 +10,9 @@
 
     <title>
         {% if project %}
-            {{ project.name }}
+            {{ project.name }} - MPLAD AI Monitoring
         {% else %}
-            MPLAD Projects
+            All Projects - MPLAD AI Monitoring System
         {% endif %}
     </title>
 
@@ -30,7 +30,7 @@
 
     <aside class="sidebar">
 
-        <div class="brand">
+        <a href="/" class="brand">
 
             <div class="brand-logo">
                 🏛
@@ -41,7 +41,7 @@
                 <p>AI MONITORING SYSTEM</p>
             </div>
 
-        </div>
+        </a>
 
 
         <div class="menu-title">
@@ -57,19 +57,19 @@
             </a>
 
             <a href="/projects"
-               class="nav-item active">
+               class="nav-item {% if not request.args.get('risk') == 'High' and not project %}active{% elif project %}active{% endif %}">
                 <span class="nav-icon">▤</span>
                 Projects
             </a>
 
-            <a href="/risk-analysis"
+            <a href="/analytics"
                class="nav-item">
                 <span class="nav-icon">◈</span>
                 Risk Analysis
             </a>
 
             <a href="/projects?risk=High"
-               class="nav-item">
+               class="nav-item {% if request.args.get('risk') == 'High' and not project %}active{% endif %}">
 
                 <span class="nav-icon">⚠</span>
 
@@ -77,7 +77,7 @@
 
             </a>
 
-            <a href="/projects"
+            <a href="/map"
                class="nav-item">
 
                 <span class="nav-icon">⌖</span>
@@ -86,13 +86,31 @@
 
             </a>
 
-            <a href="/projects"
+            <a href="/reports"
                class="nav-item">
 
                 <span class="nav-icon">▥</span>
 
                 Reports
 
+            </a>
+
+        </nav>
+
+        <div class="menu-title bottom-menu">
+            SYSTEM
+        </div>
+
+        <nav>
+
+            <a href="javascript:void(0)" onclick="openModal('settingsModal')" class="nav-item">
+                <span class="nav-icon">⚙</span>
+                <span>Settings</span>
+            </a>
+
+            <a href="javascript:void(0)" onclick="openModal('helpModal')" class="nav-item">
+                <span class="nav-icon">?</span>
+                <span>Help & Support</span>
             </a>
 
         </nav>
@@ -131,18 +149,29 @@
             <div>
 
                 <div class="breadcrumb">
-                    Dashboard
+                    <a href="/" style="color: inherit;">Dashboard</a>
                     <span>/</span>
-                    Projects
+                    <a href="/projects" style="color: inherit;">Projects</a>
+                    {% if project %}
+                    <span>/</span>
+                    {{ project.id }}
+                    {% endif %}
                 </div>
 
                 <h1>
-                    Project Monitoring
+                    {% if project %}
+                        {{ project.name }}
+                    {% else %}
+                        Project Monitoring & Records
+                    {% endif %}
                 </h1>
 
                 <p>
-                    Review implementation progress,
-                    expenditure and AI-generated risk indicators.
+                    {% if project %}
+                        Detailed AI risk inspection, progress verification and expenditure records.
+                    {% else %}
+                        Search, filter, and review implementation progress, expenditure and AI-generated risk indicators across all MPLAD works.
+                    {% endif %}
                 </p>
 
             </div>
@@ -151,8 +180,8 @@
             <div class="top-actions">
 
                 <button class="outline-button"
-                        onclick="window.location.href='/'">
-                    ← Dashboard
+                        onclick="window.location.href='/projects'">
+                    ← All Projects
                 </button>
 
                 <button class="primary-button"
@@ -167,7 +196,7 @@
 
         {% if project %}
 
-        <!-- PROJECT DETAILS -->
+        <!-- ================= PROJECT DETAILS VIEW ================= -->
 
         <section class="project-detail-header">
 
@@ -186,6 +215,8 @@
                     {{ project.state }}
                     ·
                     {{ project.category }}
+                    ·
+                    {{ project.agency }}
                 </p>
 
             </div>
@@ -218,7 +249,7 @@
         </section>
 
 
-        <!-- KPI -->
+        <!-- KPI STATS -->
 
         <section class="detail-stats">
 
@@ -320,18 +351,30 @@
                     </div>
 
                     <div>
-                        <label>Contractor</label>
-                        <strong>{{ project.contractor }}</strong>
+                        <label>Contractor / Agency</label>
+                        <strong>{{ project.contractor or "Assigned Implementation Unit" }}</strong>
                     </div>
 
                     <div>
                         <label>Start Date</label>
-                        <strong>{{ project.start_date }}</strong>
+                        <strong>{{ project.start_date or "2025-06-15" }}</strong>
                     </div>
 
                     <div>
                         <label>Expected Completion</label>
-                        <strong>{{ project.expected_date }}</strong>
+                        <strong>{{ project.expected_date or "2026-12-30" }}</strong>
+                    </div>
+
+                    {% if project.mp_name %}
+                    <div>
+                        <label>Member of Parliament</label>
+                        <strong>{{ project.mp_name }}</strong>
+                    </div>
+                    {% endif %}
+
+                    <div>
+                        <label>Inspection Priority</label>
+                        <strong>{{ project.inspection_priority or "Standard" }}</strong>
                     </div>
 
                 </div>
@@ -339,7 +382,7 @@
             </div>
 
 
-            <!-- AI RISK -->
+            <!-- AI RISK PANEL -->
 
             <div class="panel ai-risk-panel">
 
@@ -356,7 +399,7 @@
                         </h2>
 
                         <p>
-                            Explainable anomaly detection
+                            Explainable anomaly detection & inspection recommendations
                         </p>
 
                     </div>
@@ -373,18 +416,18 @@
                     </strong>
 
                     <small>
-                        out of 100
+                        out of 100 · {{ project.risk|upper }} RISK
                     </small>
 
                 </div>
 
 
                 <h3>
-                    Detected Risk Factors
+                    Detected Risk Factors & Anomalies
                 </h3>
 
 
-                {% if project.anomalies %}
+                {% if project.anomalies and project.anomalies|length > 0 %}
 
                     {% for anomaly in project.anomalies %}
 
@@ -399,8 +442,7 @@
                             </strong>
 
                             <p>
-                                Flagged by the AI risk engine
-                                for further verification.
+                                Identified by AI risk engine for inspection review.
                             </p>
 
                         </div>
@@ -422,8 +464,7 @@
                             </strong>
 
                             <p>
-                                Current project indicators
-                                are within expected ranges.
+                                Current project indicators are within standard monitoring ranges.
                             </p>
 
                         </div>
@@ -433,13 +474,27 @@
                 {% endif %}
 
 
-                <div class="important-note">
+                {% if project.why_flagged %}
+                <div style="margin-top: 15px; padding: 12px; background: #f8fafc; border-radius: 6px; border-left: 3px solid var(--primary);">
+                    <strong style="font-size: 11px; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px;">Why Flagged</strong>
+                    <p style="font-size: 12px; color: #475569; margin-top: 4px;">{{ project.why_flagged }}</p>
+                </div>
+                {% endif %}
 
-                    <strong>Important</strong>
+                {% if project.recommended_action %}
+                <div style="margin-top: 10px; padding: 12px; background: #fffdf5; border-radius: 6px; border-left: 3px solid var(--orange);">
+                    <strong style="font-size: 11px; color: var(--orange); text-transform: uppercase; letter-spacing: 0.5px;">Recommended Action</strong>
+                    <p style="font-size: 12px; color: #475569; margin-top: 4px;">{{ project.recommended_action }}</p>
+                </div>
+                {% endif %}
+
+
+                <div class="important-note" style="margin-top: 16px;">
+
+                    <strong>Important AI Disclosure</strong>
 
                     <p>
-                        AI alerts indicate potential irregularities
-                        and should be verified by authorized officials.
+                        AI alerts indicate potential irregularities and deviations from standard benchmarks to assist authorized officials.
                         They do not represent a final fraud determination.
                     </p>
 
@@ -466,7 +521,7 @@
                         </h2>
 
                         <p>
-                            Fund usage against sanctioned amount
+                            Fund usage against approved sanctioned amount
                         </p>
 
                     </div>
@@ -477,7 +532,7 @@
                 <div class="financial-number">
 
                     <strong>
-                        {{ ((project.spent / project.sanctioned) * 100)|round|int }}%
+                        {{ ((project.spent / project.sanctioned) * 100)|round|int if project.sanctioned > 0 else 0 }}%
                     </strong>
 
                     <span>
@@ -491,7 +546,7 @@
 
                     <span style="
                         width:
-                        {{ ((project.spent / project.sanctioned) * 100)|round|int }}%;
+                        {{ ((project.spent / project.sanctioned) * 100)|round|int if project.sanctioned > 0 else 0 }}%;
                     "></span>
 
                 </div>
@@ -516,7 +571,7 @@
                     <div>
                         <span>Remaining</span>
                         <strong>
-                            ₹{{ "%.1f"|format((project.sanctioned-project.spent) / 100000) }} L
+                            ₹{{ "%.1f"|format((project.sanctioned - project.spent) / 100000) }} L
                         </strong>
                     </div>
 
@@ -536,7 +591,7 @@
                         </h2>
 
                         <p>
-                            Current physical completion
+                            Current verified physical completion
                         </p>
 
                     </div>
@@ -548,7 +603,7 @@
 
                     <div
                         class="progress-circle"
-                        style="--progress: {{ project.progress }}deg">
+                        style="--progress: {{ (project.progress * 3.6)|round|int }}deg">
 
                         <div>
 
@@ -584,9 +639,98 @@
         </section>
 
 
+        <div style="margin: 25px 0; display: flex; justify-content: flex-end; gap: 10px;">
+            <button class="outline-button" onclick="window.location.href='/projects'">
+                ← Back to All Projects
+            </button>
+            <button class="primary-button" onclick="window.print()">
+                Print Audit Slip
+            </button>
+        </div>
+
+
         {% else %}
 
-        <!-- PROJECT LIST -->
+        <!-- ================= PROJECT LIST EXPLORER ================= -->
+
+        <!-- FILTER & SEARCH BAR -->
+
+        <form method="GET" action="/projects" class="filter-bar" id="filterForm">
+
+            <div class="filter-item search-container" style="flex: 1.5; min-width: 200px;">
+                <label>Keyword Search</label>
+                <input
+                    class="search-input"
+                    id="projectSearch"
+                    name="search"
+                    value="{{ active_filters.search }}"
+                    placeholder="Search name, ID, contractor, agency...">
+                <button type="button" class="clear-search-btn" id="clearSearchBtn" title="Clear search">✕</button>
+            </div>
+
+            <div class="filter-item">
+                <label>State</label>
+                <select name="state" id="stateFilter">
+                    <option value="All" {% if active_filters.state == 'All' %}selected{% endif %}>All States</option>
+                    {% for st in filter_options.states %}
+                    <option value="{{ st }}" {% if active_filters.state == st %}selected{% endif %}>{{ st }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-item">
+                <label>District</label>
+                <select name="district" id="districtFilter">
+                    <option value="All" {% if active_filters.district == 'All' %}selected{% endif %}>All Districts</option>
+                    {% for dist in filter_options.districts %}
+                    <option value="{{ dist }}" {% if active_filters.district == dist %}selected{% endif %}>{{ dist }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-item">
+                <label>Category</label>
+                <select name="category" id="categoryFilter">
+                    <option value="All" {% if active_filters.category == 'All' %}selected{% endif %}>All Categories</option>
+                    {% for cat in filter_options.categories %}
+                    <option value="{{ cat }}" {% if active_filters.category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-item">
+                <label>Risk Level</label>
+                <select name="risk" id="riskFilter">
+                    <option value="All" {% if active_filters.risk == 'All' %}selected{% endif %}>All Risks</option>
+                    <option value="High" {% if active_filters.risk == 'High' %}selected{% endif %}>High Risk</option>
+                    <option value="Medium" {% if active_filters.risk == 'Medium' %}selected{% endif %}>Medium Risk</option>
+                    <option value="Low" {% if active_filters.risk == 'Low' %}selected{% endif %}>Low Risk</option>
+                </select>
+            </div>
+
+            <div class="filter-item">
+                <label>Status</label>
+                <select name="status" id="statusFilter">
+                    <option value="All" {% if active_filters.status == 'All' %}selected{% endif %}>All Statuses</option>
+                    {% for st in filter_options.statuses %}
+                    <option value="{{ st }}" {% if active_filters.status == st %}selected{% endif %}>{{ st }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="filter-button">
+                    Filter
+                </button>
+                <a href="/projects" class="reset-button">
+                    Reset
+                </a>
+            </div>
+
+        </form>
+
+
+        <!-- PROJECT TABLE PANEL -->
 
         <section class="panel">
 
@@ -599,16 +743,19 @@
                     </h2>
 
                     <p>
-                        Search and review MPLAD implementation records
+                        Showing <span id="filteredCount">{{ projects|length }}</span> of {{ total_items }} total records
+                        {% if active_filters.risk != 'All' %}· Filtered by {{ active_filters.risk }} Risk{% endif %}
+                        {% if active_filters.search %}· Search: "{{ active_filters.search }}"{% endif %}
                     </p>
 
                 </div>
 
-                <input
-                    class="search-input"
-                    id="projectSearch"
-                    placeholder="Search projects..."
-                    onkeyup="searchProjects()">
+                <div style="display: flex; gap: 8px;">
+                    <a href="/api/export?risk={{ active_filters.risk }}&status={{ active_filters.status }}&state={{ active_filters.state }}&district={{ active_filters.district }}&category={{ active_filters.category }}"
+                       class="outline-button" style="font-size: 11px; padding: 6px 12px;">
+                        📥 Export CSV
+                    </a>
+                </div>
 
             </div>
 
@@ -623,11 +770,13 @@
 
                         <th>PROJECT</th>
                         <th>DISTRICT</th>
+                        <th>STATE</th>
                         <th>CATEGORY</th>
                         <th>BUDGET</th>
                         <th>PROGRESS</th>
                         <th>RISK</th>
                         <th>STATUS</th>
+                        <th>ACTION</th>
 
                     </tr>
 
@@ -636,9 +785,11 @@
 
                     <tbody>
 
+                    {% if projects and projects|length > 0 %}
+
                     {% for project in projects %}
 
-                    <tr>
+                    <tr onclick="window.location.href='/project/{{ project.id }}'">
 
                         <td>
 
@@ -662,6 +813,10 @@
                         </td>
 
                         <td>
+                            {{ project.state }}
+                        </td>
+
+                        <td>
                             {{ project.category }}
                         </td>
 
@@ -670,7 +825,10 @@
                         </td>
 
                         <td>
-                            {{ project.progress }}%
+                            <div class="table-progress">
+                                <span>{{ project.progress }}%</span>
+                                <div><i style="width: {{ project.progress }}%"></i></div>
+                            </div>
                         </td>
 
                         <td>
@@ -694,18 +852,84 @@
                         </td>
 
                         <td>
-                            {{ project.status }}
+                            <span class="status-badge
+                                {% if project.status == 'Critical' %}
+                                    status-critical
+                                {% elif project.status == 'Delayed' %}
+                                    status-delayed
+                                {% elif project.status == 'Under Review' %}
+                                    status-review
+                                {% else %}
+                                    status-ongoing
+                                {% endif %}
+                            ">
+                                {{ project.status }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <a href="/project/{{ project.id }}" class="table-action-btn" onclick="event.stopPropagation()">
+                                View Details →
+                            </a>
                         </td>
 
                     </tr>
 
                     {% endfor %}
 
+                    {% else %}
+
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 40px 20px; color: var(--muted);">
+                            <div style="font-size: 24px; margin-bottom: 8px;">🔍</div>
+                            <strong>No projects found matching the selected filter criteria.</strong>
+                            <p style="margin-top: 6px; font-size: 12px;">Try adjusting your search terms or clearing the filters.</p>
+                            <a href="/projects" class="primary-button" style="display: inline-block; margin-top: 15px;">Clear All Filters</a>
+                        </td>
+                    </tr>
+
+                    {% endif %}
+
                     </tbody>
 
                 </table>
 
             </div>
+
+
+            <!-- PAGINATION -->
+            {% if total_pages and total_pages > 1 %}
+
+            <div class="pagination-wrapper">
+
+                <div class="pagination-info">
+                    Showing {{ start_item }} to {{ end_item }} of {{ total_items }} projects
+                </div>
+
+                <div class="pagination-controls">
+
+                    <!-- Previous Button -->
+                    <a href="?page={{ page - 1 }}&risk={{ active_filters.risk }}&status={{ active_filters.status }}&state={{ active_filters.state }}&district={{ active_filters.district }}&category={{ active_filters.category }}&search={{ active_filters.search }}"
+                       class="page-btn {% if page <= 1 %}disabled{% endif %}">
+                        ‹ Prev
+                    </a>
+
+                    <!-- Page Indicator -->
+                    <span style="font-size: 12px; font-weight: 600; padding: 0 8px; color: var(--primary);">
+                        Page {{ page }} of {{ total_pages }}
+                    </span>
+
+                    <!-- Next Button -->
+                    <a href="?page={{ page + 1 }}&risk={{ active_filters.risk }}&status={{ active_filters.status }}&state={{ active_filters.state }}&district={{ active_filters.district }}&category={{ active_filters.category }}&search={{ active_filters.search }}"
+                       class="page-btn {% if page >= total_pages %}disabled{% endif %}">
+                        Next ›
+                    </a>
+
+                </div>
+
+            </div>
+
+            {% endif %}
 
         </section>
 
@@ -719,7 +943,7 @@
             </span>
 
             <span>
-                Explainable AI · Risk-based monitoring
+                Explainable AI · Risk-based monitoring · Government of India
             </span>
 
         </footer>
@@ -730,37 +954,80 @@
 </div>
 
 
-<script>
+<!-- ================= SETTINGS MODAL ================= -->
+<div class="modal-backdrop" id="settingsModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><span>⚙</span> System Configuration & Settings</h3>
+            <button class="modal-close-btn" onclick="closeModal('settingsModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <p>Configure MPLADS AI Anomaly Detection parameters and inspection thresholds.</p>
+            <div class="modal-setting-row">
+                <div class="modal-setting-label">
+                    <strong>High Risk Threshold</strong>
+                    <small>Projects with risk score ≥ 70 are flagged as High Risk</small>
+                </div>
+                <span class="risk-badge high-badge">Score ≥ 70</span>
+            </div>
+            <div class="modal-setting-row">
+                <div class="modal-setting-label">
+                    <strong>Medium Risk Threshold</strong>
+                    <small>Projects with risk score between 40 and 69</small>
+                </div>
+                <span class="risk-badge medium-badge">Score 40 - 69</span>
+            </div>
+            <div class="modal-setting-row">
+                <div class="modal-setting-label">
+                    <strong>Active AI Heuristic Engines</strong>
+                    <small>Fund velocity, Timeline delay, Duplicate detector, ML Pattern</small>
+                </div>
+                <span class="positive">● 4/4 Active</span>
+            </div>
+            <div class="modal-setting-row">
+                <div class="modal-setting-label">
+                    <strong>Dataset Synchronisation</strong>
+                    <small>3,007 project records loaded from verified dataset</small>
+                </div>
+                <span class="positive">● Live Sync</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="primary-button" onclick="closeModal('settingsModal')">Done</button>
+        </div>
+    </div>
+</div>
 
-function searchProjects() {
+<!-- ================= HELP MODAL ================= -->
+<div class="modal-backdrop" id="helpModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><span>?</span> MPLAD Monitoring Help & Guidelines</h3>
+            <button class="modal-close-btn" onclick="closeModal('helpModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <p><strong>About MPLADS AI Risk Management System</strong></p>
+            <p>This system assists district authorities, monitoring committees, and auditors in identifying potential anomalies in Member of Parliament Local Area Development Scheme (MPLADS) fund execution.</p>
+            <div class="important-note" style="margin-bottom: 14px;">
+                <strong>Responsible AI Disclosure</strong>
+                <p>All AI flags indicate potential irregularities and deviations from standard timelines or financial benchmarks. They do not constitute a legal or final determination of fraud and require on-site technical verification by authorized officers.</p>
+            </div>
+            <p><strong>Risk Categories Explained:</strong></p>
+            <ul style="padding-left: 20px; line-height: 1.8;">
+                <li><strong>High Risk:</strong> Significant variance between fund disbursements and physical progress, or milestone delays exceeding acceptable limits. Requires immediate physical verification.</li>
+                <li><strong>Medium Risk:</strong> Moderate variances or single-factor anomalies requiring desktop audit before releasing next fund tranche.</li>
+                <li><strong>Low Risk:</strong> Normal progress within anticipated parameters. Routine quarterly monitoring.</li>
+            </ul>
+        </div>
+        <div class="modal-footer">
+            <button class="primary-button" onclick="closeModal('helpModal')">Close Help</button>
+        </div>
+    </div>
+</div>
 
-    const input =
-        document.getElementById("projectSearch");
-
-    const filter =
-        input.value.toLowerCase();
-
-    const rows =
-        document.querySelectorAll(
-            "#projectTable tbody tr"
-        );
-
-    rows.forEach(row => {
-
-        const text =
-            row.innerText.toLowerCase();
-
-        row.style.display =
-            text.includes(filter)
-            ? ""
-            : "none";
-
-    });
-
-}
-
-</script>
-
+<!-- Scripts -->
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='analytics.js') }}"></script>
 
 </body>
 </html>

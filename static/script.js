@@ -1,275 +1,185 @@
 /* =====================================================
-   MPLAD AI MONITORING - FRONTEND
+   MPLAD AI MONITORING - MAIN INTERACTIVE SCRIPT
 ===================================================== */
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    /* ---------------------------------------------
-       SEARCH PROJECTS
-    --------------------------------------------- */
+    /* -------------------------------------------------
+       1. LIVE SEARCH ON PROJECT TABLE
+    ------------------------------------------------- */
+    const projectSearchInput = document.getElementById("projectSearch");
+    const clearSearchBtn = document.getElementById("clearSearchBtn");
+    const projectTable = document.getElementById("projectTable");
 
-    const searchInput =
-        document.getElementById("searchInput");
+    function executeLiveSearch() {
+        if (!projectSearchInput || !projectTable) return;
 
-    const riskFilter =
-        document.getElementById("riskFilter");
+        const filter = projectSearchInput.value.toLowerCase().trim();
+        const rows = projectTable.querySelectorAll("tbody tr");
+        let visibleCount = 0;
 
-    const projectRows =
-        document.querySelectorAll(".project-item");
+        if (clearSearchBtn) {
+            clearSearchBtn.style.display = filter.length > 0 ? "block" : "none";
+        }
 
-
-    function filterProjects() {
-
-        if (!searchInput) return;
-
-        const search =
-            searchInput.value.toLowerCase().trim();
-
-        const risk =
-            riskFilter
-                ? riskFilter.value.toLowerCase()
-                : "all";
-
-
-        projectRows.forEach(function (row) {
-
-            const text =
-                row.dataset.search || "";
-
-            const rowRisk =
-                row.dataset.risk || "";
-
-            const searchMatch =
-                text.includes(search);
-
-            const riskMatch =
-                risk === "all" ||
-                rowRisk === risk;
-
-
-            if (searchMatch && riskMatch) {
-
-                row.style.display = "grid";
-
-            } else {
-
-                row.style.display = "none";
-
-            }
-
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            const matches = text.includes(filter);
+            row.style.display = matches ? "" : "none";
+            if (matches) visibleCount++;
         });
 
+        // Update live count indicator if present
+        const countDisplay = document.getElementById("filteredCount");
+        if (countDisplay) {
+            countDisplay.innerText = visibleCount;
+        }
     }
 
-
-    if (searchInput) {
-
-        searchInput.addEventListener(
-            "input",
-            filterProjects
-        );
-
-    }
-
-
-    if (riskFilter) {
-
-        riskFilter.addEventListener(
-            "change",
-            filterProjects
-        );
-
-    }
-
-
-    /* ---------------------------------------------
-       SMOOTH SCROLL
-    --------------------------------------------- */
-
-    document.querySelectorAll(
-        'a[href^="#"]'
-    ).forEach(function (link) {
-
-        link.addEventListener(
-            "click",
-            function (event) {
-
-                const targetId =
-                    this.getAttribute("href");
-
-                if (
-                    targetId &&
-                    targetId !== "#"
-                ) {
-
-                    const target =
-                        document.querySelector(targetId);
-
-                    if (target) {
-
-                        event.preventDefault();
-
-                        target.scrollIntoView({
-                            behavior: "smooth",
-                            block: "start"
-                        });
-
-                    }
-
-                }
-
+    if (projectSearchInput) {
+        projectSearchInput.addEventListener("input", executeLiveSearch);
+        projectSearchInput.addEventListener("keyup", function (e) {
+            if (e.key === "Escape") {
+                clearSearch();
             }
-        );
+        });
+    }
 
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener("click", clearSearch);
+    }
+
+    /* -------------------------------------------------
+       2. CLICKABLE TABLE ROWS
+    ------------------------------------------------- */
+    const clickableRows = document.querySelectorAll(".table-wrapper table tbody tr");
+    clickableRows.forEach(row => {
+        row.addEventListener("click", function (event) {
+            // Ignore click if user clicked an explicit link or button inside the row
+            if (event.target.tagName.toLowerCase() === "a" || event.target.tagName.toLowerCase() === "button" || event.target.closest("a") || event.target.closest("button")) {
+                return;
+            }
+            const link = this.querySelector(".project-link") || this.querySelector(".table-action-btn");
+            if (link && link.href) {
+                window.location.href = link.href;
+            }
+        });
     });
 
-
-    /* ---------------------------------------------
-       BUTTON HOVER EFFECT
-    --------------------------------------------- */
-
-    document.querySelectorAll(
-        "button"
-    ).forEach(function (button) {
-
-        button.addEventListener(
-            "click",
-            function () {
-
-                this.style.transform =
-                    "scale(0.98)";
-
-                setTimeout(() => {
-
-                    this.style.transform =
-                        "scale(1)";
-
-                }, 100);
-
-            }
-        );
-
+    /* -------------------------------------------------
+       3. BUTTON CLICK MICRO-ANIMATION
+    ------------------------------------------------- */
+    document.querySelectorAll("button, .primary-button, .outline-button, .filter-button, .page-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            this.style.transform = "scale(0.98)";
+            setTimeout(() => {
+                this.style.transform = "scale(1)";
+            }, 100);
+        });
     });
 
+    /* -------------------------------------------------
+       4. MODAL EVENT LISTENERS
+    ------------------------------------------------- */
+    document.querySelectorAll(".modal-backdrop").forEach(backdrop => {
+        backdrop.addEventListener("click", function (event) {
+            if (event.target === this) {
+                this.classList.remove("active");
+            }
+        });
+    });
 
-    /* ---------------------------------------------
-       AUTO UPDATE SYSTEM STATUS
-    --------------------------------------------- */
+    document.querySelectorAll(".modal-close-btn, .modal-close-trigger").forEach(btn => {
+        btn.addEventListener("click", function () {
+            const modal = this.closest(".modal-backdrop");
+            if (modal) {
+                modal.classList.remove("active");
+            }
+        });
+    });
 
-    const statusDot =
-        document.querySelector(".status-dot");
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+            document.querySelectorAll(".modal-backdrop.active").forEach(modal => {
+                modal.classList.remove("active");
+            });
+        }
+    });
 
-    if (statusDot) {
-
-        setInterval(function () {
-
-            statusDot.style.opacity =
-                statusDot.style.opacity === "0.5"
-                    ? "1"
-                    : "0.5";
-
-        }, 1200);
-
-    }
-
-
-    /* ---------------------------------------------
-       PROGRESS ANIMATION
-    --------------------------------------------- */
-
-    const progressBars =
-        document.querySelectorAll(
-            ".progress-large div, .mini-progress div"
-        );
-
-
-    progressBars.forEach(function (bar) {
-
-        const originalWidth =
-            bar.style.width;
-
-        bar.style.width = "0";
-
-        setTimeout(function () {
-
-            bar.style.width =
-                originalWidth;
-
-        }, 200);
-
+    /* -------------------------------------------------
+       5. PROGRESS BAR LOAD ANIMATION
+    ------------------------------------------------- */
+    const progressBars = document.querySelectorAll(".bar span, .progress-line span, .big-progress span");
+    progressBars.forEach(bar => {
+        const targetWidth = bar.style.width;
+        if (targetWidth) {
+            bar.style.width = "0%";
+            setTimeout(() => {
+                bar.style.transition = "width 0.8s ease-out";
+                bar.style.width = targetWidth;
+            }, 100);
+        }
     });
 
 });
 
-
 /* =====================================================
-   REVIEW PROJECTS BUTTON
+   GLOBAL HELPER FUNCTIONS
 ===================================================== */
 
-function scrollToProjects() {
-
-    const section =
-        document.getElementById("projects");
-
-    if (section) {
-
-        section.scrollIntoView({
-            behavior: "smooth"
+function clearSearch() {
+    const input = document.getElementById("projectSearch");
+    const clearBtn = document.getElementById("clearSearchBtn");
+    if (input) {
+        input.value = "";
+        if (clearBtn) clearBtn.style.display = "none";
+        const rows = document.querySelectorAll("#projectTable tbody tr");
+        rows.forEach(row => {
+            row.style.display = "";
         });
-
+        const countDisplay = document.getElementById("filteredCount");
+        if (countDisplay) {
+            countDisplay.innerText = rows.length;
+        }
     }
-
 }
 
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add("active");
+    }
+}
 
-/* =====================================================
-   SIMPLE ALERT
-===================================================== */
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove("active");
+    }
+}
 
-function showNotification(message) {
+function showNotification(message, type = "info") {
+    const existingToast = document.querySelector(".toast-notification");
+    if (existingToast) existingToast.remove();
 
-    const notification =
-        document.createElement("div");
+    const toast = document.createElement("div");
+    toast.className = "toast-notification";
+    if (type === "success") {
+        toast.style.background = "#159957";
+    } else if (type === "danger") {
+        toast.style.background = "#d9534f";
+    } else {
+        toast.style.background = "#0c2f52";
+    }
 
-    notification.innerText =
-        message;
+    const icon = type === "success" ? "✓ " : (type === "danger" ? "⚠ " : "ℹ ");
+    toast.innerText = icon + message;
+    document.body.appendChild(toast);
 
-    notification.style.position =
-        "fixed";
-
-    notification.style.bottom =
-        "25px";
-
-    notification.style.right =
-        "25px";
-
-    notification.style.background =
-        "#0b2a4a";
-
-    notification.style.color =
-        "white";
-
-    notification.style.padding =
-        "12px 18px";
-
-    notification.style.borderRadius =
-        "7px";
-
-    notification.style.fontSize =
-        "12px";
-
-    notification.style.zIndex =
-        "9999";
-
-    document.body.appendChild(
-        notification
-    );
-
-
-    setTimeout(function () {
-
-        notification.remove();
-
-    }, 2500);
-
+    setTimeout(() => {
+        toast.style.transition = "opacity 0.4s, transform 0.4s";
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(15px)";
+        setTimeout(() => toast.remove(), 400);
+    }, 3000);
 }

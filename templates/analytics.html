@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Risk Analysis & Analytics - MPLAD AI Monitoring System</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <a href="/" class="brand">
+
+            <div class="brand-logo">
+                🏛
+            </div>
+
+            <div>
+                <h2>MPLAD</h2>
+                <p>AI MONITORING SYSTEM</p>
+            </div>
+
+        </a>
+
+
+        <div class="menu-title">
+            MAIN MENU
+        </div>
+
+
+        <nav>
+
+            <a href="/" class="nav-item">
+                <span class="nav-icon">▦</span>
+                Dashboard
+            </a>
+
+            <a href="/projects"
+               class="nav-item">
+                <span class="nav-icon">▤</span>
+                Projects
+            </a>
+
+            <a href="/analytics"
+               class="nav-item active">
+                <span class="nav-icon">◈</span>
+                Risk Analysis
+            </a>
+
+            <a href="/projects?risk=High"
+               class="nav-item">
+
+                <span class="nav-icon">⚠</span>
+
+                Anomaly Alerts
+
+                <span class="menu-badge">
+                    {{ statistics.high_risk }}
+                </span>
+
+            </a>
+
+            <a href="/map"
+               class="nav-item">
+
+                <span class="nav-icon">⌖</span>
+
+                Map View
+
+            </a>
+
+            <a href="/reports"
+               class="nav-item">
+
+                <span class="nav-icon">▥</span>
+
+                Reports
+
+            </a>
+
+        </nav>
+
+
+        <div class="menu-title bottom-menu">
+            SYSTEM
+        </div>
+
+        <nav>
+
+            <a href="javascript:void(0)" onclick="openModal('settingsModal')" class="nav-item">
+                <span class="nav-icon">⚙</span>
+                Settings
+            </a>
+
+            <a href="javascript:void(0)" onclick="openModal('helpModal')" class="nav-item">
+                <span class="nav-icon">?</span>
+                Help & Support
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="government-mark">
+                🇮🇳
+            </div>
+
+            <div>
+
+                <strong>
+                    Government Project
+                </strong>
+
+                <small>
+                    Monitoring & Analysis
+                </small>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+
+                <div class="breadcrumb">
+                    <a href="/" style="color: inherit;">Dashboard</a>
+                    <span>/</span>
+                    Risk Analysis & Analytics
+                </div>
+
+                <h1>
+                    AI Risk & Anomaly Analytics
+                </h1>
+
+                <p>
+                    Explainable AI risk scoring, fund velocity tracking, and algorithmic anomaly detection across monitored works.
+                </p>
+
+            </div>
+
+
+            <div class="top-actions">
+
+                <button class="outline-button" id="runAnalysis">
+                    ✦ Run AI Risk Analysis
+                </button>
+
+                <button class="primary-button" id="exportReport">
+                    📥 Export Report
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- STATS GRID -->
+
+        <section class="stats-grid">
+
+            <div class="stat-card" style="cursor:pointer;" onclick="window.location.href='/projects'">
+
+                <div class="stat-top">
+
+                    <div class="stat-icon blue">
+                        ▤
+                    </div>
+
+                    <span class="stat-label">
+                        MONITORED WORKS
+                    </span>
+
+                </div>
+
+                <div class="stat-number kpi-number" data-value="{{ statistics.total_projects }}">
+                    {{ statistics.total_projects }}
+                </div>
+
+                <div class="stat-footer">
+                    <span class="positive">● Verified dataset</span>
+                    <span>Active</span>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card risk-card" style="cursor:pointer;" onclick="window.location.href='/projects?risk=High'">
+
+                <div class="stat-top">
+
+                    <div class="stat-icon red">
+                        ⚠
+                    </div>
+
+                    <span class="stat-label">
+                        HIGH RISK WORKS
+                    </span>
+
+                </div>
+
+                <div class="stat-number red-text kpi-number" data-value="{{ statistics.high_risk }}">
+                    {{ statistics.high_risk }}
+                </div>
+
+                <div class="stat-footer">
+                    <span class="danger">● Requires immediate audit</span>
+                    <span>AI Flagged</span>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-icon green">
+                        ₹
+                    </div>
+
+                    <span class="stat-label">
+                        TOTAL SANCTIONED
+                    </span>
+
+                </div>
+
+                <div class="stat-number money">
+                    ₹{{ "%.1f"|format(statistics.total_sanctioned / 10000000) }} Cr
+                </div>
+
+                <div class="stat-footer">
+                    <span class="positive">● Total Approved</span>
+                    <span>MPLAD</span>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-icon orange">
+                        ₹
+                    </div>
+
+                    <span class="stat-label">
+                        FUND UTILIZATION
+                    </span>
+
+                </div>
+
+                <div class="stat-number">
+                    {{ statistics.utilization }}%
+                </div>
+
+                <div class="progress-line">
+                    <span style="width: {{ statistics.utilization }}%"></span>
+                </div>
+
+                <div class="stat-footer">
+                    <span>₹{{ "%.1f"|format(statistics.total_spent / 10000000) }} Cr spent</span>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+
+                    <div class="stat-icon purple">
+                        ◔
+                    </div>
+
+                    <span class="stat-label">
+                        ANOMALIES IDENTIFIED
+                    </span>
+
+                </div>
+
+                <div class="stat-number kpi-number" data-value="{{ statistics.total_anomalies }}">
+                    {{ statistics.total_anomalies }}
+                </div>
+
+                <div class="stat-footer">
+                    <span>Flagged indicators</span>
+                    <span>Explainable</span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ANALYTICS ROW 1 -->
+
+        <section class="dashboard-grid">
+
+            <!-- RISK DISTRIBUTION -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>AI Risk Level Breakdown</h2>
+
+                        <p>Distribution of risk severity across projects</p>
+
+                    </div>
+
+                    <span class="ai-badge">✦ AI</span>
+
+                </div>
+
+                <div class="risk-chart">
+
+                    <div class="donut">
+
+                        <div class="donut-center">
+
+                            <strong>
+                                {{ statistics.total_projects }}
+                            </strong>
+
+                            <small>Total Works</small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="risk-legend">
+
+                    <div style="cursor:pointer;" onclick="window.location.href='/projects?risk=High'">
+                        <span class="legend-dot high"></span>
+                        <span>High Risk (≥70)</span>
+                        <strong>{{ statistics.high_risk }}</strong>
+                    </div>
+
+                    <div style="cursor:pointer;" onclick="window.location.href='/projects?risk=Medium'">
+                        <span class="legend-dot medium"></span>
+                        <span>Medium Risk (40-69)</span>
+                        <strong>{{ statistics.medium_risk }}</strong>
+                    </div>
+
+                    <div style="cursor:pointer;" onclick="window.location.href='/projects?risk=Low'">
+                        <span class="legend-dot low"></span>
+                        <span>Low Risk (<40)</span>
+                        <strong>{{ statistics.low_risk }}</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- STATUS BREAKDOWN -->
+
+            <div class="panel large-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>Project Implementation Status</h2>
+
+                        <p>Current delivery status across active MPLAD works</p>
+
+                    </div>
+
+                </div>
+
+                <div class="progress-overview">
+
+                    {% for status_name, count in statuses.items() %}
+
+                    <div class="project-progress">
+
+                        <div class="project-progress-info">
+
+                            <div>
+                                <strong>{{ status_name }}</strong>
+                                <small>{{ count }} projects</small>
+                            </div>
+
+                            <strong>
+                                {{ ((count / statistics.total_projects) * 100)|round|int if statistics.total_projects > 0 else 0 }}%
+                            </strong>
+
+                        </div>
+
+                        <div class="bar">
+
+                            <span
+                                class="{% if status_name in ['Delayed', 'Critical'] %}bar-danger{% elif status_name == 'Under Review' %}bar-warning{% else %}bar-normal{% endif %}"
+                                style="width: {{ ((count / statistics.total_projects) * 100)|round|int if statistics.total_projects > 0 else 0 }}%">
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ANALYTICS ROW 2: CATEGORY-WISE BREAKDOWN -->
+
+        <section class="panel project-panel" style="margin-top: 25px;">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>Category-Wise Fund & Risk Matrix</h2>
+
+                    <p>Expenditure velocity and high-risk flags across project domains</p>
+
+                </div>
+
+                <a href="/projects" class="view-link">Explore in Projects →</a>
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+                        <th>CATEGORY</th>
+                        <th>TOTAL PROJECTS</th>
+                        <th>APPROVED (CR)</th>
+                        <th>EXPENDITURE (CR)</th>
+                        <th>UTILIZATION</th>
+                        <th>HIGH RISK WORKS</th>
+                        <th>ACTION</th>
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    {% for cat in category_list %}
+
+                    <tr>
+
+                        <td>
+                            <strong>{{ cat.category }}</strong>
+                        </td>
+
+                        <td>
+                            {{ cat.count }}
+                        </td>
+
+                        <td>
+                            ₹{{ cat.sanctioned_cr }} Cr
+                        </td>
+
+                        <td>
+                            ₹{{ cat.spent_cr }} Cr
+                        </td>
+
+                        <td>
+                            <div class="table-progress">
+                                <span>{{ cat.utilization }}%</span>
+                                <div><i style="width: {{ cat.utilization }}%"></i></div>
+                            </div>
+                        </td>
+
+                        <td>
+                            {% if cat.high_risk > 0 %}
+                            <span class="risk-badge high-badge">
+                                ⚠ {{ cat.high_risk }} Flagged
+                            </span>
+                            {% else %}
+                            <span class="risk-badge low-badge">
+                                ✓ 0 Flagged
+                            </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <a href="/projects?category={{ cat.category }}" class="table-action-btn">
+                                Filter Works →
+                            </a>
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- ANALYTICS ROW 3: TOP ANOMALIES & FLAGGED WORKS -->
+
+        <section class="dashboard-grid second-row" style="margin-top: 25px;">
+
+            <!-- ANOMALY FREQUENCY -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>Common Anomaly Triggers</h2>
+
+                        <p>Top algorithmic patterns flagged by AI risk engine</p>
+
+                    </div>
+
+                </div>
+
+                <div class="progress-overview">
+
+                    {% for item in top_anomalies %}
+
+                    <div class="project-progress">
+
+                        <div class="project-progress-info">
+
+                            <div>
+                                <strong style="font-size: 12px;">{{ item.reason }}</strong>
+                                <small>{{ item.count }} occurrences</small>
+                            </div>
+
+                        </div>
+
+                        <div class="bar">
+                            <span class="bar-danger" style="width: {{ item.pct }}%"></span>
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+
+            <!-- PRIORITY AUDIT LIST -->
+
+            <div class="panel large-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>High Priority Works for Audit</h2>
+
+                        <p>Projects with elevated risk scores requiring physical verification</p>
+
+                    </div>
+
+                    <a href="/projects?risk=High" class="view-link">View all High Risk →</a>
+
+                </div>
+
+                <div class="alert-list">
+
+                    {% for project in flagged_projects[:5] %}
+
+                    <div class="alert-row" style="cursor:pointer;" onclick="window.location.href='/project/{{ project.id }}'">
+
+                        <div class="alert-icon">
+                            ⚠
+                        </div>
+
+                        <div class="alert-content">
+
+                            <strong>
+                                {{ project.name }}
+                            </strong>
+
+                            <span>
+                                {{ project.district }}, {{ project.state }} · Score {{ project.risk_score }}/100
+                            </span>
+
+                        </div>
+
+                        <div class="alert-reason">
+                            {% if project.anomalies %}
+                                {{ project.anomalies[0] }}
+                            {% else %}
+                                {{ project.why_flagged }}
+                            {% endif %}
+                        </div>
+
+                        <a href="/project/{{ project.id }}" class="table-action-btn" onclick="event.stopPropagation()">
+                            Inspect →
+                        </a>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <footer>
+
+            <span>
+                MPLAD AI Monitoring System
+            </span>
+
+            <span>
+                Explainable Decision-Support Analytics · Government of India
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<!-- ================= SETTINGS MODAL ================= -->
+<div class="modal-backdrop" id="settingsModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><span>⚙</span> System Configuration & Settings</h3>
+            <button class="modal-close-btn" onclick="closeModal('settingsModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <p>Configure MPLADS AI Anomaly Detection parameters and inspection thresholds.</p>
+            <div class="modal-setting-row">
+                <div class="modal-setting-label">
+                    <strong>High Risk Threshold</strong>
+                    <small>Projects with risk score ≥ 70 are flagged as High Risk</small>
+                </div>
+                <span class="risk-badge high-badge">Score ≥ 70</span>
+            </div>
+            <div class="modal-setting-row">
+                <div class="modal-setting-label">
+                    <strong>Medium Risk Threshold</strong>
+                    <small>Projects with risk score between 40 and 69</small>
+                </div>
+                <span class="risk-badge medium-badge">Score 40 - 69</span>
+            </div>
+            <div class="modal-setting-row">
+                <div class="modal-setting-label">
+                    <strong>Active AI Heuristic Engines</strong>
+                    <small>Fund velocity, Timeline delay, Duplicate detector, ML Pattern</small>
+                </div>
+                <span class="positive">● 4/4 Active</span>
+            </div>
+            <div class="modal-setting-row">
+                <div class="modal-setting-label">
+                    <strong>Dataset Synchronisation</strong>
+                    <small>3,007 project records loaded from verified dataset</small>
+                </div>
+                <span class="positive">● Live Sync</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="primary-button" onclick="closeModal('settingsModal')">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- ================= HELP MODAL ================= -->
+<div class="modal-backdrop" id="helpModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><span>?</span> MPLAD Monitoring Help & Guidelines</h3>
+            <button class="modal-close-btn" onclick="closeModal('helpModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <p><strong>About MPLADS AI Risk Management System</strong></p>
+            <p>This system assists district authorities, monitoring committees, and auditors in identifying potential anomalies in Member of Parliament Local Area Development Scheme (MPLADS) fund execution.</p>
+            <div class="important-note" style="margin-bottom: 14px;">
+                <strong>Responsible AI Disclosure</strong>
+                <p>All AI flags indicate potential irregularities and deviations from standard timelines or financial benchmarks. They do not constitute a legal or final determination of fraud and require on-site technical verification by authorized officers.</p>
+            </div>
+            <p><strong>Risk Categories Explained:</strong></p>
+            <ul style="padding-left: 20px; line-height: 1.8;">
+                <li><strong>High Risk:</strong> Significant variance between fund disbursements and physical progress, or milestone delays exceeding acceptable limits. Requires immediate physical verification.</li>
+                <li><strong>Medium Risk:</strong> Moderate variances or single-factor anomalies requiring desktop audit before releasing next fund tranche.</li>
+                <li><strong>Low Risk:</strong> Normal progress within anticipated parameters. Routine quarterly monitoring.</li>
+            </ul>
+        </div>
+        <div class="modal-footer">
+            <button class="primary-button" onclick="closeModal('helpModal')">Close Help</button>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='analytics.js') }}"></script>
+
+</body>
+</html>

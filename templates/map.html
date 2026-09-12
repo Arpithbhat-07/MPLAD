@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Regional Map View - MPLAD AI Monitoring System</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <a href="/" class="brand">
+
+            <div class="brand-logo">
+                🏛
+            </div>
+
+            <div>
+                <h2>MPLAD</h2>
+                <p>AI MONITORING SYSTEM</p>
+            </div>
+
+        </a>
+
+
+        <div class="menu-title">
+            MAIN MENU
+        </div>
+
+
+        <nav>
+
+            <a href="/" class="nav-item">
+                <span class="nav-icon">▦</span>
+                Dashboard
+            </a>
+
+            <a href="/projects"
+               class="nav-item">
+                <span class="nav-icon">▤</span>
+                Projects
+            </a>
+
+            <a href="/analytics"
+               class="nav-item">
+                <span class="nav-icon">◈</span>
+                Risk Analysis
+            </a>
+
+            <a href="/projects?risk=High"
+               class="nav-item">
+
+                <span class="nav-icon">⚠</span>
+
+                Anomaly Alerts
+
+                <span class="menu-badge">
+                    {{ statistics.high_risk }}
+                </span>
+
+            </a>
+
+            <a href="/map"
+               class="nav-item active">
+
+                <span class="nav-icon">⌖</span>
+
+                Map View
+
+            </a>
+
+            <a href="/reports"
+               class="nav-item">
+
+                <span class="nav-icon">▥</span>
+
+                Reports
+
+            </a>
+
+        </nav>
+
+
+        <div class="menu-title bottom-menu">
+            SYSTEM
+        </div>
+
+        <nav>
+
+            <a href="javascript:void(0)" onclick="openModal('settingsModal')" class="nav-item">
+                <span class="nav-icon">⚙</span>
+                Settings
+            </a>
+
+            <a href="javascript:void(0)" onclick="openModal('helpModal')" class="nav-item">
+                <span class="nav-icon">?</span>
+                Help & Support
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="government-mark">
+                🇮🇳
+            </div>
+
+            <div>
+
+                <strong>
+                    Government Project
+                </strong>
+
+                <small>
+                    Monitoring & Analysis
+                </small>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+
+                <div class="breadcrumb">
+                    <a href="/" style="color: inherit;">Dashboard</a>
+                    <span>/</span>
+                    Regional Map View
+                </div>
+
+                <h1>
+                    Geographic Project Distribution
+                </h1>
+
+                <p>
+                    Geographic monitoring across states, districts, and parliamentary constituencies.
+                </p>
+
+            </div>
+
+
+            <div class="top-actions">
+
+                <button class="outline-button" onclick="window.location.reload()">
+                    ↻ Refresh
+                </button>
+
+                <button class="primary-button" onclick="window.location.href='/projects'">
+                    Explore All Works →
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- OVERVIEW PANEL -->
+
+        <section class="panel map-panel" style="margin-bottom: 25px;">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>Regional Project Overview</h2>
+
+                    <p>
+                        Geographic cluster analysis and state monitoring nodes
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="map-container">
+
+                <div class="map-background">
+
+                    <div class="map-grid"></div>
+
+                    <div class="map-label label-one">
+                        Karnataka
+                    </div>
+
+                    <div class="map-label label-two">
+                        Maharashtra
+                    </div>
+
+                    <div class="map-label label-three">
+                        Tamil Nadu
+                    </div>
+
+                    <div class="map-label label-four">
+                        Uttar Pradesh
+                    </div>
+
+
+                    <span class="map-marker marker-1" title="Karnataka"></span>
+                    <span class="map-marker marker-2" title="Maharashtra"></span>
+                    <span class="map-marker marker-3" title="Tamil Nadu"></span>
+                    <span class="map-marker marker-4" title="Uttar Pradesh"></span>
+                    <span class="map-marker marker-5" title="West Bengal"></span>
+                    <span class="map-marker marker-6"></span>
+
+                </div>
+
+
+                <div class="map-side-info">
+
+                    <h3>Active States Overview</h3>
+
+                    <p>
+                        Monitored projects across Indian administrative divisions
+                    </p>
+
+                    <div class="location-stat">
+                        <strong>{{ statistics.total_projects }}</strong>
+                        <span>Total Projects</span>
+                    </div>
+
+                    <div class="location-stat">
+                        <strong>{{ statistics.high_risk }}</strong>
+                        <span>High Risk Flags</span>
+                    </div>
+
+                    <div class="location-stat">
+                        <strong>{{ states|length }}</strong>
+                        <span>States Covered</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- STATE SUMMARY CARDS -->
+
+        <h2 style="font-size: 16px; margin-bottom: 14px; color: var(--primary);">State-Wise Project Distribution</h2>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px;">
+
+            {% for state in states %}
+
+            <div class="panel" style="padding: 18px; cursor: pointer; transition: transform 0.2s;"
+                 onclick="window.location.href='/projects?state={{ state.state }}'">
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong style="font-size: 15px; color: var(--primary);">{{ state.state }}</strong>
+                    <span class="menu-badge" style="background: var(--primary-light); color: var(--primary);">
+                        {{ state.districts|length }} Dists
+                    </span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px;">
+                    <span style="color: var(--muted);">Total Works:</span>
+                    <strong>{{ state.total }}</strong>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 10px;">
+                    <span style="color: var(--muted);">High Risk:</span>
+                    <strong style="color: var(--red);">{{ state.high_risk }}</strong>
+                </div>
+
+                <a href="/projects?state={{ state.state }}" class="table-action-btn" style="width: 100%; justify-content: center;">
+                    View {{ state.state }} Projects →
+                </a>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- DISTRICTS TABLE -->
+
+        <section class="panel project-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>District Risk & Allocation Registry</h2>
+
+                    <p>
+                        Summary metrics and inspection priorities by individual district
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+                        <th>DISTRICT</th>
+                        <th>STATE</th>
+                        <th>TOTAL WORKS</th>
+                        <th>HIGH RISK</th>
+                        <th>MEDIUM RISK</th>
+                        <th>LOW RISK</th>
+                        <th>SANCTIONED (CR)</th>
+                        <th>ACTION</th>
+                    </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    {% for d in districts %}
+
+                    <tr onclick="window.location.href='/projects?district={{ d.district }}'">
+
+                        <td>
+                            <strong>{{ d.district }}</strong>
+                        </td>
+
+                        <td>
+                            {{ d.state }}
+                        </td>
+
+                        <td>
+                            <strong>{{ d.total }}</strong>
+                        </td>
+
+                        <td>
+                            {% if d.high_risk > 0 %}
+                            <span class="risk-badge high-badge">
+                                {{ d.high_risk }}
+                            </span>
+                            {% else %}
+                            <span class="risk-badge low-badge">
+                                0
+                            </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <span class="risk-badge medium-badge">
+                                {{ d.medium_risk }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="risk-badge low-badge">
+                                {{ d.low_risk }}
+                            </span>
+                        </td>
+
+                        <td>
+                            ₹{{ "%.1f"|format(d.sanctioned / 10000000) }} Cr
+                        </td>
+
+                        <td>
+                            <a href="/projects?district={{ d.district }}" class="table-action-btn" onclick="event.stopPropagation()">
+                                Filter District →
+                            </a>
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <footer>
+
+            <span>
+                MPLAD AI Monitoring System
+            </span>
+
+            <span>
+                Geographic Information System · Regional Audit Overview
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<!-- ================= SETTINGS MODAL ================= -->
+<div class="modal-backdrop" id="settingsModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><span>⚙</span> System Configuration & Settings</h3>
+            <button class="modal-close-btn" onclick="closeModal('settingsModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <p>Configure MPLADS AI Anomaly Detection parameters and inspection thresholds.</p>
+            <div class="modal-setting-row">
+                <div class="modal-setting-label">
+                    <strong>High Risk Threshold</strong>
+                    <small>Projects with risk score ≥ 70 are flagged as High Risk</small>
+                </div>
+                <span class="risk-badge high-badge">Score ≥ 70</span>
+            </div>
+            <div class="modal-setting-row">
+                <div class="modal-setting-label">
+                    <strong>Medium Risk Threshold</strong>
+                    <small>Projects with risk score between 40 and 69</small>
+                </div>
+                <span class="risk-badge medium-badge">Score 40 - 69</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="primary-button" onclick="closeModal('settingsModal')">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- ================= HELP MODAL ================= -->
+<div class="modal-backdrop" id="helpModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><span>?</span> MPLAD Monitoring Help & Guidelines</h3>
+            <button class="modal-close-btn" onclick="closeModal('helpModal')">✕</button>
+        </div>
+        <div class="modal-body">
+            <p><strong>Regional Monitoring Guide</strong></p>
+            <p>Click on any district or state card to inspect the underlying project records, contractor allocations, and anomaly reason flags.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="primary-button" onclick="closeModal('helpModal')">Close Help</button>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='analytics.js') }}"></script>
+
+</body>
+</html>
