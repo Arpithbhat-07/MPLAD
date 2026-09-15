@@ -1,0 +1,67 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# =========================
+# Virtual Environments
+# =========================
+.venv/
+venv/
+env/
+ENV/
+
+# =========================
+# Environment Files
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# VS Code / IDE
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Frontend
+# =========================
+node_modules/
+dist/
+build/
+.next/
+coverage/
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# Temporary
+# =========================
+*.tmp
+*.bak
+
+# =========================
+# Generated runtime data
+# =========================
+backend/data/*_runtime.csv
+backend/data/duplicate_detection_results.csv
