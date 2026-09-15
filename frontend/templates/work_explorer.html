@@ -1,55 +1,722 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <title>Work Explorer | MPLADS SENTINEL</title>
 
-    <title>
-        Work Explorer | MPLADS SENTINEL
-    </title>
+    <style>
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
+        * {
+            box-sizing: border-box;
+        }
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/work_explorer.css') }}"
-    >
+        body {
+            margin: 0;
+            background: #080a0d;
+            color: #e7ebf0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 280px;
+            background: #090b0e;
+            border-right: 1px solid #252a31;
+            z-index: 20;
+        }
+
+        .brand {
+            height: 70px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #252a31;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            border: 1px solid #263750;
+            border-radius: 8px;
+            background: #101722;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 18px;
+        }
+
+        .brand-name {
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .brand-name span {
+            color: #438cff;
+        }
+
+        .brand-subtitle {
+            margin-top: 4px;
+            color: #68758a;
+            font-size: 10px;
+        }
+
+        .nav {
+            padding: 20px 12px;
+        }
+
+        .nav-title {
+            margin: 0 14px 8px;
+
+            color: #68758a;
+            font-size: 9px;
+            font-weight: bold;
+
+            letter-spacing: 1.5px;
+        }
+
+        .nav-title:not(:first-child) {
+            margin-top: 23px;
+        }
+
+        .nav-link {
+            height: 40px;
+
+            margin-bottom: 3px;
+            padding: 0 14px;
+
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            border-radius: 6px;
+
+            color: #aeb8c8;
+            font-size: 13px;
+        }
+
+        .nav-link:hover {
+            background: #13171c;
+            color: white;
+        }
+
+        .nav-link.active {
+            background: #171b21;
+            border-left: 2px solid #438cff;
+
+            padding-left: 12px;
+
+            color: white;
+        }
+
+        .nav-icon {
+            width: 18px;
+            text-align: center;
+            color: #8190a5;
+        }
+
+        .nav-link.active .nav-icon {
+            color: #438cff;
+        }
+
+        .sidebar-bottom {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            padding: 17px 16px;
+
+            border-top: 1px solid #252a31;
+            background: #090b0e;
+        }
+
+        .online {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            font-size: 12px;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+            background: #4fd184;
+        }
+
+        .small-text {
+            margin-top: 9px;
+
+            color: #657287;
+            font-size: 10px;
+        }
+
+        .prototype {
+            display: inline-block;
+
+            margin-top: 12px;
+            padding: 5px 8px;
+
+            border: 1px solid #30254a;
+            border-radius: 5px;
+
+            color: #9a78e5;
+            font-size: 9px;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .main {
+            margin-left: 280px;
+            min-height: 100vh;
+        }
+
+        /* =========================
+           TOPBAR
+        ========================= */
+
+        .topbar {
+            height: 70px;
+
+            padding: 0 28px;
+
+            display: flex;
+            align-items: center;
+            gap: 25px;
+
+            border-bottom: 1px solid #252a31;
+            background: #080a0d;
+        }
+
+        .top-title {
+            min-width: 280px;
+        }
+
+        .top-title strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .live {
+            margin-top: 5px;
+
+            display: flex;
+            align-items: center;
+            gap: 7px;
+
+            color: #68758a;
+            font-size: 10px;
+        }
+
+        .search {
+            height: 42px;
+            max-width: 580px;
+            flex: 1;
+
+            display: flex;
+            align-items: center;
+
+            padding: 0 12px;
+
+            border: 1px solid #252c35;
+            border-radius: 7px;
+
+            background: #0d1014;
+        }
+
+        .search-icon {
+            color: #68758a;
+            font-size: 18px;
+        }
+
+        .search input {
+            width: 100%;
+
+            padding: 0 10px;
+
+            border: 0;
+            outline: 0;
+
+            background: transparent;
+            color: white;
+
+            font-size: 12px;
+        }
+
+        .search input::placeholder {
+            color: #5f6c7f;
+        }
+
+        .authority {
+            margin-left: auto;
+
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .authority-avatar {
+            width: 36px;
+            height: 36px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid #28354c;
+            border-radius: 7px;
+
+            background: #101722;
+            color: #438cff;
+
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .authority-name {
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .authority-role {
+            margin-top: 3px;
+
+            color: #68758a;
+            font-size: 10px;
+        }
+
+        /* =========================
+           CONTENT
+        ========================= */
+
+        .content {
+            padding: 34px 36px 60px;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+
+            margin-bottom: 28px;
+        }
+
+        .page-title {
+            margin: 0;
+
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .page-description {
+            margin-top: 8px;
+
+            color: #8794a8;
+            font-size: 14px;
+        }
+
+        .result-count {
+            color: #68758a;
+            font-family: monospace;
+            font-size: 11px;
+        }
+
+        /* =========================
+           FILTERS
+        ========================= */
+
+        .filters {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            margin-bottom: 22px;
+
+            overflow-x: auto;
+        }
+
+        .filter {
+            padding: 9px 14px;
+
+            border: 1px solid #272e37;
+            border-radius: 7px;
+
+            background: #101318;
+            color: #aab5c5;
+
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .filter:hover {
+            border-color: #438cff;
+            color: white;
+        }
+
+        .filter.active {
+            border-color: #438cff;
+            background: #151a22;
+            color: white;
+        }
+
+        /* =========================
+           SEARCH
+        ========================= */
+
+        .explorer-search {
+            width: 100%;
+            height: 44px;
+
+            margin-bottom: 24px;
+
+            display: flex;
+            align-items: center;
+
+            padding: 0 13px;
+
+            border: 1px solid #272e37;
+            border-radius: 7px;
+
+            background: #0d1014;
+        }
+
+        .explorer-search span {
+            color: #68758a;
+        }
+
+        .explorer-search input {
+            width: 100%;
+
+            padding-left: 10px;
+
+            border: 0;
+            outline: 0;
+
+            background: transparent;
+            color: white;
+
+            font-size: 12px;
+        }
+
+        .explorer-search input::placeholder {
+            color: #5f6c7f;
+        }
+
+        /* =========================
+           CARDS
+        ========================= */
+
+        .cards {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+
+            gap: 18px;
+        }
+
+        .card {
+            min-height: 185px;
+
+            padding: 17px;
+
+            border: 1px solid #272e37;
+            border-radius: 8px;
+
+            background: #111418;
+
+            transition:
+                border-color .2s ease,
+                transform .2s ease,
+                background .2s ease;
+        }
+
+        .card:hover {
+            border-color: #3c4858;
+            background: #13171c;
+
+            transform: translateY(-2px);
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .work-id {
+            color: #e4e9ef;
+
+            font-family: monospace;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .risk {
+            padding: 5px 8px;
+
+            border-radius: 5px;
+
+            font-family: monospace;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        .critical {
+            color: #ff5a63;
+
+            border: 1px solid rgba(255, 80, 90, .35);
+            background: rgba(255, 80, 90, .08);
+        }
+
+        .high {
+            color: #ffad43;
+
+            border: 1px solid rgba(255, 160, 50, .35);
+            background: rgba(255, 160, 50, .08);
+        }
+
+        .medium {
+            color: #f1d456;
+
+            border: 1px solid rgba(241, 212, 86, .35);
+            background: rgba(241, 212, 86, .08);
+        }
+
+        .low {
+            color: #55d58b;
+
+            border: 1px solid rgba(85, 213, 139, .35);
+            background: rgba(85, 213, 139, .08);
+        }
+
+        .work-name {
+            min-height: 42px;
+
+            margin-top: 15px;
+
+            color: #d7dde5;
+
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .card-divider {
+            height: 1px;
+
+            margin: 14px 0;
+
+            background: #252b33;
+        }
+
+        .card-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .location {
+            color: #68758a;
+            font-size: 11px;
+        }
+
+        .money-score {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            font-family: monospace;
+            font-size: 11px;
+        }
+
+        .money {
+            color: #aab5c4;
+        }
+
+        .score {
+            font-weight: bold;
+        }
+
+        .score-critical,
+        .score-high {
+            color: #ff535b;
+        }
+
+        .score-medium {
+            color: #f1d456;
+        }
+
+        .score-low {
+            color: #55d58b;
+        }
+
+        .signal {
+            margin-top: 12px;
+
+            color: #68758a;
+            font-size: 10px;
+        }
+
+        .investigate {
+            display: none;
+
+            margin-top: 12px;
+
+            color: #438cff;
+            font-size: 11px;
+        }
+
+        .card:hover .investigate {
+            display: block;
+        }
+
+        /* =========================
+           EMPTY
+        ========================= */
+
+        .empty {
+            padding: 70px 20px;
+
+            border: 1px dashed #29313b;
+            border-radius: 8px;
+
+            text-align: center;
+
+            color: #68758a;
+        }
+
+        /* =========================
+           PAGINATION
+        ========================= */
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+
+            margin-top: 30px;
+        }
+
+        .page-button {
+            min-width: 34px;
+            height: 34px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid #29313b;
+            border-radius: 6px;
+
+            background: #111419;
+            color: #9ca8b9;
+
+            font-size: 11px;
+        }
+
+        .page-button:hover {
+            border-color: #438cff;
+            color: white;
+        }
+
+        .page-button.active {
+            border-color: #438cff;
+            background: #151c28;
+            color: white;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1200px) {
+
+            .cards {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+        }
+
+        @media (max-width: 850px) {
+
+            .sidebar {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .content {
+                padding: 25px 18px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .authority {
+                display: none;
+            }
+
+            .page-header {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+        }
+
+    </style>
 </head>
-
 
 <body>
 
 <div class="app-shell">
 
-
-    <!-- =====================================================
+    <!-- =========================
          SIDEBAR
-    ====================================================== -->
+    ========================== -->
 
     <aside class="sidebar">
 
         <div class="brand">
 
-            <div class="brand-logo">
+            <div class="brand-icon">
                 🛡
             </div>
 
             <div>
 
-                <div class="brand-title">
+                <div class="brand-name">
                     MPLADS <span>SENTINEL</span>
                 </div>
 
                 <div class="brand-subtitle">
-                    Risk & Anomaly Intelligence
+                    Risk &amp; Anomaly Intelligence
                 </div>
 
             </div>
@@ -57,157 +724,175 @@
         </div>
 
 
-        <nav class="navigation">
+        <nav class="nav">
 
-            <div class="nav-section-title">
+            <div class="nav-title">
                 OVERVIEW
             </div>
 
-            <a
-                href="/"
-                class="nav-item"
-            >
-                <span class="nav-icon">▦</span>
-                <span>Command Center</span>
+            <a href="/" class="nav-link">
+
+                <span class="nav-icon">
+                    ▦
+                </span>
+
+                Command Center
+
             </a>
 
 
-            <div class="nav-section-title">
+            <div class="nav-title">
                 INTELLIGENCE
             </div>
 
-            <a
-                href="/risk-analysis"
-                class="nav-item"
-            >
-                <span class="nav-icon">◉</span>
-                <span>Risk Monitor</span>
-            </a>
+            <a href="/risk-analysis" class="nav-link">
 
-            <a
-                href="/projects"
-                class="nav-item active"
-            >
-                <span class="nav-icon">⌕</span>
-                <span>Work Explorer</span>
-            </a>
+                <span class="nav-icon">
+                    ◉
+                </span>
 
-            <a
-                href="/analytics"
-                class="nav-item"
-            >
-                <span class="nav-icon">▥</span>
-                <span>Analytics</span>
-            </a>
+                Risk Monitor
 
-            <a
-                href="/reports"
-                class="nav-item"
-            >
-                <span class="nav-icon">♧</span>
-                <span>Alerts</span>
             </a>
 
 
-            <div class="nav-section-title">
+            <a href="/projects" class="nav-link active">
+
+                <span class="nav-icon">
+                    ⌕
+                </span>
+
+                Work Explorer
+
+            </a>
+
+
+            <a href="/analytics" class="nav-link">
+
+                <span class="nav-icon">
+                    ▥
+                </span>
+
+                Analytics
+
+            </a>
+
+
+            <a href="/reports" class="nav-link">
+
+                <span class="nav-icon">
+                    ♧
+                </span>
+
+                Alerts
+
+            </a>
+
+
+            <div class="nav-title">
                 OPERATIONS
             </div>
 
-            <a
-                href="/"
-                class="nav-item"
-            >
-                <span class="nav-icon">▤</span>
-                <span>Agencies</span>
-            </a>
+            <a href="#" class="nav-link">
 
-            <a
-                href="/map"
-                class="nav-item"
-            >
-                <span class="nav-icon">⌖</span>
-                <span>Districts</span>
-            </a>
+                <span class="nav-icon">
+                    ▤
+                </span>
 
-            <a
-                href="/reports"
-                class="nav-item"
-            >
-                <span class="nav-icon">▣</span>
-                <span>Investigation Queue</span>
+                Agencies
+
             </a>
 
 
-            <div class="nav-section-title">
+            <a href="/map" class="nav-link">
+
+                <span class="nav-icon">
+                    ⌖
+                </span>
+
+                Districts
+
+            </a>
+
+
+            <a href="/reports" class="nav-link">
+
+                <span class="nav-icon">
+                    ▣
+                </span>
+
+                Investigation Queue
+
+            </a>
+
+
+            <div class="nav-title">
                 AI
             </div>
 
-            <a
-                href="/"
-                class="nav-item"
-            >
-                <span class="nav-icon">✦</span>
-                <span>Sentinel AI</span>
+            <a href="#" class="nav-link">
+
+                <span class="nav-icon">
+                    ✦
+                </span>
+
+                Sentinel AI
+
             </a>
 
 
-            <div class="nav-section-title">
+            <div class="nav-title">
                 SYSTEM
             </div>
 
-            <a
-                href="/"
-                class="nav-item"
-            >
-                <span class="nav-icon">⌁</span>
-                <span>Data Health</span>
+            <a href="#" class="nav-link">
+
+                <span class="nav-icon">
+                    ⌁
+                </span>
+
+                Data Health
+
             </a>
 
-            <a
-                href="/"
-                class="nav-item"
-            >
-                <span class="nav-icon">⚙</span>
-                <span>Settings</span>
+
+            <a href="#" class="nav-link">
+
+                <span class="nav-icon">
+                    ⚙
+                </span>
+
+                Settings
+
             </a>
 
         </nav>
 
 
-        <div class="sidebar-footer">
+        <div class="sidebar-bottom">
 
-            <div class="engine-status">
+            <div class="online">
 
-                <span class="status-dot"></span>
+                <span class="online-dot"></span>
 
-                <span>
-                    Data Engine Online
-                </span>
+                Data Engine Online
 
             </div>
 
-
-            <div class="footer-small">
+            <div class="small-text">
                 Real-time analysis active
             </div>
 
-
-            <div class="footer-small">
+            <div class="small-text">
                 Last updated
             </div>
 
-
-            <div class="footer-time">
-                Today, 09:42 AM
+            <div class="small-text">
+                Today
             </div>
 
-
-            <div class="prototype-badge">
-
-                <span>●</span>
-
-                Prototype · SIH 2026
-
+            <div class="prototype">
+                ● Prototype · SIH 2026
             </div>
 
         </div>
@@ -215,29 +900,26 @@
     </aside>
 
 
-
-    <!-- =====================================================
+    <!-- =========================
          MAIN
-    ====================================================== -->
+    ========================== -->
 
-    <main class="main-content">
+    <main class="main">
 
 
-        <!-- =================================================
-             TOPBAR
-        ================================================== -->
+        <!-- TOPBAR -->
 
         <header class="topbar">
 
-            <div class="topbar-title">
+            <div class="top-title">
 
                 <strong>
                     Work Explorer
                 </strong>
 
-                <div class="live-status">
+                <div class="live">
 
-                    <span class="live-dot"></span>
+                    <span class="online-dot"></span>
 
                     LIVE ANALYTICS
 
@@ -246,274 +928,207 @@
             </div>
 
 
-            <div class="global-search">
+            <div class="search">
 
-                <span>
+                <span class="search-icon">
                     ⌕
                 </span>
 
                 <input
+                    id="topSearch"
                     type="text"
-                    id="globalSearch"
                     placeholder="Search work ID, district, agency..."
                 >
-
-                <span class="search-shortcut">
-                    /
-                </span>
 
             </div>
 
 
-            <div class="topbar-actions">
+            <div class="authority">
 
-                <button class="icon-button">
-                    ♧
-                    <span class="notification-dot"></span>
-                </button>
+                <div class="authority-avatar">
+                    MA
+                </div>
 
+                <div>
 
-                <div class="authority">
-
-                    <div class="authority-avatar">
-                        MA
+                    <div class="authority-name">
+                        Monitoring Authority
                     </div>
 
-                    <div class="authority-text">
-
-                        <strong>
-                            Monitoring Authority
-                        </strong>
-
-                        <span>
-                            Decision Support
-                        </span>
-
+                    <div class="authority-role">
+                        Decision Support
                     </div>
-
-                    <span>
-                        ⌄
-                    </span>
 
                 </div>
+
+                <span>
+                    ⌄
+                </span>
 
             </div>
 
         </header>
 
 
+        <!-- CONTENT -->
 
-        <!-- =================================================
-             CONTENT
-        ================================================== -->
-
-        <section class="page-content">
+        <section class="content">
 
 
-            <div class="page-heading">
+            <!-- HEADER -->
+
+            <div class="page-header">
 
                 <div>
 
-                    <h1>
+                    <h1 class="page-title">
                         Work Explorer
                     </h1>
 
-                    <p>
+                    <div class="page-description">
                         Browse and inspect individual MPLADS works across the programme.
-                    </p>
+                    </div>
 
                 </div>
 
 
-                <div class="explorer-search">
+                <div class="result-count">
 
-                    <span>
-                        ⌕
-                    </span>
+                    {{ total_items|default(projects|length) }}
 
-                    <input
-                        id="workSearch"
-                        type="text"
-                        placeholder="Search works..."
-                    >
+                    works
 
                 </div>
 
             </div>
 
 
+            <!-- CATEGORY FILTERS -->
 
-            <!-- =================================================
-                 CATEGORY FILTERS
-            ================================================== -->
-
-            <div class="category-tabs">
-
-                <button
-                    class="category-tab active"
-                    data-category="all"
-                >
-                    All
-                </button>
-
-                <button
-                    class="category-tab"
-                    data-category="Education"
-                >
-                    Education
-                </button>
-
-                <button
-                    class="category-tab"
-                    data-category="Health"
-                >
-                    Health
-                </button>
-
-                <button
-                    class="category-tab"
-                    data-category="Road Construction"
-                >
-                    Road Construction
-                </button>
-
-                <button
-                    class="category-tab"
-                    data-category="Water & Sanitation"
-                >
-                    Water & Sanitation
-                </button>
-
-                <button
-                    class="category-tab"
-                    data-category="Community Infrastructure"
-                >
-                    Community Infrastructure
-                </button>
-
-                <button
-                    class="category-tab"
-                    data-category="Public Amenities"
-                >
-                    Public Amenities
-                </button>
-
-                <button
-                    class="category-tab"
-                    data-category="Sports"
-                >
-                    Sports
-                </button>
-
-                <button
-                    class="category-tab"
-                    data-category="Other"
-                >
-                    Other
-                </button>
-
-            </div>
-
-
-
-            <!-- =================================================
-                 PROJECT GRID
-            ================================================== -->
-
-            <div
-                id="projectGrid"
-                class="project-grid"
-            >
-
-                {% for project in projects %}
-
-                {% set risk_score = project.get(
-                    'risk_score',
-                    project.get(
-                        'hybrid_risk_score',
-                        0
-                    )
-                ) %}
-
-
-                {% set risk_level = project.get(
-                    'risk',
-                    project.get(
-                        'hybrid_risk_level',
-                        'Low'
-                    )
-                ) %}
-
+            <div class="filters">
 
                 <a
-                    href="{{ url_for(
-                        'project_details',
-                        project_id=project.get(
+                    href="/projects"
+                    class="filter {% if not active_filters or active_filters.get('category', 'All') == 'All' %}active{% endif %}"
+                >
+                    All
+                </a>
+
+
+                {% if filter_options and filter_options.get('categories') %}
+
+                    {% for category in filter_options.get('categories') %}
+
+                        <a
+                            href="/projects?category={{ category|urlencode }}"
+                            class="filter"
+                        >
+                            {{ category }}
+                        </a>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <a
+                        href="/projects?category=Education"
+                        class="filter"
+                    >
+                        Education
+                    </a>
+
+                    <a
+                        href="/projects?category=Health"
+                        class="filter"
+                    >
+                        Health
+                    </a>
+
+                    <a
+                        href="/projects?category=Road Construction"
+                        class="filter"
+                    >
+                        Road Construction
+                    </a>
+
+                    <a
+                        href="/projects?category=Water & Sanitation"
+                        class="filter"
+                    >
+                        Water &amp; Sanitation
+                    </a>
+
+                    <a
+                        href="/projects?category=Community Infrastructure"
+                        class="filter"
+                    >
+                        Community Infrastructure
+                    </a>
+
+                    <a
+                        href="/projects?category=Public Amenities"
+                        class="filter"
+                    >
+                        Public Amenities
+                    </a>
+
+                    <a
+                        href="/projects?category=Sports"
+                        class="filter"
+                    >
+                        Sports
+                    </a>
+
+                    <a
+                        href="/projects?category=Other"
+                        class="filter"
+                    >
+                        Other
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- SEARCH -->
+
+            <div class="explorer-search">
+
+                <span>
+                    ⌕
+                </span>
+
+                <input
+                    id="workSearch"
+                    type="text"
+                    placeholder="Search works..."
+                >
+
+            </div>
+
+
+            <!-- CARDS -->
+
+            {% if projects %}
+
+                <div
+                    class="cards"
+                    id="projectCards"
+                >
+
+                    {% for project in projects %}
+
+                        {% set project_id = project.get(
                             'id',
                             project.get(
                                 'record_id',
-                                ''
+                                '—'
                             )
-                        )
-                    ) }}"
-                    class="project-card"
-                    data-category="{{ project.get(
-                        'category',
-                        project.get(
-                            'work_category',
-                            'Other'
-                        )
-                    ) }}"
-                    data-search="{{ (
-                        project.get('id', '') ~ ' ' ~
-                        project.get('name', '') ~ ' ' ~
-                        project.get('work_name', '') ~ ' ' ~
-                        project.get('district', '') ~ ' ' ~
-                        project.get('state', '') ~ ' ' ~
-                        project.get('agency', '') ~ ' ' ~
-                        project.get('implementing_agency', '')
-                    ) | lower }}"
-                >
-
-                    <div class="card-top">
-
-                        <span class="work-id">
-
-                            {{ project.get(
-                                'id',
-                                project.get(
-                                    'record_id',
-                                    '—'
-                                )
-                            ) }}
-
-                        </span>
+                        ) %}
 
 
-                        <span class="
-                            risk-badge
-                            {% if risk_level|upper == 'CRITICAL' %}
-                                risk-critical
-                            {% elif risk_level|upper == 'HIGH' %}
-                                risk-high
-                            {% elif risk_level|upper == 'MEDIUM' %}
-                                risk-medium
-                            {% else %}
-                                risk-low
-                            {% endif %}
-                        ">
-
-                            {{ risk_level|upper }}
-
-                        </span>
-
-                    </div>
-
-
-
-                    <h3>
-
-                        {{ project.get(
+                        {% set project_name = project.get(
                             'name',
                             project.get(
                                 'work_name',
@@ -522,141 +1137,309 @@
                                     'Work description unavailable'
                                 )
                             )
-                        ) }}
-
-                    </h3>
+                        ) %}
 
 
+                        {% set project_state = project.get(
+                            'state',
+                            '—'
+                        ) %}
 
-                    <div class="card-divider"></div>
+
+                        {% set project_district = project.get(
+                            'district',
+                            '—'
+                        ) %}
 
 
+                        {% set project_category = project.get(
+                            'category',
+                            project.get(
+                                'work_category',
+                                'Other'
+                            )
+                        ) %}
 
-                    <div class="card-bottom">
 
-                        <div>
+                        {% set project_agency = project.get(
+                            'agency',
+                            project.get(
+                                'implementing_agency',
+                                '—'
+                            )
+                        ) %}
 
-                            <span class="location">
 
-                                {{ project.get(
-                                    'district',
-                                    '—'
-                                ) }}
+                        {% set project_score = project.get(
+                            'hybrid_risk_score',
+                            project.get(
+                                'risk_score',
+                                0
+                            )
+                        ) %}
 
-                                {% if project.get('state') %}
-                                    ,
-                                    {{ project.get('state') }}
+
+                        {% set project_risk = project.get(
+                            'hybrid_risk_level',
+                            project.get(
+                                'risk',
+                                'LOW'
+                            )
+                        ) %}
+
+
+                        {% set project_amount = project.get(
+                            'sanction_amount',
+                            project.get(
+                                'sanctioned',
+                                project.get(
+                                    'cost_estimate_lakhs',
+                                    None
+                                )
+                            )
+                        ) %}
+
+
+                        <a
+                            href="/project/{{ project_id }}"
+                            class="card project-card"
+
+                            data-search="
+                                {{ project_id }}
+                                {{ project_name }}
+                                {{ project_state }}
+                                {{ project_district }}
+                                {{ project_category }}
+                                {{ project_agency }}
+                            "
+                        >
+
+
+                            <div class="card-top">
+
+                                <div class="work-id">
+                                    {{ project_id }}
+                                </div>
+
+
+                                {% if project_risk|string|upper == 'CRITICAL' %}
+
+                                    <span class="risk critical">
+                                        CRITICAL
+                                    </span>
+
+                                {% elif project_risk|string|upper == 'HIGH' %}
+
+                                    <span class="risk high">
+                                        HIGH
+                                    </span>
+
+                                {% elif project_risk|string|upper == 'MEDIUM' %}
+
+                                    <span class="risk medium">
+                                        MEDIUM
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="risk low">
+                                        LOW
+                                    </span>
+
                                 {% endif %}
 
-                            </span>
+                            </div>
 
 
-                            <span class="signal">
+                            <div class="work-name">
 
-                                {% if project.get('anomalies') %}
+                                {{ project_name }}
 
-                                    {% if project.get('anomalies') is string %}
+                            </div>
 
-                                        {{ project.get('anomalies') }}
 
-                                    {% else %}
+                            <div class="card-divider"></div>
 
-                                        {{ project.get('anomalies')[0] }}
+
+                            <div class="card-bottom">
+
+                                <div class="location">
+
+                                    {{ project_district }}
+
+                                    {% if project_district != '—'
+                                          and project_state != '—' %}
+
+                                        , {{ project_state }}
 
                                     {% endif %}
+
+                                </div>
+
+
+                                <div class="money-score">
+
+                                    {% if project_amount is not none %}
+
+                                        <span class="money">
+
+                                            ₹{{ project_amount }} L
+
+                                        </span>
+
+                                    {% endif %}
+
+
+                                    <span
+                                        class="
+                                            score
+                                            {% if project_score|float >= 80 %}
+                                                score-critical
+                                            {% elif project_score|float >= 60 %}
+                                                score-high
+                                            {% elif project_score|float >= 30 %}
+                                                score-medium
+                                            {% else %}
+                                                score-low
+                                            {% endif %}
+                                        "
+                                    >
+
+                                        {{ "%.0f"|format(
+                                            project_score|float
+                                        ) }}
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="signal">
+
+                                {% if project.get('rule_reasons') %}
+
+                                    {{ project.get(
+                                        'rule_reasons'
+                                    )[0] }}
 
                                 {% elif project.get('hybrid_risk_reasons') %}
 
-                                    {% if project.get('hybrid_risk_reasons') is string %}
+                                    {{ project.get(
+                                        'hybrid_risk_reasons'
+                                    )[0] }}
 
-                                        {{ project.get('hybrid_risk_reasons') }}
+                                {% elif project.get('ml_anomaly') %}
 
-                                    {% else %}
+                                    ML anomaly signal
 
-                                        {{ project.get('hybrid_risk_reasons')[0] }}
+                                {% elif project.get('cost_overrun_flag') %}
 
-                                    {% endif %}
+                                    Cost anomaly
 
-                                {% else %}
+                                {% elif project.get('timeline_delay_flag') %}
 
-                                    Risk assessment available
-
-                                {% endif %}
-
-                            </span>
-
-                        </div>
-
-
-
-                        <div class="score-section">
-
-                            <span class="money">
-
-                                {% if project.get('sanctioned') is not none %}
-
-                                    ₹{{ project.get('sanctioned') }}
-
-                                {% elif project.get('sanction_amount') is not none %}
-
-                                    ₹{{ project.get('sanction_amount') }}
+                                    Timeline delay
 
                                 {% else %}
 
-                                    —
+                                    Analytical monitoring
 
                                 {% endif %}
 
-                            </span>
+                            </div>
 
 
-                            <strong class="risk-score">
+                            <div class="investigate">
 
-                                {{ "%.0f"|format(
-                                    risk_score|float
-                                ) }}
+                                Open investigation →
 
-                            </strong>
+                            </div>
 
-                        </div>
+                        </a>
 
-                    </div>
-
-
-
-                    <div class="investigate-link">
-
-                        Open Investigation
-                        <span>→</span>
-
-                    </div>
-
-                </a>
-
-                {% endfor %}
-
-
-                {% if not projects %}
-
-                <div class="empty-state">
-
-                    <div>
-                        ◌
-                    </div>
-
-                    <h3>
-                        No works available
-                    </h3>
-
-                    <p>
-                        No project records are currently available.
-                    </p>
+                    {% endfor %}
 
                 </div>
 
-                {% endif %}
 
-            </div>
+            {% else %}
+
+                <div class="empty">
+
+                    <div style="font-size:28px;">
+                        ⌕
+                    </div>
+
+                    <div style="margin-top:12px;">
+                        No works found.
+                    </div>
+
+                    <div style="margin-top:6px;font-size:11px;">
+                        Try changing your filters or search query.
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- PAGINATION -->
+
+            {% if total_pages is defined and total_pages > 1 %}
+
+                <div class="pagination">
+
+
+                    {% if page|default(1) > 1 %}
+
+                        <a
+                            class="page-button"
+                            href="/projects?page={{ page - 1 }}"
+                        >
+                            ←
+                        </a>
+
+                    {% endif %}
+
+
+                    {% for p in range(1, total_pages + 1) %}
+
+                        {% if p <= 5 %}
+
+                            <a
+                                href="/projects?page={{ p }}"
+                                class="
+                                    page-button
+                                    {% if page == p %}
+                                        active
+                                    {% endif %}
+                                "
+                            >
+                                {{ p }}
+                            </a>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+
+                    {% if page|default(1) < total_pages %}
+
+                        <a
+                            class="page-button"
+                            href="/projects?page={{ page + 1 }}"
+                        >
+                            →
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
 
         </section>
 
@@ -665,13 +1448,86 @@
 </div>
 
 
-<script
-    src="{{ url_for(
-        'static',
-        filename='js/work_explorer.js'
-    ) }}"
-></script>
+<script>
+
+    const workSearch =
+        document.getElementById("workSearch");
+
+    const topSearch =
+        document.getElementById("topSearch");
+
+    const cards =
+        document.querySelectorAll(".project-card");
+
+
+    function searchWorks(value) {
+
+        const query =
+            value.toLowerCase().trim();
+
+
+        cards.forEach(card => {
+
+            const text =
+                card
+                    .getAttribute("data-search")
+                    .toLowerCase();
+
+
+            if (!query || text.includes(query)) {
+
+                card.style.display = "";
+
+            } else {
+
+                card.style.display = "none";
+
+            }
+
+        });
+
+    }
+
+
+    if (workSearch) {
+
+        workSearch.addEventListener(
+            "input",
+            function () {
+
+                searchWorks(
+                    this.value
+                );
+
+            }
+        );
+
+    }
+
+
+    if (topSearch) {
+
+        topSearch.addEventListener(
+            "input",
+            function () {
+
+                if (workSearch) {
+
+                    workSearch.value =
+                        this.value;
+
+                    searchWorks(
+                        this.value
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+</script>
 
 </body>
-
 </html>

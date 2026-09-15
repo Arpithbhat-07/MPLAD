@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Programme Analytics | MPLADS SENTINEL</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #080a0c;
+            --panel: #111417;
+            --panel-2: #15191d;
+            --border: #252b31;
+            --border-soft: #1c2227;
+            --text: #f2f5f7;
+            --muted: #8190a0;
+            --muted-2: #596675;
+            --green: #4fd17c;
+            --green-soft: rgba(79, 209, 124, .12);
+            --red: #ff5d6c;
+            --red-soft: rgba(255, 93, 108, .12);
+            --orange: #f5a142;
+            --orange-soft: rgba(245, 161, 66, .12);
+            --yellow: #f4d35e;
+            --blue: #5798ff;
+            --purple: #a878ff;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family:
+                Inter,
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+            min-height: 100vh;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        /* =====================================================
+           LAYOUT
+        ===================================================== */
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 228px;
+            background: #090b0d;
+            border-right: 1px solid var(--border);
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            height: 62px;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand-logo {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #26374a;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #101721;
+            color: #5a9cff;
+            font-size: 17px;
+        }
+
+        .brand-title {
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .3px;
+        }
+
+        .brand-title span {
+            color: #4e9cff;
+        }
+
+        .brand-subtitle {
+            margin-top: 2px;
+            font-size: 9px;
+            color: #6d7d8d;
+            letter-spacing: .15px;
+        }
+
+        .sidebar-content {
+            padding: 18px 11px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            color: #647386;
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            margin: 0 10px 8px;
+        }
+
+        .nav-section {
+            margin-bottom: 22px;
+        }
+
+        .nav-item {
+            height: 38px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 11px;
+            margin: 2px 0;
+            border-radius: 6px;
+            color: #aeb9c5;
+            font-size: 12px;
+            transition: .15s ease;
+        }
+
+        .nav-item:hover {
+            background: #11161b;
+            color: white;
+        }
+
+        .nav-item.active {
+            background: #171b20;
+            color: white;
+            border-left: 2px solid #5798ff;
+            padding-left: 9px;
+        }
+
+        .nav-icon {
+            width: 15px;
+            color: #7c8997;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .nav-item.active .nav-icon {
+            color: #5798ff;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid var(--border);
+            padding: 13px 15px;
+        }
+
+        .engine-status {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 10px;
+            color: #aab7c4;
+        }
+
+        .engine-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 8px rgba(79, 209, 124, .5);
+        }
+
+        .updated {
+            margin-top: 12px;
+            font-size: 8px;
+            color: #596675;
+        }
+
+        .prototype {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 4px 7px;
+            border: 1px solid #282d34;
+            border-radius: 4px;
+            color: #697687;
+            font-size: 8px;
+        }
+
+        /* =====================================================
+           MAIN
+        ===================================================== */
+
+        .main {
+            margin-left: 228px;
+            width: calc(100% - 228px);
+            min-height: 100vh;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            height: 62px;
+            background: rgba(8, 10, 12, .94);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 22px;
+        }
+
+        .topbar-left {
+            min-width: 180px;
+        }
+
+        .topbar-title {
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .live {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 3px;
+            font-size: 8px;
+            color: #69798a;
+            letter-spacing: .5px;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--green);
+            border-radius: 50%;
+        }
+
+        .search {
+            width: min(400px, 38vw);
+            height: 31px;
+            border: 1px solid #252c34;
+            border-radius: 6px;
+            background: #0d1013;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 0 11px;
+            color: #637181;
+        }
+
+        .search input {
+            width: 100%;
+            border: 0;
+            outline: none;
+            background: transparent;
+            color: white;
+            font-size: 11px;
+        }
+
+        .search input::placeholder {
+            color: #596777;
+        }
+
+        .shortcut {
+            font-size: 9px;
+            border: 1px solid #29313a;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .authority {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #252d35;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9aa7b4;
+            position: relative;
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 7px;
+            right: 7px;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--red);
+        }
+
+        .authority-avatar {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #29364a;
+            background: #111925;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5798ff;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .authority-text strong {
+            display: block;
+            font-size: 10px;
+        }
+
+        .authority-text span {
+            display: block;
+            margin-top: 2px;
+            color: #667687;
+            font-size: 8px;
+        }
+
+        /* =====================================================
+           CONTENT
+        ===================================================== */
+
+        .content {
+            padding: 36px 36px 60px;
+            max-width: 1500px;
+            margin: auto;
+        }
+
+        .page-heading {
+            margin-bottom: 26px;
+        }
+
+        .eyebrow {
+            color: #63809e;
+            text-transform: uppercase;
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+
+        .page-heading h1 {
+            font-size: 24px;
+            letter-spacing: -.5px;
+        }
+
+        .page-heading p {
+            color: #8291a2;
+            font-size: 12px;
+            margin-top: 7px;
+        }
+
+        .dataset-strip {
+            margin-top: 16px;
+            padding: 10px 13px;
+            border: 1px solid #25352d;
+            background: #0d1511;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .dataset-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+            color: #9aa9b6;
+        }
+
+        .dataset-label strong {
+            color: #d7e0e7;
+        }
+
+        .dataset-badge {
+            padding: 4px 7px;
+            border: 1px solid #284735;
+            color: #68ce8b;
+            background: #0c1811;
+            border-radius: 4px;
+            font-size: 8px;
+            font-weight: 700;
+        }
+
+        /* =====================================================
+           KPI
+        ===================================================== */
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .kpi {
+            min-height: 125px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 15px;
+        }
+
+        .kpi-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .kpi-label {
+            color: #718092;
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .kpi-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #131a21;
+            color: #5798ff;
+            font-size: 13px;
+        }
+
+        .kpi-value {
+            margin-top: 16px;
+            font-size: 25px;
+            font-weight: 750;
+            letter-spacing: -.8px;
+        }
+
+        .kpi-value.red {
+            color: var(--red);
+        }
+
+        .kpi-value.green {
+            color: var(--green);
+        }
+
+        .kpi-value.orange {
+            color: var(--orange);
+        }
+
+        .kpi-foot {
+            margin-top: 8px;
+            font-size: 8px;
+            color: #586675;
+        }
+
+        /* =====================================================
+           PANELS
+        ===================================================== */
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            overflow: hidden;
+            margin-bottom: 18px;
+        }
+
+        .panel-header {
+            min-height: 62px;
+            padding: 15px 18px;
+            border-bottom: 1px solid var(--border-soft);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .panel-subtitle {
+            color: #657486;
+            font-size: 9px;
+            margin-top: 4px;
+        }
+
+        .grid-two {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        /* =====================================================
+           CATEGORY BARS
+        ===================================================== */
+
+        .category-list {
+            padding: 17px 18px;
+        }
+
+        .category-row {
+            margin-bottom: 15px;
+        }
+
+        .category-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .category-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 7px;
+        }
+
+        .category-name {
+            font-size: 10px;
+            color: #c5ced6;
+        }
+
+        .category-count {
+            font-size: 9px;
+            color: #69798a;
+        }
+
+        .bar-track {
+            height: 7px;
+            background: #1b2127;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: #4fd17c;
+            min-width: 2px;
+        }
+
+        .category-footer {
+            margin-top: 6px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 8px;
+            color: #596878;
+        }
+
+        /* =====================================================
+           STATUS
+        ===================================================== */
+
+        .status-list {
+            padding: 17px 18px;
+        }
+
+        .status-row {
+            margin-bottom: 17px;
+        }
+
+        .status-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .status-head {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            margin-bottom: 7px;
+        }
+
+        .status-head span {
+            color: #aab5c0;
+        }
+
+        .status-head strong {
+            color: #dce2e7;
+        }
+
+        .status-bar {
+            height: 7px;
+            background: #1b2127;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .status-fill {
+            height: 100%;
+            border-radius: inherit;
+        }
+
+        .status-normal {
+            background: #4fd17c;
+        }
+
+        .status-warning {
+            background: #f4d35e;
+        }
+
+        .status-danger {
+            background: #ff5d6c;
+        }
+
+        /* =====================================================
+           STATE TABLE
+        ===================================================== */
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 760px;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 14px;
+            background: #0d1013;
+            border-bottom: 1px solid var(--border);
+            color: #637284;
+            font-size: 8px;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #1c2227;
+            color: #9eabb8;
+            font-size: 10px;
+        }
+
+        tbody tr:hover {
+            background: #15191d;
+        }
+
+        td strong {
+            color: #e1e6ea;
+            font-weight: 650;
+        }
+
+        .risk-number {
+            color: var(--green);
+            font-weight: 750;
+        }
+
+        .utilization {
+            color: #b8c4ce;
+        }
+
+        .state-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 7px;
+            background: var(--green);
+        }
+
+        /* =====================================================
+           ANOMALIES
+        ===================================================== */
+
+        .anomaly-list {
+            padding: 5px 18px 12px;
+        }
+
+        .anomaly {
+            padding: 14px 0;
+            border-bottom: 1px solid #1c2227;
+        }
+
+        .anomaly:last-child {
+            border-bottom: 0;
+        }
+
+        .anomaly-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .anomaly-name {
+            font-size: 10px;
+            color: #c8d0d8;
+        }
+
+        .anomaly-count {
+            color: var(--orange);
+            font-size: 9px;
+            white-space: nowrap;
+        }
+
+        .mini-track {
+            height: 5px;
+            margin-top: 8px;
+            background: #1c2227;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .mini-fill {
+            height: 100%;
+            background: var(--orange);
+            border-radius: inherit;
+        }
+
+        /* =====================================================
+           PRIORITY
+        ===================================================== */
+
+        .priority-list {
+            padding: 5px 18px 10px;
+        }
+
+        .priority-item {
+            display: grid;
+            grid-template-columns: 35px 1fr auto;
+            gap: 11px;
+            align-items: center;
+            padding: 13px 0;
+            border-bottom: 1px solid #1c2227;
+        }
+
+        .priority-item:last-child {
+            border-bottom: 0;
+        }
+
+        .priority-icon {
+            width: 29px;
+            height: 29px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--red-soft);
+            color: var(--red);
+        }
+
+        .priority-name {
+            font-size: 10px;
+            font-weight: 650;
+            color: #d9e0e5;
+        }
+
+        .priority-meta {
+            margin-top: 4px;
+            color: #617081;
+            font-size: 8px;
+        }
+
+        .priority-score {
+            color: var(--red);
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        .inspect {
+            margin-top: 4px;
+            color: #5798ff;
+            font-size: 8px;
+        }
+
+        /* =====================================================
+           EMPTY
+        ===================================================== */
+
+        .empty {
+            padding: 35px 20px;
+            text-align: center;
+            color: #5e6d7c;
+            font-size: 10px;
+        }
+
+        .empty strong {
+            display: block;
+            color: #9aa6b2;
+            margin-bottom: 5px;
+        }
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        footer {
+            margin-top: 35px;
+            padding-top: 18px;
+            border-top: 1px solid #1d2328;
+            display: flex;
+            justify-content: space-between;
+            color: #4e5c6b;
+            font-size: 8px;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 1050px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .grid-two {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 750px) {
+            .sidebar {
+                width: 65px;
+            }
+
+            .brand {
+                justify-content: center;
+                padding: 0;
+            }
+
+            .brand-text,
+            .section-title,
+            .nav-item span:not(.nav-icon),
+            .sidebar-footer .updated,
+            .prototype,
+            .engine-status span {
+                display: none;
+            }
+
+            .nav-item {
+                justify-content: center;
+                padding: 0;
+            }
+
+            .nav-item.active {
+                padding-left: 0;
+            }
+
+            .main {
+                margin-left: 65px;
+                width: calc(100% - 65px);
+            }
+
+            .content {
+                padding: 25px 18px;
+            }
+
+            .authority-text {
+                display: none;
+            }
+
+            .search {
+                width: 35vw;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar">
+
+        <a href="/" class="brand">
+
+            <div class="brand-logo">
+                ◈
+            </div>
+
+            <div class="brand-text">
+                <div class="brand-title">
+                    MPLADS <span>SENTINEL</span>
+                </div>
+
+                <div class="brand-subtitle">
+                    Risk & Anomaly Intelligence
+                </div>
+            </div>
+
+        </a>
+
+        <div class="sidebar-content">
+
+            <div class="nav-section">
+
+                <div class="section-title">
+                    OVERVIEW
+                </div>
+
+                <a href="/" class="nav-item">
+                    <span class="nav-icon">▦</span>
+                    <span>Command Center</span>
+                </a>
+
+            </div>
+
+
+            <div class="nav-section">
+
+                <div class="section-title">
+                    INTELLIGENCE
+                </div>
+
+                <a href="/risk-analysis" class="nav-item">
+                    <span class="nav-icon">◉</span>
+                    <span>Risk Monitor</span>
+                </a>
+
+                <a href="/projects" class="nav-item">
+                    <span class="nav-icon">⌕</span>
+                    <span>Work Explorer</span>
+                </a>
+
+                <a href="/analytics" class="nav-item active">
+                    <span class="nav-icon">▥</span>
+                    <span>Analytics</span>
+                </a>
+
+                <a href="/projects?risk=High" class="nav-item">
+                    <span class="nav-icon">♧</span>
+                    <span>Alerts</span>
+                </a>
+
+            </div>
+
+
+            <div class="nav-section">
+
+                <div class="section-title">
+                    OPERATIONS
+                </div>
+
+                <a href="/agencies" class="nav-item">
+                    <span class="nav-icon">▤</span>
+                    <span>Agencies</span>
+                </a>
+
+                <a href="/districts" class="nav-item">
+                    <span class="nav-icon">⌖</span>
+                    <span>Districts</span>
+                </a>
+
+                <a href="/investigation" class="nav-item">
+                    <span class="nav-icon">▣</span>
+                    <span>Investigation Queue</span>
+                </a>
+
+            </div>
+
+
+            <div class="nav-section">
+
+                <div class="section-title">
+                    AI
+                </div>
+
+                <a href="/sentinel-ai" class="nav-item">
+                    <span class="nav-icon">✦</span>
+                    <span>Sentinel AI</span>
+                </a>
+
+            </div>
+
+
+            <div class="nav-section">
+
+                <div class="section-title">
+                    SYSTEM
+                </div>
+
+                <a href="/data-health" class="nav-item">
+                    <span class="nav-icon">⌁</span>
+                    <span>Data Health</span>
+                </a>
+
+                <a href="/settings" class="nav-item">
+                    <span class="nav-icon">⚙</span>
+                    <span>Settings</span>
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="sidebar-footer">
+
+            <div class="engine-status">
+                <span class="engine-dot"></span>
+                <span>Data Engine Online</span>
+            </div>
+
+            <div class="updated">
+                Last updated<br>
+                {{ current_time|default("Live dataset") }}
+            </div>
+
+            <div class="prototype">
+                Prototype · SIH 2026
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="main">
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+
+                <div class="topbar-title">
+                    Programme Analytics
+                </div>
+
+                <div class="live">
+                    <span class="live-dot"></span>
+                    LIVE ANALYTICS
+                </div>
+
+            </div>
+
+
+            <div class="search">
+
+                <span>⌕</span>
+
+                <input
+                    type="text"
+                    id="globalSearch"
+                    placeholder="Search work ID, district, agency..."
+                >
+
+                <span class="shortcut">/</span>
+
+            </div>
+
+
+            <div class="authority">
+
+                <div class="notification">
+                    ♧
+                    {% if statistics.high_risk|default(0) > 0 %}
+                        <span class="notification-dot"></span>
+                    {% endif %}
+                </div>
+
+                <div class="authority-avatar">
+                    MA
+                </div>
+
+                <div class="authority-text">
+                    <strong>Monitoring Authority</strong>
+                    <span>Decision Support</span>
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- CONTENT -->
+
+        <div class="content">
+
+            <!-- PAGE HEADING -->
+
+            <section class="page-heading">
+
+                <div class="eyebrow">
+                    Intelligence Layer
+                </div>
+
+                <h1>
+                    Programme Analytics
+                </h1>
+
+                <p>
+                    Identify trends, inefficiencies and structural patterns
+                    across MPLADS implementation.
+                </p>
+
+
+                <div class="dataset-strip">
+
+                    <div class="dataset-label">
+                        <span>🧪</span>
+
+                        <span>
+                            <strong>
+                                Synthetic Demonstration Dataset
+                            </strong>
+
+                            ·
+                            AI capability demonstration
+                        </span>
+                    </div>
+
+                    <div class="dataset-badge">
+                        DATA SOURCE
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 KPI CARDS
+            ================================================== -->
+
+            <section class="kpi-grid">
+
+                <div class="kpi">
+
+                    <div class="kpi-head">
+
+                        <span class="kpi-label">
+                            MONITORED WORKS
+                        </span>
+
+                        <div class="kpi-icon">
+                            ▤
+                        </div>
+
+                    </div>
+
+                    <div class="kpi-value">
+                        {{ statistics.total_projects|default(0) }}
+                    </div>
+
+                    <div class="kpi-foot">
+                        Records available to analytics engine
+                    </div>
+
+                </div>
+
+
+                <div class="kpi">
+
+                    <div class="kpi-head">
+
+                        <span class="kpi-label">
+                            HIGH RISK WORKS
+                        </span>
+
+                        <div class="kpi-icon">
+                            ⚠
+                        </div>
+
+                    </div>
+
+                    <div class="kpi-value red">
+                        {{ statistics.high_risk|default(0) }}
+                    </div>
+
+                    <div class="kpi-foot">
+                        Risk threshold ≥ 70
+                    </div>
+
+                </div>
+
+
+                <div class="kpi">
+
+                    <div class="kpi-head">
+
+                        <span class="kpi-label">
+                            TOTAL SANCTIONED
+                        </span>
+
+                        <div class="kpi-icon">
+                            ₹
+                        </div>
+
+                    </div>
+
+                    <div class="kpi-value green">
+
+                        ₹{{ "%.2f"|format(
+                            (statistics.total_sanctioned|default(0)|float) / 10000000
+                        ) }} Cr
+
+                    </div>
+
+                    <div class="kpi-foot">
+                        Based on available sanctioned amount
+                    </div>
+
+                </div>
+
+
+                <div class="kpi">
+
+                    <div class="kpi-head">
+
+                        <span class="kpi-label">
+                            FUND UTILIZATION
+                        </span>
+
+                        <div class="kpi-icon">
+                            %
+                        </div>
+
+                    </div>
+
+                    <div class="kpi-value orange">
+                        {{ statistics.utilization|default(0) }}%
+                    </div>
+
+                    <div class="kpi-foot">
+                        Expenditure / sanctioned amount
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 CATEGORY + STATUS
+            ================================================== -->
+
+            <section class="grid-two">
+
+
+                <!-- CATEGORY -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <div class="panel-title">
+                                Category Analysis
+                            </div>
+
+                            <div class="panel-subtitle">
+                                Works available by implementation category
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    {% if category_list %}
+
+                    <div class="category-list">
+
+                        {% set max_category_count =
+                            category_list|map(attribute='count')|list|max
+                        %}
+
+                        {% for cat in category_list %}
+
+                        <div class="category-row">
+
+                            <div class="category-meta">
+
+                                <span class="category-name">
+                                    {{ cat.category|default("Unknown") }}
+                                </span>
+
+                                <span class="category-count">
+                                    {{ cat.count|default(0) }} works
+                                </span>
+
+                            </div>
+
+                            <div class="bar-track">
+
+                                {% if max_category_count > 0 %}
+
+                                <div
+                                    class="bar-fill"
+                                    style="width: {{
+                                        ((cat.count|default(0)|float /
+                                        max_category_count|float) * 100)
+                                    }}%;"
+                                ></div>
+
+                                {% endif %}
+
+                            </div>
+
+                            <div class="category-footer">
+
+                                <span>
+                                    Sanctioned:
+                                    ₹{{ cat.sanctioned_cr|default(0) }} Cr
+                                </span>
+
+                                <span>
+                                    Spent:
+                                    ₹{{ cat.spent_cr|default(0) }} Cr
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                    {% else %}
+
+                    <div class="empty">
+                        <strong>No category data available</strong>
+                        Category analysis cannot be calculated from the current dataset.
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <div class="panel-title">
+                                Implementation Status
+                            </div>
+
+                            <div class="panel-subtitle">
+                                Current delivery status across monitored works
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    {% if statuses %}
+
+                    <div class="status-list">
+
+                        {% set total_status =
+                            statistics.total_projects|default(0)|float
+                        %}
+
+                        {% for status_name, count in statuses.items() %}
+
+                        {% if total_status > 0 %}
+                            {% set status_pct =
+                                (count|float / total_status) * 100
+                            %}
+                        {% else %}
+                            {% set status_pct = 0 %}
+                        {% endif %}
+
+
+                        <div class="status-row">
+
+                            <div class="status-head">
+
+                                <span>
+                                    {{ status_name }}
+                                </span>
+
+                                <strong>
+                                    {{ count }}
+                                    ·
+                                    {{ "%.1f"|format(status_pct) }}%
+                                </strong>
+
+                            </div>
+
+                            <div class="status-bar">
+
+                                <div
+                                    class="status-fill
+                                    {% if 'delay' in status_name|lower
+                                       or 'critical' in status_name|lower %}
+                                        status-danger
+                                    {% elif 'review' in status_name|lower
+                                       or 'pending' in status_name|lower %}
+                                        status-warning
+                                    {% else %}
+                                        status-normal
+                                    {% endif %}"
+                                    style="width: {{ status_pct }}%;"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                    {% else %}
+
+                    <div class="empty">
+                        <strong>No status data available</strong>
+                        Status distribution is unavailable in the current dataset.
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 STATE / DISTRICT PERFORMANCE
+            ================================================== -->
+
+            <section class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <div class="panel-title">
+                            Geographic Performance
+                        </div>
+
+                        <div class="panel-subtitle">
+                            Geographic breakdown from available programme records
+                        </div>
+
+                    </div>
+
+                    <a href="/districts"
+                       style="font-size:9px;color:#5798ff;">
+                        Explore Districts →
+                    </a>
+
+                </div>
+
+
+                {% if district_list %}
+
+                <div class="table-wrap">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>LOCATION</th>
+                                <th>WORKS</th>
+                                <th>SANCTIONED</th>
+                                <th>EXPENDITURE</th>
+                                <th>UTILIZATION</th>
+                                <th>AVG RISK</th>
+                                <th>DELAYED</th>
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                        {% for district in district_list %}
+
+                            <tr>
+
+                                <td>
+
+                                    <span class="state-dot"></span>
+
+                                    <strong>
+                                        {{ district.district
+                                           |default(district.state
+                                           |default("Unknown")) }}
+                                    </strong>
+
+                                </td>
+
+
+                                <td>
+                                    {{ district.count|default(0) }}
+                                </td>
+
+
+                                <td>
+                                    ₹{{ district.sanctioned_cr|default(0) }} Cr
+                                </td>
+
+
+                                <td>
+                                    ₹{{ district.spent_cr|default(0) }} Cr
+                                </td>
+
+
+                                <td class="utilization">
+
+                                    {% if district.utilization is defined %}
+                                        {{ district.utilization }}%
+                                    {% else %}
+                                        —
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if district.avg_risk is defined %}
+
+                                        <span class="risk-number">
+                                            {{ district.avg_risk }}
+                                        </span>
+
+                                    {% elif district.risk is defined %}
+
+                                        <span class="risk-number">
+                                            {{ district.risk }}
+                                        </span>
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if district.delayed_pct is defined %}
+                                        {{ district.delayed_pct }}%
+                                    {% elif district.delayed is defined %}
+                                        {{ district.delayed }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                {% else %}
+
+                <div class="empty">
+
+                    <strong>
+                        Geographic data unavailable
+                    </strong>
+
+                    The current backend dataset does not provide enough
+                    geographic fields for this analysis.
+
+                </div>
+
+                {% endif %}
+
+            </section>
+
+
+            <!-- =================================================
+                 ANOMALIES + PRIORITY
+            ================================================== -->
+
+            <section class="grid-two">
+
+
+                <!-- ANOMALIES -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <div class="panel-title">
+                                Common Anomaly Triggers
+                            </div>
+
+                            <div class="panel-subtitle">
+                                Patterns identified by the risk analysis engine
+                            </div>
+
+                        </div>
+
+                        <span style="
+                            font-size:8px;
+                            color:#a878ff;
+                            border:1px solid #38275a;
+                            background:#171020;
+                            padding:4px 7px;
+                            border-radius:4px;
+                        ">
+                            AI
+                        </span>
+
+                    </div>
+
+
+                    {% if top_anomalies %}
+
+                    <div class="anomaly-list">
+
+                        {% set max_anomaly =
+                            top_anomalies|map(attribute='count')|list|max
+                        %}
+
+                        {% for item in top_anomalies %}
+
+                        <div class="anomaly">
+
+                            <div class="anomaly-head">
+
+                                <span class="anomaly-name">
+                                    {{ item.reason|default("Anomaly indicator") }}
+                                </span>
+
+                                <span class="anomaly-count">
+                                    {{ item.count|default(0) }} occurrences
+                                </span>
+
+                            </div>
+
+
+                            <div class="mini-track">
+
+                                {% if max_anomaly > 0 %}
+
+                                <div
+                                    class="mini-fill"
+                                    style="width:{{
+                                        ((item.count|default(0)|float /
+                                        max_anomaly|float) * 100)
+                                    }}%;"
+                                ></div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                    {% else %}
+
+                    <div class="empty">
+
+                        <strong>
+                            No anomaly triggers available
+                        </strong>
+
+                        No anomaly reason data is currently available.
+
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- PRIORITY WORKS -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <div class="panel-title">
+                                Priority Works
+                            </div>
+
+                            <div class="panel-subtitle">
+                                Higher-risk works surfaced for investigation
+                            </div>
+
+                        </div>
+
+                        <a href="/projects?risk=High"
+                           style="font-size:9px;color:#5798ff;">
+                            View all →
+                        </a>
+
+                    </div>
+
+
+                    {% if flagged_projects %}
+
+                    <div class="priority-list">
+
+                        {% for project in flagged_projects[:7] %}
+
+                        <a
+                            href="/project/{{ project.id }}"
+                            class="priority-item"
+                        >
+
+                            <div class="priority-icon">
+                                ⚠
+                            </div>
+
+
+                            <div>
+
+                                <div class="priority-name">
+
+                                    {{ project.name
+                                       |default(
+                                           project.work_name
+                                           |default("Unnamed Work")
+                                       )
+                                    }}
+
+                                </div>
+
+
+                                <div class="priority-meta">
+
+                                    {{ project.district
+                                       |default("—") }}
+
+                                    {% if project.state %}
+                                        · {{ project.state }}
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+                            <div style="text-align:right;">
+
+                                <div class="priority-score">
+
+                                    {% if project.risk_score is defined %}
+
+                                        {{ project.risk_score }}/100
+
+                                    {% elif project.hybrid_risk_score is defined %}
+
+                                        {{ project.hybrid_risk_score }}/100
+
+                                    {% else %}
+
+                                        High
+
+                                    {% endif %}
+
+                                </div>
+
+                                <div class="inspect">
+                                    Inspect →
+                                </div>
+
+                            </div>
+
+                        </a>
+
+                        {% endfor %}
+
+                    </div>
+
+                    {% else %}
+
+                    <div class="empty">
+
+                        <strong>
+                            No high-risk works
+                        </strong>
+
+                        No high-risk records are currently available.
+
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 DATA NOTE
+            ================================================== -->
+
+            <section class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <div class="panel-title">
+                            Analytics Interpretation
+                        </div>
+
+                        <div class="panel-subtitle">
+                            Data transparency and decision-support note
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div style="padding:18px;">
+
+                    <div style="
+                        display:grid;
+                        grid-template-columns:repeat(3,1fr);
+                        gap:12px;
+                    ">
+
+                        <div style="
+                            padding:14px;
+                            border:1px solid #252b31;
+                            background:#0d1013;
+                            border-radius:6px;
+                        ">
+
+                            <div style="
+                                color:#5798ff;
+                                font-size:9px;
+                                font-weight:700;
+                                margin-bottom:7px;
+                            ">
+                                DATA
+                            </div>
+
+                            <div style="
+                                color:#aab5c0;
+                                font-size:9px;
+                                line-height:1.6;
+                            ">
+                                Analytics are rendered from the records
+                                supplied to the backend.
+                            </div>
+
+                        </div>
+
+
+                        <div style="
+                            padding:14px;
+                            border:1px solid #252b31;
+                            background:#0d1013;
+                            border-radius:6px;
+                        ">
+
+                            <div style="
+                                color:#4fd17c;
+                                font-size:9px;
+                                font-weight:700;
+                                margin-bottom:7px;
+                            ">
+                                AI
+                            </div>
+
+                            <div style="
+                                color:#aab5c0;
+                                font-size:9px;
+                                line-height:1.6;
+                            ">
+                                Risk and anomaly indicators support
+                                investigation prioritization.
+                            </div>
+
+                        </div>
+
+
+                        <div style="
+                            padding:14px;
+                            border:1px solid #252b31;
+                            background:#0d1013;
+                            border-radius:6px;
+                        ">
+
+                            <div style="
+                                color:#f5a142;
+                                font-size:9px;
+                                font-weight:700;
+                                margin-bottom:7px;
+                            ">
+                                IMPORTANT
+                            </div>
+
+                            <div style="
+                                color:#aab5c0;
+                                font-size:9px;
+                                line-height:1.6;
+                            ">
+                                AI risk flags are decision-support signals,
+                                not findings of fraud or wrongdoing.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- FOOTER -->
+
+            <footer>
+
+                <span>
+                    MPLADS SENTINEL · AI-assisted decision support
+                </span>
+
+                <span>
+                    Prototype · SIH 2026 · Synthetic Demonstration Dataset
+                </span>
+
+            </footer>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script>
+
+    /* =========================================================
+       GLOBAL SEARCH
+    ========================================================= */
+
+    const searchInput = document.getElementById("globalSearch");
+
+    if (searchInput) {
+
+        searchInput.addEventListener("keydown", function(event) {
+
+            if (event.key !== "Enter") {
+                return;
+            }
+
+            const value = this.value.trim();
+
+            if (!value) {
+                return;
+            }
+
+            window.location.href =
+                "/projects?search=" +
+                encodeURIComponent(value);
+
+        });
+
+    }
+
+
+    /* "/" keyboard shortcut */
+
+    document.addEventListener("keydown", function(event) {
+
+        if (
+            event.key === "/" &&
+            document.activeElement !== searchInput
+        ) {
+
+            event.preventDefault();
+
+            if (searchInput) {
+                searchInput.focus();
+            }
+
+        }
+
+    });
+
+</script>
+
+</body>
+</html>

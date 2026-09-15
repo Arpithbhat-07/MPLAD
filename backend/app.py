@@ -138,7 +138,7 @@ def create_app() -> Flask:
         )
 
     # ======================================================
-    # PROJECTS PAGE
+    # PROJECTS / WORK EXPLORER PAGE
     # ======================================================
 
     @app.get("/projects")
@@ -216,10 +216,13 @@ def create_app() -> Flask:
             )
         )
 
-        return render_template(
-            "project.html",
+        # IMPORTANT:
+        # /projects is the Work Explorer.
+        # It must NOT render project.html.
+        # project.html is only for /project/<project_id>.
 
-            project=None,
+        return render_template(
+            "work_explorer.html",
 
             projects=filtered[
                 start_idx:end_idx
@@ -247,7 +250,7 @@ def create_app() -> Flask:
         )
 
     # ======================================================
-    # SINGLE PROJECT
+    # SINGLE PROJECT / WORK INVESTIGATION
     # ======================================================
 
     @app.get("/project/<project_id>")
@@ -304,7 +307,6 @@ def create_app() -> Flask:
                     "category": "All",
                     "search": "",
                 },
-
             ), 404
 
         return render_template(

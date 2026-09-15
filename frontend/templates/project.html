@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Investigation | MPLADS SENTINEL</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #080a0d;
+            color: #e7ebf0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        /* =========================
+           LAYOUT
+        ========================= */
+
+        .app-shell {
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 280px;
+            background: #090b0e;
+            border-right: 1px solid #252a31;
+            z-index: 20;
+        }
+
+        .main-area {
+            margin-left: 280px;
+            min-height: 100vh;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .brand {
+            height: 70px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #252a31;
+        }
+
+        .brand-logo {
+            width: 38px;
+            height: 38px;
+            border: 1px solid #263750;
+            border-radius: 8px;
+            background: #101722;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .brand-title {
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .brand-title span {
+            color: #438cff;
+        }
+
+        .brand-subtitle {
+            margin-top: 4px;
+            color: #68758a;
+            font-size: 10px;
+        }
+
+        .navigation {
+            padding: 20px 12px;
+        }
+
+        .nav-heading {
+            margin: 0 14px 8px;
+            color: #68758a;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+        }
+
+        .nav-heading:not(:first-child) {
+            margin-top: 23px;
+        }
+
+        .nav-item {
+            height: 40px;
+            margin-bottom: 3px;
+            padding: 0 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 6px;
+            color: #aeb8c8;
+            font-size: 13px;
+        }
+
+        .nav-item:hover {
+            background: #13171c;
+            color: #ffffff;
+        }
+
+        .nav-item.active {
+            background: #171b21;
+            border-left: 2px solid #438cff;
+            padding-left: 12px;
+            color: #ffffff;
+        }
+
+        .nav-icon {
+            width: 18px;
+            text-align: center;
+            color: #8190a5;
+        }
+
+        .nav-item.active .nav-icon {
+            color: #438cff;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 17px 16px;
+            border-top: 1px solid #252a31;
+            background: #090b0e;
+        }
+
+        .online-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4fd184;
+        }
+
+        .footer-small {
+            margin-top: 9px;
+            color: #657287;
+            font-size: 10px;
+        }
+
+        .prototype {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 5px 8px;
+            border: 1px solid #30254a;
+            border-radius: 5px;
+            color: #9a78e5;
+            font-size: 9px;
+        }
+
+        /* =========================
+           TOP BAR
+        ========================= */
+
+        .topbar {
+            height: 70px;
+            padding: 0 28px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            border-bottom: 1px solid #252a31;
+            background: #080a0d;
+        }
+
+        .top-title {
+            min-width: 280px;
+        }
+
+        .top-title strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .live-status {
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: #68758a;
+            font-size: 10px;
+        }
+
+        .search-box {
+            height: 42px;
+            max-width: 580px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            background: #0d1014;
+            border: 1px solid #252c35;
+            border-radius: 7px;
+        }
+
+        .search-box span {
+            color: #68758a;
+            font-size: 18px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0 10px;
+            border: 0;
+            outline: 0;
+            background: transparent;
+            color: white;
+            font-size: 12px;
+        }
+
+        .search-box input::placeholder {
+            color: #5f6c7f;
+        }
+
+        .authority {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .authority-avatar {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #28354c;
+            border-radius: 7px;
+            background: #101722;
+            color: #438cff;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .authority-name {
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .authority-role {
+            margin-top: 3px;
+            color: #68758a;
+            font-size: 10px;
+        }
+
+        /* =========================
+           CONTENT
+        ========================= */
+
+        .content {
+            padding: 34px 36px 60px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 28px;
+            color: #68758a;
+            font-size: 12px;
+        }
+
+        .breadcrumb a:hover {
+            color: #438cff;
+        }
+
+        .breadcrumb-current {
+            color: #9da8b8;
+        }
+
+        /* =========================
+           WORK HEADER
+        ========================= */
+
+        .work-header {
+            margin-bottom: 28px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .work-title-area {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .back-button {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #29313b;
+            border-radius: 7px;
+            background: #111419;
+            color: #c2cad5;
+            font-size: 18px;
+        }
+
+        .back-button:hover {
+            color: #438cff;
+            border-color: #438cff;
+        }
+
+        .eyebrow {
+            margin-bottom: 7px;
+            color: #68758a;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .work-id {
+            margin: 0;
+            font-family: monospace;
+            font-size: 29px;
+        }
+
+        .work-description {
+            margin-top: 8px;
+            max-width: 850px;
+            color: #a7b1bf;
+            font-size: 14px;
+        }
+
+        .risk-badge {
+            padding: 6px 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .risk-critical {
+            color: #ff5b63;
+            background: rgba(255, 80, 90, 0.08);
+            border: 1px solid rgba(255, 80, 90, 0.35);
+        }
+
+        .risk-high {
+            color: #ffad43;
+            background: rgba(255, 160, 50, 0.08);
+            border: 1px solid rgba(255, 160, 50, 0.35);
+        }
+
+        .risk-medium {
+            color: #f2d457;
+            background: rgba(242, 210, 80, 0.08);
+            border: 1px solid rgba(242, 210, 80, 0.35);
+        }
+
+        .risk-low {
+            color: #55d58b;
+            background: rgba(80, 210, 130, 0.08);
+            border: 1px solid rgba(80, 210, 130, 0.35);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button {
+            height: 39px;
+            padding: 0 15px;
+            border: 1px solid #29313b;
+            border-radius: 7px;
+            background: #111419;
+            color: #b8c2cf;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            border-color: #438cff;
+            color: white;
+        }
+
+        .button-light {
+            background: #e9ebee;
+            border-color: #e9ebee;
+            color: #101318;
+        }
+
+        /* =========================
+           PANELS
+        ========================= */
+
+        .grid-top {
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            gap: 20px;
+        }
+
+        .grid-bottom {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .panel {
+            background: #111418;
+            border: 1px solid #252c35;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid #252c35;
+        }
+
+        .panel-header h2 {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .panel-header p {
+            margin: 5px 0 0;
+            color: #6d7b90;
+            font-size: 11px;
+        }
+
+        /* =========================
+           SCORE
+        ========================= */
+
+        .score-panel {
+            min-height: 355px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .score-ring {
+            width: 215px;
+            height: 215px;
+            padding: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                conic-gradient(
+                    #ff535b calc(var(--score) * 1%),
+                    #252a31 0
+                );
+            box-shadow: 0 0 30px rgba(255, 83, 91, 0.12);
+        }
+
+        .score-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #0d1014;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .score-number {
+            color: #ff535b;
+            font-family: monospace;
+            font-size: 52px;
+            font-weight: bold;
+        }
+
+        .score-out {
+            color: #68758a;
+            font-size: 11px;
+        }
+
+        .score-risk {
+            margin-top: 8px;
+            color: #ff535b;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .score-note {
+            max-width: 300px;
+            margin-top: 20px;
+            color: #a3adbb;
+            text-align: center;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* =========================
+           BREAKDOWN
+        ========================= */
+
+        .breakdown {
+            padding: 22px;
+        }
+
+        .component {
+            margin-bottom: 20px;
+        }
+
+        .component:last-child {
+            margin-bottom: 0;
+        }
+
+        .component-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 8px;
+        }
+
+        .component-name {
+            color: #c3ccd8;
+            font-size: 12px;
+        }
+
+        .component-value {
+            color: #dce2e9;
+            font-family: monospace;
+            font-size: 11px;
+        }
+
+        .bar {
+            height: 9px;
+            overflow: hidden;
+            border-radius: 20px;
+            background: #22272f;
+        }
+
+        .fill {
+            height: 100%;
+            border-radius: 20px;
+        }
+
+        .fill-red {
+            background: #ff535b;
+        }
+
+        .fill-orange {
+            background: #ff9e34;
+        }
+
+        .fill-yellow {
+            background: #f1cf53;
+        }
+
+        .fill-blue {
+            background: #438cff;
+        }
+
+        /* =========================
+           INFORMATION
+        ========================= */
+
+        .info-body {
+            padding: 20px;
+        }
+
+        .info-full {
+            margin-bottom: 22px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .info-item {
+            min-width: 0;
+        }
+
+        .info-label {
+            margin-bottom: 7px;
+            color: #667389;
+            font-size: 9px;
+            font-weight: bold;
+            letter-spacing: 0.8px;
+        }
+
+        .info-value {
+            color: #d4dbe5;
+            font-size: 12px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        /* =========================
+           FINANCIAL
+        ========================= */
+
+        .financial-body {
+            padding: 20px;
+        }
+
+        .financial-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .financial-card {
+            padding: 15px;
+            border: 1px solid #272e38;
+            border-radius: 6px;
+            background: #0c0f13;
+        }
+
+        .financial-label {
+            color: #68758a;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        .financial-value {
+            margin-top: 9px;
+            color: #e2e7ed;
+            font-family: monospace;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .financial-message {
+            margin-top: 18px;
+            padding: 13px;
+            border: 1px solid #292f38;
+            border-radius: 6px;
+            background: #0d1014;
+            color: #aab4c2;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        /* =========================
+           DISCLAIMER
+        ========================= */
+
+        .disclaimer {
+            margin-top: 25px;
+            padding: 0 15px;
+            color: #596578;
+            text-align: center;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1150px) {
+            .grid-top,
+            .grid-bottom {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 850px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-area {
+                margin-left: 0;
+            }
+
+            .content {
+                padding: 25px 18px;
+            }
+
+            .work-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .button {
+                flex: 1;
+            }
+
+            .financial-grid,
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .authority {
+                display: none;
+            }
+
+            .top-title {
+                min-width: 150px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+{% set work_id = project.get('id', project.get('record_id', '—')) %}
+
+{% set work_name = project.get(
+    'work_name',
+    project.get(
+        'name',
+        project.get('description', 'Work description unavailable')
+    )
+) %}
+
+{% set risk_level = project.get(
+    'hybrid_risk_level',
+    project.get('risk_level', project.get('risk', 'LOW'))
+) %}
+
+{% set score = project.get(
+    'hybrid_risk_score',
+    project.get('risk_score', 0)
+) %}
+
+<div class="app-shell">
+
+    <!-- =========================
+         SIDEBAR
+    ========================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                🛡
+            </div>
+
+            <div>
+                <div class="brand-title">
+                    MPLADS <span>SENTINEL</span>
+                </div>
+
+                <div class="brand-subtitle">
+                    Risk &amp; Anomaly Intelligence
+                </div>
+            </div>
+
+        </div>
+
+
+        <nav class="navigation">
+
+            <div class="nav-heading">
+                OVERVIEW
+            </div>
+
+            <a href="/" class="nav-item">
+                <span class="nav-icon">▦</span>
+                Command Center
+            </a>
+
+
+            <div class="nav-heading">
+                INTELLIGENCE
+            </div>
+
+            <a href="/risk-analysis" class="nav-item">
+                <span class="nav-icon">◉</span>
+                Risk Monitor
+            </a>
+
+            <a href="/projects" class="nav-item active">
+                <span class="nav-icon">⌕</span>
+                Work Explorer
+            </a>
+
+            <a href="/analytics" class="nav-item">
+                <span class="nav-icon">▥</span>
+                Analytics
+            </a>
+
+            <a href="/reports" class="nav-item">
+                <span class="nav-icon">♧</span>
+                Alerts
+            </a>
+
+
+            <div class="nav-heading">
+                OPERATIONS
+            </div>
+
+            <a href="#" class="nav-item">
+                <span class="nav-icon">▤</span>
+                Agencies
+            </a>
+
+            <a href="/map" class="nav-item">
+                <span class="nav-icon">⌖</span>
+                Districts
+            </a>
+
+            <a href="/reports" class="nav-item">
+                <span class="nav-icon">▣</span>
+                Investigation Queue
+            </a>
+
+
+            <div class="nav-heading">
+                AI
+            </div>
+
+            <a href="#" class="nav-item">
+                <span class="nav-icon">✦</span>
+                Sentinel AI
+            </a>
+
+
+            <div class="nav-heading">
+                SYSTEM
+            </div>
+
+            <a href="#" class="nav-item">
+                <span class="nav-icon">⌁</span>
+                Data Health
+            </a>
+
+            <a href="#" class="nav-item">
+                <span class="nav-icon">⚙</span>
+                Settings
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="online-status">
+                <span class="online-dot"></span>
+                Data Engine Online
+            </div>
+
+            <div class="footer-small">
+                Real-time analysis active
+            </div>
+
+            <div class="footer-small">
+                Last updated
+            </div>
+
+            <div class="footer-small">
+                Today
+            </div>
+
+            <div class="prototype">
+                ● Prototype · SIH 2026
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <main class="main-area">
+
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div class="top-title">
+
+                <strong>
+                    Work Investigation
+                </strong>
+
+                <div class="live-status">
+                    <span class="online-dot"></span>
+                    LIVE ANALYTICS
+                </div>
+
+            </div>
+
+
+            <div class="search-box">
+
+                <span>⌕</span>
+
+                <input
+                    type="text"
+                    placeholder="Search work ID, district, agency..."
+                >
+
+            </div>
+
+
+            <div class="authority">
+
+                <div class="authority-avatar">
+                    MA
+                </div>
+
+                <div>
+                    <div class="authority-name">
+                        Monitoring Authority
+                    </div>
+
+                    <div class="authority-role">
+                        Decision Support
+                    </div>
+                </div>
+
+                <span>⌄</span>
+
+            </div>
+
+        </header>
+
+
+        <!-- CONTENT -->
+
+        <section class="content">
+
+
+            <!-- BREADCRUMB -->
+
+            <div class="breadcrumb">
+
+                <a href="/risk-analysis">
+                    Risk Monitor
+                </a>
+
+                <span>›</span>
+
+                <a href="/projects">
+                    Work Explorer
+                </a>
+
+                <span>›</span>
+
+                <span class="breadcrumb-current">
+                    {{ work_id }}
+                </span>
+
+            </div>
+
+
+            <!-- WORK HEADER -->
+
+            <div class="work-header">
+
+                <div class="work-title-area">
+
+                    <a href="/projects" class="back-button">
+                        ←
+                    </a>
+
+                    <div>
+
+                        <div class="eyebrow">
+                            WORK INVESTIGATION
+                        </div>
+
+                        <div class="title-row">
+
+                            <h1 class="work-id">
+                                {{ work_id }}
+                            </h1>
+
+
+                            {% if risk_level|string|upper == 'CRITICAL' %}
+
+                                <span class="risk-badge risk-critical">
+                                    ● CRITICAL
+                                </span>
+
+                            {% elif risk_level|string|upper == 'HIGH' %}
+
+                                <span class="risk-badge risk-high">
+                                    ● HIGH
+                                </span>
+
+                            {% elif risk_level|string|upper == 'MEDIUM' %}
+
+                                <span class="risk-badge risk-medium">
+                                    ● MEDIUM
+                                </span>
+
+                            {% else %}
+
+                                <span class="risk-badge risk-low">
+                                    ● LOW
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="work-description">
+                            {{ work_name }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="header-actions">
+
+                    <button
+                        class="button"
+                        onclick="window.print()"
+                    >
+                        ▧ Generate Brief
+                    </button>
+
+                    <button class="button button-light">
+                        ✓ In Queue
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 SCORE + BREAKDOWN
+            ========================== -->
+
+            <div class="grid-top">
+
+
+                <!-- SCORE -->
+
+                <div class="panel score-panel">
+
+                    <div
+                        class="score-ring"
+                        style="--score: {{ score|float }}"
+                    >
+
+                        <div class="score-inner">
+
+                            <div class="score-number">
+                                {{ "%.0f"|format(score|float) }}
+                            </div>
+
+                            <div class="score-out">
+                                / 100
+                            </div>
+
+                            <div class="score-risk">
+                                {{ risk_level|string|upper }} RISK
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="score-note">
+
+                        {% if score|float >= 80 %}
+
+                            High priority — detailed review
+                            recommended before final closure.
+
+                        {% elif score|float >= 60 %}
+
+                            Priority monitoring recommended
+                            based on detected analytical signals.
+
+                        {% elif score|float >= 30 %}
+
+                            Continued monitoring is recommended
+                            based on available analytical signals.
+
+                        {% else %}
+
+                            Current analytical signals remain
+                            within the lower-risk range.
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- RISK BREAKDOWN -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <h2>
+                            Risk Score Breakdown
+                        </h2>
+
+                        <p>
+                            Component contribution from available analytical signals
+                        </p>
+
+                    </div>
+
+
+                    <div class="breakdown">
+
+
+                        <!-- COST -->
+
+                        <div class="component">
+
+                            <div class="component-head">
+
+                                <span class="component-name">
+                                    Cost anomaly
+                                </span>
+
+                                <span class="component-value">
+
+                                    {% if project.get('cost_overrun_flag') %}
+                                        Detected
+                                    {% elif project.get('cost_overrun_amount') is not none %}
+                                        ₹{{ project.get('cost_overrun_amount') }} L
+                                    {% else %}
+                                        Not available
+                                    {% endif %}
+
+                                </span>
+
+                            </div>
+
+                            <div class="bar">
+
+                                {% if project.get('cost_overrun_flag') %}
+
+                                    <div
+                                        class="fill fill-red"
+                                        style="width:100%"
+                                    ></div>
+
+                                {% else %}
+
+                                    <div
+                                        class="fill fill-red"
+                                        style="width:0%"
+                                    ></div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- DELAY -->
+
+                        <div class="component">
+
+                            <div class="component-head">
+
+                                <span class="component-name">
+                                    Timeline delay
+                                </span>
+
+                                <span class="component-value">
+
+                                    {% if project.get('delay_days') is not none %}
+                                        {{ project.get('delay_days') }} days
+                                    {% else %}
+                                        Not available
+                                    {% endif %}
+
+                                </span>
+
+                            </div>
+
+                            <div class="bar">
+
+                                {% if project.get('delay_days') is not none %}
+
+                                    {% set delay_width = (project.get('delay_days')|float / 180 * 100) %}
+
+                                    {% if delay_width > 100 %}
+                                        {% set delay_width = 100 %}
+                                    {% endif %}
+
+                                    <div
+                                        class="fill fill-orange"
+                                        style="width:{{ delay_width }}%"
+                                    ></div>
+
+                                {% else %}
+
+                                    <div
+                                        class="fill fill-orange"
+                                        style="width:0%"
+                                    ></div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- FUND UTILIZATION -->
+
+                        <div class="component">
+
+                            <div class="component-head">
+
+                                <span class="component-name">
+                                    Fund utilization
+                                </span>
+
+                                <span class="component-value">
+
+                                    {% if project.get('fund_utilization_pct') is not none %}
+
+                                        {{ "%.1f"|format(
+                                            project.get('fund_utilization_pct')|float
+                                        ) }}%
+
+                                    {% else %}
+
+                                        Not available
+
+                                    {% endif %}
+
+                                </span>
+
+                            </div>
+
+                            <div class="bar">
+
+                                {% if project.get('fund_utilization_pct') is not none %}
+
+                                    {% set fund_width = project.get('fund_utilization_pct')|float %}
+
+                                    {% if fund_width < 0 %}
+                                        {% set fund_width = 0 %}
+                                    {% endif %}
+
+                                    {% if fund_width > 100 %}
+                                        {% set fund_width = 100 %}
+                                    {% endif %}
+
+                                    <div
+                                        class="fill fill-yellow"
+                                        style="width:{{ fund_width }}%"
+                                    ></div>
+
+                                {% else %}
+
+                                    <div
+                                        class="fill fill-yellow"
+                                        style="width:0%"
+                                    ></div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ML -->
+
+                        <div class="component">
+
+                            <div class="component-head">
+
+                                <span class="component-name">
+                                    ML anomaly signal
+                                </span>
+
+                                <span class="component-value">
+
+                                    {% if project.get('ml_anomaly') %}
+                                        Detected
+                                    {% else %}
+                                        Not detected
+                                    {% endif %}
+
+                                </span>
+
+                            </div>
+
+                            <div class="bar">
+
+                                {% if project.get('ml_risk_score') is not none %}
+
+                                    {% set ml_width = project.get('ml_risk_score')|float %}
+
+                                    {% if ml_width < 0 %}
+                                        {% set ml_width = 0 %}
+                                    {% endif %}
+
+                                    {% if ml_width > 100 %}
+                                        {% set ml_width = 100 %}
+                                    {% endif %}
+
+                                    <div
+                                        class="fill fill-blue"
+                                        style="width:{{ ml_width }}%"
+                                    ></div>
+
+                                {% else %}
+
+                                    <div
+                                        class="fill fill-blue"
+                                        style="width:0%"
+                                    ></div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PROGRESS GAP -->
+
+                        <div class="component">
+
+                            <div class="component-head">
+
+                                <span class="component-name">
+                                    Progress / expenditure mismatch
+                                </span>
+
+                                <span class="component-value">
+
+                                    {% if project.get('progress_expenditure_gap') is not none %}
+
+                                        {{ "%.1f"|format(
+                                            project.get(
+                                                'progress_expenditure_gap'
+                                            )|float
+                                        ) }}
+
+                                    {% else %}
+
+                                        Not available
+
+                                    {% endif %}
+
+                                </span>
+
+                            </div>
+
+                            <div class="bar">
+
+                                {% if project.get('progress_expenditure_gap') is not none %}
+
+                                    {% set gap_width = project.get('progress_expenditure_gap')|float %}
+
+                                    {% if gap_width < 0 %}
+                                        {% set gap_width = 0 %}
+                                    {% endif %}
+
+                                    {% if gap_width > 100 %}
+                                        {% set gap_width = 100 %}
+                                    {% endif %}
+
+                                    <div
+                                        class="fill fill-red"
+                                        style="width:{{ gap_width }}%"
+                                    ></div>
+
+                                {% else %}
+
+                                    <div
+                                        class="fill fill-red"
+                                        style="width:0%"
+                                    ></div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 INFORMATION + FINANCIAL
+            ========================== -->
+
+            <div class="grid-bottom">
+
+
+                <!-- WORK INFORMATION -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <h2>
+                            Work Information
+                        </h2>
+
+                        <p>
+                            Investigation dossier
+                        </p>
+
+                    </div>
+
+
+                    <div class="info-body">
+
+
+                        <div class="info-full">
+
+                            <div class="info-label">
+                                WORK DESCRIPTION
+                            </div>
+
+                            <div class="info-value">
+                                {{ work_name }}
+                            </div>
+
+                        </div>
+
+
+                        <div class="info-grid">
+
+
+                            <div class="info-item">
+
+                                <div class="info-label">
+                                    STATE
+                                </div>
+
+                                <div class="info-value">
+                                    {{ project.get('state', '—') }}
+                                </div>
+
+                            </div>
+
+
+                            <div class="info-item">
+
+                                <div class="info-label">
+                                    DISTRICT
+                                </div>
+
+                                <div class="info-value">
+                                    {{ project.get('district', '—') }}
+                                </div>
+
+                            </div>
+
+
+                            <div class="info-item">
+
+                                <div class="info-label">
+                                    CATEGORY
+                                </div>
+
+                                <div class="info-value">
+                                    {{ project.get(
+                                        'work_category',
+                                        project.get(
+                                            'category',
+                                            '—'
+                                        )
+                                    ) }}
+                                </div>
+
+                            </div>
+
+
+                            <div class="info-item">
+
+                                <div class="info-label">
+                                    IMPLEMENTING AGENCY
+                                </div>
+
+                                <div class="info-value">
+                                    {{ project.get(
+                                        'implementing_agency',
+                                        project.get(
+                                            'agency',
+                                            '—'
+                                        )
+                                    ) }}
+                                </div>
+
+                            </div>
+
+
+                            <div class="info-item">
+
+                                <div class="info-label">
+                                    CONTRACTOR
+                                </div>
+
+                                <div class="info-value">
+                                    {{ project.get(
+                                        'contractor',
+                                        '—'
+                                    ) }}
+                                </div>
+
+                            </div>
+
+
+                            <div class="info-item">
+
+                                <div class="info-label">
+                                    STATUS
+                                </div>
+
+                                <div class="info-value">
+                                    {{ project.get(
+                                        'status',
+                                        '—'
+                                    ) }}
+                                </div>
+
+                            </div>
+
+
+                            <div class="info-item">
+
+                                <div class="info-label">
+                                    START DATE
+                                </div>
+
+                                <div class="info-value">
+                                    {{ project.get(
+                                        'start_date',
+                                        '—'
+                                    )
+                                    or '—' }}
+                                </div>
+
+                            </div>
+
+
+                            <div class="info-item">
+
+                                <div class="info-label">
+                                    EXPECTED COMPLETION
+                                </div>
+
+                                <div class="info-value">
+                                    {{ project.get(
+                                        'expected_completion_date',
+                                        '—'
+                                    )
+                                    or '—' }}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FINANCIAL ANALYSIS -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <h2>
+                            Financial Analysis
+                        </h2>
+
+                        <p>
+                            Cost, sanction and expenditure comparison
+                        </p>
+
+                    </div>
+
+
+                    <div class="financial-body">
+
+
+                        <div class="financial-grid">
+
+
+                            <div class="financial-card">
+
+                                <div class="financial-label">
+                                    ESTIMATED COST
+                                </div>
+
+                                <div class="financial-value">
+
+                                    {% if project.get('cost_estimate_lakhs') is not none %}
+
+                                        ₹{{ project.get(
+                                            'cost_estimate_lakhs'
+                                        ) }} L
+
+                                    {% elif project.get('estimated_cost') is not none %}
+
+                                        ₹{{ project.get(
+                                            'estimated_cost'
+                                        ) }} L
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="financial-card">
+
+                                <div class="financial-label">
+                                    SANCTIONED AMOUNT
+                                </div>
+
+                                <div class="financial-value">
+
+                                    {% if project.get('sanction_amount') is not none %}
+
+                                        ₹{{ project.get(
+                                            'sanction_amount'
+                                        ) }} L
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="financial-card">
+
+                                <div class="financial-label">
+                                    EXPENDITURE
+                                </div>
+
+                                <div class="financial-value">
+
+                                    {% if project.get('expenditure') is not none %}
+
+                                        ₹{{ project.get(
+                                            'expenditure'
+                                        ) }} L
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="financial-message">
+
+                            {% if project.get('cost_overrun_flag') %}
+
+                                ⚠ Cost overrun signal detected.
+                                Available financial records require
+                                authorized review.
+
+                            {% elif project.get('fund_utilization_pct') is not none %}
+
+                                Fund utilization is
+                                {{ "%.1f"|format(
+                                    project.get(
+                                        'fund_utilization_pct'
+                                    )|float
+                                ) }}%
+                                based on available records.
+
+                            {% elif project.get('expenditure') is not none %}
+
+                                Expenditure information is available,
+                                but complete anomaly assessment depends
+                                on the fields present in the dataset.
+
+                            {% else %}
+
+                                Financial anomaly assessment is limited
+                                by fields available in the dataset.
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- DISCLAIMER -->
+
+            <div class="disclaimer">
+
+                Anomaly indicators represent analytical signals and do not
+                constitute proof of fraud or misconduct.
+                Final assessment requires authorized human investigation.
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>
