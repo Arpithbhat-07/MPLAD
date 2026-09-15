@@ -194,6 +194,13 @@ def standardize_dataset(
             df,
             canonical_name,
         )
+    # Preserve the original synthetic risk score.
+    # This is NOT used as an ML feature.
+    if source == "synthetic" and "risk_score" in df.columns:
+        result["existing_rule_score"] = pd.to_numeric(
+            df["risk_score"],
+            errors="coerce",
+        )
 
     # -----------------------------
     # Numeric fields

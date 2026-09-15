@@ -4,11 +4,10 @@ import pandas as pd
 
 def calculate_rule_risk(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate transparent rule-based risk indicators.
+    Calculate transparent rule-based risk.
 
-    IMPORTANT:
-    These rules are deterministic indicators.
-    They do NOT prove fraud.
+    This is a screening mechanism.
+    A high score does NOT prove fraud.
     """
 
     if df is None or df.empty:
@@ -19,12 +18,13 @@ def calculate_rule_risk(df: pd.DataFrame) -> pd.DataFrame:
     rule_score = pd.Series(
         0.0,
         index=result.index,
+        dtype=float,
     )
 
-    rule_reasons = [
-        []
-        for _ in range(len(result))
-    ]
+    reasons = {
+        index: []
+        for index in result.index
+    }
 
     # ---------------------------------
     # Rule 1: High fund utilization
@@ -32,41 +32,39 @@ def calculate_rule_risk(df: pd.DataFrame) -> pd.DataFrame:
 
     if "fund_utilization_pct" in result.columns:
 
-        mask = (
-            result["fund_utilization_pct"]
-            .fillna(0)
-            >= 90
-        )
+        utilization = pd.to_numeric(
+            result["fund_utilization_pct"],
+            errors="coerce",
+        ).fillna(0)
+
+        mask = utilization >= 90
 
         rule_score.loc[mask] += 20
 
         for index in result.index[mask]:
-            rule_reasons[
-                result.index.get_loc(index)
-            ].append(
+            reasons[index].append(
                 "High fund utilization"
             )
 
     # ---------------------------------
-    # Rule 2: Expenditure/progress mismatch
+    # Rule 2: Progress / expenditure gap
     # ---------------------------------
 
     if "progress_expenditure_gap" in result.columns:
 
-        mask = (
-            result["progress_expenditure_gap"]
-            .fillna(0)
-            > 25
-        )
+        gap = pd.to_numeric(
+            result["progress_expenditure_gap"],
+            errors="coerce",
+        ).fillna(0)
+
+        mask = gap > 25
 
         rule_score.loc[mask] += 25
 
         for index in result.index[mask]:
-            rule_reasons[
-                result.index.get_loc(index)
-            ].append(
-                "Expenditure is significantly higher "
-                "than physical progress"
+            reasons[index].append(
+                "Expenditure is significantly "
+                "higher than physical progress"
             )
 
     # ---------------------------------
@@ -75,18 +73,17 @@ def calculate_rule_risk(df: pd.DataFrame) -> pd.DataFrame:
 
     if "cost_overrun_amount" in result.columns:
 
-        mask = (
-            result["cost_overrun_amount"]
-            .fillna(0)
-            > 0
-        )
+        overrun = pd.to_numeric(
+            result["cost_overrun_amount"],
+            errors="coerce",
+        ).fillna(0)
+
+        mask = overrun > 0
 
         rule_score.loc[mask] += 25
 
         for index in result.index[mask]:
-            rule_reasons[
-                result.index.get_loc(index)
-            ].append(
+            reasons[index].append(
                 "Expenditure exceeds sanctioned amount"
             )
 
@@ -96,47 +93,41 @@ def calculate_rule_risk(df: pd.DataFrame) -> pd.DataFrame:
 
     if "delay_days" in result.columns:
 
-        mask = (
-            result["delay_days"]
-            .fillna(0)
-            > 30
-        )
+        delay = pd.to_numeric(
+            result["delay_days"],
+            errors="coerce",
+        ).fillna(0)
+
+        mask = delay > 30
 
         rule_score.loc[mask] += 20
 
         for index in result.index[mask]:
-            rule_reasons[
-                result.index.get_loc(index)
-            ].append(
+            reasons[index].append(
                 "Project delayed by more than 30 days"
             )
 
     # ---------------------------------
-    # Rule 5: Existing synthetic
-    # rule score
+    # Preserve existing synthetic score
     # ---------------------------------
 
-    # We can preserve an existing rule score
-    # from the synthetic dataset, but it is NOT
-    # used by the ML model.
-
-    if "risk_score" in result.columns:
+    if "existing_rule_score" in result.columns:
 
         existing_score = pd.to_numeric(
-            result["risk_score"],
+            result["existing_rule_score"],
             errors="coerce",
         ).fillna(0)
 
-        # If there are no newly calculated rules,
-        # preserve the existing synthetic rule score.
-        no_new_rules = rule_score.eq(0)
+        # If no new rule triggered,
+        # preserve the original synthetic score.
+        mask = rule_score == 0
 
-        rule_score.loc[no_new_rules] = (
-            existing_score.loc[no_new_rules]
+        rule_score.loc[mask] = (
+            existing_score.loc[mask]
         )
 
     # ---------------------------------
-    # Limit score
+    # Final rule score
     # ---------------------------------
 
     result["rule_risk_score"] = (
@@ -146,7 +137,7 @@ def calculate_rule_risk(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     # ---------------------------------
-    # Rule risk level
+    # Risk level
     # ---------------------------------
 
     result["rule_risk_level"] = np.select(
@@ -162,14 +153,14 @@ def calculate_rule_risk(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     # ---------------------------------
-    # Rule reasons
+    # Risk reasons
     # ---------------------------------
 
     result["rule_reasons"] = [
-        "; ".join(reasons)
-        if reasons
+        "; ".join(reasons[index])
+        if reasons[index]
         else "No rule-based risk condition triggered"
-        for reasons in rule_reasons
+        for index in result.index
     ]
 
     return result
