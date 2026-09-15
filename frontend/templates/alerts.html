@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MPLADS SENTINEL - Intelligence Alerts</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #080a0c;
+            color: #e8edf3;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+            width: 210px;
+            min-height: 100vh;
+            background: #090b0d;
+            border-right: 1px solid #252a30;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            padding-bottom: 90px;
+        }
+
+        .brand {
+            height: 48px;
+            border-bottom: 1px solid #252a30;
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+        }
+
+        .brand-icon {
+            width: 28px;
+            height: 28px;
+            border: 1px solid #38404a;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            color: #4ea1ff;
+            font-size: 14px;
+        }
+
+        .brand-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #f2f5f8;
+        }
+
+        .brand-subtitle {
+            font-size: 8px;
+            color: #6f8194;
+            margin-top: 2px;
+        }
+
+        .section-title {
+            font-size: 8px;
+            color: #607083;
+            letter-spacing: 1.2px;
+            margin: 18px 18px 8px;
+        }
+
+        .nav-item {
+            height: 34px;
+            margin: 2px 10px;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 4px;
+            color: #aeb9c6;
+            font-size: 11px;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background: #14181d;
+            color: #ffffff;
+        }
+
+        .nav-item.active {
+            background: #181d23;
+            color: #ffffff;
+            border-left: 2px solid #4b9cff;
+        }
+
+        .nav-icon {
+            width: 14px;
+            text-align: center;
+            color: #8795a5;
+        }
+
+        .sidebar-bottom {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-top: 1px solid #252a30;
+            padding: 13px;
+        }
+
+        .online {
+            color: #62d88a;
+            font-size: 10px;
+        }
+
+        .online-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #62d88a;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .updated {
+            font-size: 8px;
+            color: #657487;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .prototype {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 3px 6px;
+            border: 1px solid #303740;
+            border-radius: 3px;
+            font-size: 8px;
+            color: #77889b;
+        }
+
+        /* ================= MAIN ================= */
+
+        .main {
+            margin-left: 210px;
+            width: calc(100% - 210px);
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 48px;
+            border-bottom: 1px solid #252a30;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .top-title {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .live {
+            font-size: 8px;
+            color: #5fd68b;
+            margin-top: 3px;
+        }
+
+        .search {
+            width: 360px;
+            height: 29px;
+            background: #0d1014;
+            border: 1px solid #2a3037;
+            border-radius: 5px;
+            padding: 0 12px;
+            color: #aab5c1;
+            font-size: 10px;
+            outline: none;
+        }
+
+        .authority {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10px;
+        }
+
+        .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 5px;
+            background: #111a29;
+            border: 1px solid #26344b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #65a8ff;
+            font-size: 9px;
+        }
+
+        .authority small {
+            display: block;
+            color: #66778a;
+            font-size: 8px;
+            margin-top: 2px;
+        }
+
+        /* ================= CONTENT ================= */
+
+        .content {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 30px 36px 60px;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: #8090a2;
+            font-size: 11px;
+            margin-top: 7px;
+        }
+
+        /* ================= FILTERS ================= */
+
+        .filters {
+            display: flex;
+            gap: 7px;
+            margin-top: 20px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter {
+            padding: 7px 12px;
+            background: #101419;
+            border: 1px solid #293039;
+            color: #8e9baa;
+            border-radius: 4px;
+            font-size: 9px;
+        }
+
+        .filter.active {
+            color: #ffffff;
+            border-color: #56606b;
+            background: #171c21;
+        }
+
+        /* ================= ALERT CARD ================= */
+
+        .alerts {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+
+        .alert-card {
+            background: #101316;
+            border: 1px solid #2a3036;
+            border-left: 2px solid #ef4444;
+            border-radius: 6px;
+            padding: 14px 15px;
+            min-height: 84px;
+        }
+
+        .alert-card:hover {
+            background: #13171b;
+            border-color: #3b424a;
+            border-left-color: #ef4444;
+        }
+
+        .alert-top {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .red-dot {
+            width: 8px;
+            height: 8px;
+            background: #ff4d5e;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .critical {
+            color: #ff5968;
+            border: 1px solid #713038;
+            background: #241114;
+            padding: 3px 7px;
+            border-radius: 3px;
+            font-size: 8px;
+            font-weight: 700;
+        }
+
+        .alert-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #e8edf2;
+        }
+
+        .type {
+            color: #7e8b99;
+            border: 1px solid #272e35;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 7px;
+            margin-left: 3px;
+        }
+
+        .review {
+            margin-left: auto;
+            color: #559eff;
+            text-decoration: none;
+            font-size: 9px;
+        }
+
+        .review:hover {
+            color: #82baff;
+        }
+
+        .alert-message {
+            margin-top: 10px;
+            font-size: 10px;
+            color: #d2d9e1;
+        }
+
+        .alert-meta {
+            margin-top: 9px;
+            display: flex;
+            gap: 18px;
+            color: #6d7d8e;
+            font-size: 8px;
+            font-family: monospace;
+        }
+
+        /* ================= EMPTY ================= */
+
+        .empty {
+            border: 1px solid #292f35;
+            background: #101316;
+            border-radius: 6px;
+            padding: 50px;
+            text-align: center;
+            color: #7b8998;
+        }
+
+        .empty-icon {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .empty strong {
+            display: block;
+            color: #dce3ea;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        /* ================= DISCLAIMER ================= */
+
+        .disclaimer {
+            margin-top: 18px;
+            padding: 12px 14px;
+            border: 1px solid #2a3036;
+            background: #0d1013;
+            border-radius: 5px;
+            color: #667686;
+            font-size: 8px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 175px;
+            }
+
+            .main {
+                margin-left: 175px;
+                width: calc(100% - 175px);
+            }
+
+            .search {
+                width: 220px;
+            }
+
+            .content {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">◈</div>
+
+            <div>
+                <div class="brand-title">
+                    MPLADS SENTINEL
+                </div>
+
+                <div class="brand-subtitle">
+                    Risk & Anomaly Intelligence
+                </div>
+            </div>
+        </div>
+
+
+        <div class="section-title">
+            OVERVIEW
+        </div>
+
+        <a href="/" class="nav-item">
+            <span class="nav-icon">▦</span>
+            Command Center
+        </a>
+
+
+        <div class="section-title">
+            INTELLIGENCE
+        </div>
+
+        <a href="/risk-analysis" class="nav-item">
+            <span class="nav-icon">◉</span>
+            Risk Monitor
+        </a>
+
+        <a href="/projects" class="nav-item">
+            <span class="nav-icon">⌕</span>
+            Work Explorer
+        </a>
+
+        <a href="/analytics" class="nav-item">
+            <span class="nav-icon">▥</span>
+            Analytics
+        </a>
+
+        <a href="/alerts" class="nav-item active">
+            <span class="nav-icon">♧</span>
+            Alerts
+        </a>
+
+
+        <div class="section-title">
+            OPERATIONS
+        </div>
+
+        <a href="/agencies" class="nav-item">
+            <span class="nav-icon">♙</span>
+            Agencies
+        </a>
+
+        <a href="/districts" class="nav-item">
+            <span class="nav-icon">⌖</span>
+            Districts
+        </a>
+
+        <a href="/investigation" class="nav-item">
+            <span class="nav-icon">▣</span>
+            Investigation Queue
+        </a>
+
+
+        <div class="section-title">
+            AI
+        </div>
+
+        <a href="/sentinel-ai" class="nav-item">
+            <span class="nav-icon">✣</span>
+            Sentinel AI
+        </a>
+
+
+        <div class="section-title">
+            SYSTEM
+        </div>
+
+        <a href="/data-health" class="nav-item">
+            <span class="nav-icon">⌁</span>
+            Data Health
+        </a>
+
+        <a href="/settings" class="nav-item">
+            <span class="nav-icon">⚙</span>
+            Settings
+        </a>
+
+
+        <div class="sidebar-bottom">
+
+            <div class="online">
+                <span class="online-dot"></span>
+                Data Engine Online
+            </div>
+
+            <div class="updated">
+                Last updated<br>
+                Today
+            </div>
+
+            <div class="prototype">
+                Prototype · SIH 2026
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+                <div class="top-title">
+                    Intelligence Alerts
+                </div>
+
+                <div class="live">
+                    ● LIVE ANALYTICS
+                </div>
+            </div>
+
+
+            <input
+                class="search"
+                type="text"
+                placeholder="Search work ID, district, agency..."
+                id="searchInput"
+            >
+
+
+            <div class="authority">
+
+                <div class="avatar">
+                    MA
+                </div>
+
+                <div>
+                    Monitoring Authority
+                    <small>
+                        Decision Support
+                    </small>
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <section class="content">
+
+            <h1 class="page-title">
+                Intelligence Alerts
+            </h1>
+
+            <div class="page-subtitle">
+                Real-time feed of analytical signals requiring review.
+            </div>
+
+
+            <!-- FILTER BUTTONS -->
+
+            <div class="filters">
+
+                <button class="filter active" data-filter="all">
+                    All
+                </button>
+
+                <button class="filter" data-filter="cost">
+                    Cost Anomaly
+                </button>
+
+                <button class="filter" data-filter="delay">
+                    Delay
+                </button>
+
+                <button class="filter" data-filter="duplicate">
+                    Potential Duplicate
+                </button>
+
+                <button class="filter" data-filter="agency">
+                    Agency Pattern
+                </button>
+
+                <button class="filter" data-filter="compliance">
+                    Compliance
+                </button>
+
+                <button class="filter" data-filter="fund">
+                    Fund Utilization
+                </button>
+
+            </div>
+
+
+            <!-- ================= ALERTS ================= -->
+
+            <div class="alerts" id="alertsContainer">
+
+                {% if projects %}
+
+                    {% for project in projects %}
+
+                    {% set work_id = project.get('id', project.get('record_id', project.get('work_id', '—'))) %}
+
+                    {% set work_name = project.get('name', project.get('work_name', 'Work requiring review')) %}
+
+                    {% set district = project.get('district', '—') %}
+
+                    {% set risk_score = project.get('risk_score', project.get('hybrid_risk_score', project.get('ml_risk_score', 0))) %}
+
+                    {% set risk = project.get('risk', project.get('hybrid_risk_level', 'HIGH')) %}
+
+                    {% set anomalies = project.get('anomalies', []) %}
+
+                    <div
+                        class="alert-card"
+                        data-work="{{ work_id|lower }}"
+                        data-district="{{ district|lower }}"
+                    >
+
+                        <div class="alert-top">
+
+                            <span class="red-dot"></span>
+
+                            <span class="critical">
+                                CRITICAL
+                            </span>
+
+                            <span class="alert-title">
+                                Flagged Analytical Signal
+                            </span>
+
+                            <span class="type">
+                                AI RISK
+                            </span>
+
+                            <a
+                                href="/project/{{ work_id }}"
+                                class="review"
+                            >
+                                Review →
+                            </a>
+
+                        </div>
+
+
+                        <div class="alert-message">
+
+                            <strong>
+                                {{ work_id }}
+                            </strong>
+
+                            in
+
+                            <strong>
+                                {{ district }}
+                            </strong>
+
+                            flagged for review;
+
+                            risk score
+
+                            <strong>
+                                {{ "%.0f"|format(risk_score|float) }}/100
+                            </strong>.
+
+                        </div>
+
+
+                        <div class="alert-meta">
+
+                            <span>
+                                {{ work_id }}
+                            </span>
+
+                            <span>
+                                Signal:
+                                {% if anomalies %}
+                                    {{ anomalies[0] }}
+                                {% else %}
+                                    Risk analysis
+                                {% endif %}
+                            </span>
+
+                            <span>
+                                Risk:
+                                {{ risk }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="empty">
+
+                        <div class="empty-icon">
+                            ✓
+                        </div>
+
+                        <strong>
+                            No active alerts
+                        </strong>
+
+                        No projects currently require analytical review.
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <div class="disclaimer">
+
+                <strong>AI Decision Support:</strong>
+                Alerts represent analytical signals generated from the available
+                monitoring data. They are not a final determination of fraud or
+                misconduct and require verification by authorized officials.
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script>
+
+    /* ================= SEARCH ================= */
+
+    const searchInput =
+        document.getElementById("searchInput");
+
+    const cards =
+        document.querySelectorAll(".alert-card");
+
+
+    if (searchInput) {
+
+        searchInput.addEventListener("input", function () {
+
+            const query =
+                this.value.toLowerCase().trim();
+
+            cards.forEach(function(card) {
+
+                const text =
+                    card.innerText.toLowerCase();
+
+                card.style.display =
+                    text.includes(query)
+                    ? ""
+                    : "none";
+
+            });
+
+        });
+
+    }
+
+
+    /* ================= FILTERS ================= */
+
+    const filterButtons =
+        document.querySelectorAll(".filter");
+
+
+    filterButtons.forEach(function(button) {
+
+        button.addEventListener("click", function() {
+
+            filterButtons.forEach(function(btn) {
+                btn.classList.remove("active");
+            });
+
+            this.classList.add("active");
+
+            const filter =
+                this.dataset.filter;
+
+            cards.forEach(function(card) {
+
+                if (filter === "all") {
+
+                    card.style.display = "";
+
+                    return;
+                }
+
+                const text =
+                    card.innerText.toLowerCase();
+
+                let show = false;
+
+                if (
+                    filter === "cost" &&
+                    text.includes("cost")
+                ) {
+                    show = true;
+                }
+
+                if (
+                    filter === "delay" &&
+                    text.includes("delay")
+                ) {
+                    show = true;
+                }
+
+                if (
+                    filter === "duplicate" &&
+                    text.includes("duplicate")
+                ) {
+                    show = true;
+                }
+
+                if (
+                    filter === "agency" &&
+                    text.includes("agency")
+                ) {
+                    show = true;
+                }
+
+                if (
+                    filter === "compliance" &&
+                    text.includes("compliance")
+                ) {
+                    show = true;
+                }
+
+                if (
+                    filter === "fund" &&
+                    (
+                        text.includes("fund") ||
+                        text.includes("utilization")
+                    )
+                ) {
+                    show = true;
+                }
+
+                card.style.display =
+                    show ? "" : "none";
+
+            });
+
+        });
+
+    });
+
+</script>
+
+</body>
+</html>

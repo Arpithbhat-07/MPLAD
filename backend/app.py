@@ -152,7 +152,6 @@ def create_app() -> Flask:
         )
 
         try:
-
             page = max(
                 1,
                 int(
@@ -164,7 +163,6 @@ def create_app() -> Flask:
             )
 
         except ValueError:
-
             page = 1
 
         per_page = 20
@@ -216,10 +214,8 @@ def create_app() -> Flask:
             )
         )
 
-        # IMPORTANT:
-        # /projects is the Work Explorer.
-        # It must NOT render project.html.
-        # project.html is only for /project/<project_id>.
+        # /projects = Work Explorer
+        # project.html is only for /project/<project_id>
 
         return render_template(
             "work_explorer.html",
@@ -354,6 +350,59 @@ def create_app() -> Flask:
                 for project in projects
                 if project.get("risk") == "High"
             ][:10],
+        )
+
+    # ======================================================
+    # ALERTS PAGE
+    # ======================================================
+
+    @app.get("/alerts")
+    def alerts():
+
+        projects = projects_data()
+
+        high_risk_projects = []
+
+        for project in projects:
+
+            risk = str(
+                project.get(
+                    "risk",
+                    "",
+                )
+                or ""
+            ).strip().lower()
+
+            try:
+
+                risk_score = float(
+                    project.get(
+                        "risk_score",
+                        0,
+                    )
+                    or 0
+                )
+
+            except (
+                ValueError,
+                TypeError,
+            ):
+
+                risk_score = 0
+
+            if (
+                risk == "high"
+                or risk_score >= 70
+            ):
+
+                high_risk_projects.append(
+                    project
+                )
+
+        return render_template(
+            "alerts.html",
+
+            projects=high_risk_projects,
         )
 
     # ======================================================
@@ -522,11 +571,13 @@ def create_app() -> Flask:
 
             return jsonify(
                 success=False,
+
                 error="Project not found",
             ), 404
 
         return jsonify(
             success=True,
+
             project=project,
         )
 
@@ -559,6 +610,7 @@ def create_app() -> Flask:
             return jsonify(
                 {
                     "success": False,
+
                     "error": (
                         "source must be "
                         "official or synthetic"
@@ -575,6 +627,7 @@ def create_app() -> Flask:
             return jsonify(
                 {
                     "success": False,
+
                     "error": (
                         f"{source} dataset "
                         "could not be loaded."
@@ -587,6 +640,7 @@ def create_app() -> Flask:
             return jsonify(
                 {
                     "success": False,
+
                     "error": (
                         f"{source} dataset "
                         "is empty."
@@ -610,6 +664,7 @@ def create_app() -> Flask:
             return jsonify(
                 {
                     "success": False,
+
                     "error": (
                         "AI risk analysis failed: "
                         f"{exc}"
