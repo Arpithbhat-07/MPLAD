@@ -1,121 +1,303 @@
-"""CSV data loading and normalization for the MPLADS project dataset."""
-
-from __future__ import annotations
-
 from pathlib import Path
-from typing import Iterable
-
 import pandas as pd
 
 
-BACKEND_ROOT = Path(__file__).resolve().parents[1]
-DATA_FOLDER = BACKEND_ROOT / "data"
+# ============================================================
+# PROJECT PATHS
+# ============================================================
 
-REQUIRED_COLUMNS = [
-    "work_id",
-    "mp_name",
-    "district",
-    "implementing_agency",
-    "work_category",
-    "cost_estimate_lakhs",
-    "status",
-    "risk_score",
-]
+BACKEND_DIR = Path(__file__).resolve().parents[1]
 
-TEXT_COLUMNS = [
-    "work_id",
-    "mp_name",
-    "district",
-    "implementing_agency",
-    "work_category",
-    "status",
-]
+DATA_DIR = BACKEND_DIR / "data"
+
+OFFICIAL_DIR = DATA_DIR / "officials"
+SYNTHETIC_DIR = DATA_DIR / "synthtic"
 
 
-def find_dataset(
-    preferred_names: Iterable[str] = ("flagged_works.csv",),
-) -> Path:
-    """Return the preferred CSV dataset."""
+OFFICIAL_FILE = (
+    OFFICIAL_DIR / "mplads_official.csv"
+)
 
-    if not DATA_FOLDER.exists():
+SYNTHETIC_FILE = (
+    SYNTHETIC_DIR / "flagged_works.csv"
+)
+
+
+# ============================================================
+# GENERIC CSV LOADER
+# ============================================================
+
+def load_csv(path: Path) -> pd.DataFrame:
+    """
+    Load a CSV file safely.
+    """
+
+    if not path.exists():
         raise FileNotFoundError(
-            f"Data folder not found: {DATA_FOLDER}"
+            f"Dataset not found:\n{path}"
         )
 
-    csv_files = sorted(DATA_FOLDER.glob("*.csv"))
+    df = pd.read_csv(path)
 
-    if not csv_files:
-        raise FileNotFoundError(
-            f"No CSV files found inside: {DATA_FOLDER}"
-        )
-
-    lookup = {
-        path.name.lower(): path
-        for path in csv_files
-    }
-
-    for name in preferred_names:
-        path = lookup.get(name.lower())
-
-        if path:
-            return path
-
-    return csv_files[0]
-
-
-def load_projects(
-    dataset_path: Path | None = None,
-) -> pd.DataFrame:
-    """Load, validate, and normalize the main dataset."""
-
-    data_file = dataset_path or find_dataset()
-
-    df = pd.read_csv(data_file)
-
+    # Clean column names
     df.columns = (
         df.columns
         .astype(str)
         .str.strip()
     )
 
-    missing = [
-        column
-        for column in REQUIRED_COLUMNS
-        if column not in df.columns
-    ]
+    return df
 
-    if missing:
-        raise ValueError(
-            "Missing required columns: "
-            + ", ".join(missing)
-        )
 
-    for column in TEXT_COLUMNS:
-        df[column] = (
-            df[column]
-            .fillna("")
-            .astype(str)
-            .str.strip()
-        )
+# ============================================================
+# OFFICIAL MPLADS DATA
+# ============================================================
 
-    df["cost_estimate_lakhs"] = pd.to_numeric(
-        df["cost_estimate_lakhs"],
-        errors="coerce",
-    ).fillna(0.0)
+def load_official_data() -> pd.DataFrame:
+    """
+    Load the official MPLADS dataset.
 
-    df["risk_score"] = pd.to_numeric(
-        df["risk_score"],
-        errors="coerce",
-    ).fillna(0.0)
+    This dataset must remain unchanged.
+    """
 
-    if "reasons_text" not in df.columns:
-        df["reasons_text"] = ""
-
-    df["reasons_text"] = (
-        df["reasons_text"]
-        .fillna("")
-        .astype(str)
-        .str.strip()
+    df = load_csv(
+        OFFICIAL_FILE
     )
 
+    # Mark the source explicitly
+    df["data_source"] = "official"
+
     return df
+
+
+# ============================================================
+# SYNTHETIC DATA
+# ============================================================
+
+def load_synthetic_data() -> pd.DataFrame:
+    """
+    Load the synthetic MPLADS dataset.
+
+    Synthetic data is used to demonstrate
+    additional AI capabilities where the
+    official dataset does not provide
+    sufficient attributes.
+    """
+
+    df = load_csv(
+        SYNTHETIC_FILE
+    )
+
+    df["data_source"] = "synthetic"
+
+    return df
+
+
+# ============================================================
+# DATASET INFORMATION
+# ============================================================
+
+def get_official_info() -> dict:
+    """
+    Return basic information about
+    the official dataset.
+    """
+
+    df = load_official_data()
+
+    return {
+        "source": "official",
+        "file": OFFICIAL_FILE.name,
+        "rows": len(df),
+        "columns": len(df.columns),
+        "column_names": df.columns.tolist(),
+    }
+
+
+def get_synthetic_info() -> dict:
+    """
+    Return basic information about
+    the synthetic dataset.
+    """
+
+    df = load_synthetic_data()
+
+    return {
+        "source": "synthetic",
+        "file": SYNTHETIC_FILE.name,
+        "rows": len(df),
+        "columns": len(df.columns),
+        "column_names": df.columns.tolist(),
+    }
+
+
+# ============================================================
+# COMMON DATA LOADER
+# ============================================================
+
+def load_projects(
+    source: str = "synthetic",
+) -> pd.DataFrame:
+    """
+    Load project data according to the
+    selected source.
+
+    source:
+        official
+        synthetic
+    """
+
+    source = source.lower().strip()
+
+    if source == "official":
+
+        return load_official_data()
+
+    if source == "synthetic":
+
+        return load_synthetic_data()
+
+    raise ValueError(
+        "Invalid data source. "
+        "Use 'official' or 'synthetic'."
+    )
+
+
+# ============================================================
+# COMBINED VIEW
+# ============================================================
+
+def load_all_data() -> pd.DataFrame:
+    """
+    Load both datasets into one DataFrame
+    while preserving the data_source column.
+
+    This does NOT claim that the two datasets
+    have identical schemas.
+    """
+
+    official = load_official_data()
+
+    synthetic = load_synthetic_data()
+
+    # Union of columns
+    all_columns = sorted(
+        set(official.columns)
+        | set(synthetic.columns)
+    )
+
+    official = official.reindex(
+        columns=all_columns
+    )
+
+    synthetic = synthetic.reindex(
+        columns=all_columns
+    )
+
+    return pd.concat(
+        [
+            official,
+            synthetic,
+        ],
+        ignore_index=True,
+    )
+
+
+# ============================================================
+# DATASET SUMMARY
+# ============================================================
+
+def dataset_summary(
+    source: str = "synthetic",
+) -> dict:
+    """
+    Generate a summary for the selected
+    dataset.
+    """
+
+    df = load_projects(source)
+
+    return {
+        "source": source,
+        "rows": len(df),
+        "columns": len(df.columns),
+        "missing_values": int(
+            df.isna()
+            .sum()
+            .sum()
+        ),
+        "column_names": df.columns.tolist(),
+    }
+
+
+# ============================================================
+# TEST
+# ============================================================
+
+if __name__ == "__main__":
+
+    print("\n===================================")
+    print("MPLADS DATA PROCESSOR")
+    print("===================================\n")
+
+    print("OFFICIAL DATA")
+    print("-----------------------------------")
+
+    official_info = (
+        get_official_info()
+    )
+
+    print(
+        "Rows:",
+        official_info["rows"],
+    )
+
+    print(
+        "Columns:",
+        official_info["columns"],
+    )
+
+    print(
+        "Fields:"
+    )
+
+    for column in official_info[
+        "column_names"
+    ]:
+        print(
+            " -",
+            column,
+        )
+
+    print("\nSYNTHETIC DATA")
+    print("-----------------------------------")
+
+    synthetic_info = (
+        get_synthetic_info()
+    )
+
+    print(
+        "Rows:",
+        synthetic_info["rows"],
+    )
+
+    print(
+        "Columns:",
+        synthetic_info["columns"],
+    )
+
+    print(
+        "Fields:"
+    )
+
+    for column in synthetic_info[
+        "column_names"
+    ]:
+        print(
+            " -",
+            column,
+        )
+
+    print("\n===================================")
+    print("DATA PROCESSOR CHECK COMPLETE")
+    print("===================================")
