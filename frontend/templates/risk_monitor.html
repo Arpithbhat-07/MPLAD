@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        MPLADS SENTINEL — Risk Monitor
+    </title>
+
+
+    <!-- Existing global styles -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Risk Monitor specific styles -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/risk_monitor.css') }}">
+
+</head>
+
+
+<body>
+
+<div class="sentinel-app">
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="sentinel-sidebar">
+
+
+        <!-- BRAND -->
+
+        <div class="sentinel-brand">
+
+            <div class="brand-logo">
+                <span>◇</span>
+            </div>
+
+            <div class="brand-info">
+
+                <div class="brand-title">
+                    MPLADS <span>SENTINEL</span>
+                </div>
+
+                <div class="brand-subtitle">
+                    Risk & Anomaly Intelligence
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- NAVIGATION -->
+
+        <nav class="sentinel-nav">
+
+
+            <div class="nav-section-title">
+                OVERVIEW
+            </div>
+
+
+            <a href="/"
+               class="sentinel-nav-link">
+
+                <span class="nav-symbol">
+                    ▦
+                </span>
+
+                <span>
+                    Command Center
+                </span>
+
+            </a>
+
+
+            <div class="nav-section-title">
+                INTELLIGENCE
+            </div>
+
+
+            <a href="/risk-analysis"
+               class="sentinel-nav-link active">
+
+                <span class="nav-symbol">
+                    ♢
+                </span>
+
+                <span>
+                    Risk Monitor
+                </span>
+
+            </a>
+
+
+            <a href="/projects"
+               class="sentinel-nav-link">
+
+                <span class="nav-symbol">
+                    ⌕
+                </span>
+
+                <span>
+                    Work Explorer
+                </span>
+
+            </a>
+
+
+            <a href="/analytics"
+               class="sentinel-nav-link">
+
+                <span class="nav-symbol">
+                    ▥
+                </span>
+
+                <span>
+                    Analytics
+                </span>
+
+            </a>
+
+
+            <a href="/reports"
+               class="sentinel-nav-link">
+
+                <span class="nav-symbol">
+                    ♧
+                </span>
+
+                <span>
+                    Alerts
+                </span>
+
+            </a>
+
+
+            <div class="nav-section-title">
+                OPERATIONS
+            </div>
+
+
+            <a href="/agencies"
+               class="sentinel-nav-link">
+
+                <span class="nav-symbol">
+                    ▤
+                </span>
+
+                <span>
+                    Agencies
+                </span>
+
+            </a>
+
+
+            <a href="/districts"
+               class="sentinel-nav-link">
+
+                <span class="nav-symbol">
+                    ⌖
+                </span>
+
+                <span>
+                    Districts
+                </span>
+
+            </a>
+
+
+            <a href="/investigation"
+               class="sentinel-nav-link">
+
+                <span class="nav-symbol">
+                    ▣
+                </span>
+
+                <span>
+                    Investigation Queue
+                </span>
+
+            </a>
+
+
+            <div class="nav-section-title">
+                AI
+            </div>
+
+
+            <a href="/sentinel-ai"
+               class="sentinel-nav-link">
+
+                <span class="nav-symbol">
+                    ✧
+                </span>
+
+                <span>
+                    Sentinel AI
+                </span>
+
+            </a>
+
+
+            <div class="nav-section-title">
+                SYSTEM
+            </div>
+
+
+            <a href="/data-health"
+               class="sentinel-nav-link">
+
+                <span class="nav-symbol">
+                    ⌁
+                </span>
+
+                <span>
+                    Data Health
+                </span>
+
+            </a>
+
+
+            <a href="/settings"
+               class="sentinel-nav-link">
+
+                <span class="nav-symbol">
+                    ⚙
+                </span>
+
+                <span>
+                    Settings
+                </span>
+
+            </a>
+
+
+        </nav>
+
+
+        <!-- SIDEBAR FOOTER -->
+
+        <div class="sentinel-sidebar-footer">
+
+
+            <div class="engine-status">
+
+                <span class="engine-live-dot"></span>
+
+                <div>
+
+                    <strong>
+                        Data Engine Online
+                    </strong>
+
+                    <small>
+                        Real-time analysis active
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <div class="sidebar-updated">
+
+                Last updated
+
+                <strong id="sidebarUpdated">
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="prototype-badge">
+
+                <span></span>
+
+                Prototype · SIH 2026
+
+            </div>
+
+
+        </div>
+
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="sentinel-main">
+
+
+        <!-- =================================================
+             TOP BAR
+        ================================================== -->
+
+        <header class="sentinel-topbar">
+
+
+            <div class="topbar-title">
+
+                <strong>
+                    Risk Monitor
+                </strong>
+
+                <span>
+
+                    <i></i>
+
+                    LIVE ANALYTICS
+
+                </span>
+
+            </div>
+
+
+            <div class="topbar-search">
+
+                <span>
+                    ⌕
+                </span>
+
+                <input
+                    type="text"
+                    id="globalSearch"
+                    placeholder="Search work ID, district, agency..."
+                >
+
+                <kbd>/</kbd>
+
+            </div>
+
+
+            <div class="topbar-authority">
+
+
+                <button class="notification-button">
+                    ♧
+                    <span></span>
+                </button>
+
+
+                <div class="authority-avatar">
+                    MA
+                </div>
+
+
+                <div class="authority-details">
+
+                    <strong>
+                        Monitoring Authority
+                    </strong>
+
+                    <small>
+                        Decision Support
+                    </small>
+
+                </div>
+
+
+                <span class="authority-arrow">
+                    ⌄
+                </span>
+
+
+            </div>
+
+
+        </header>
+
+
+
+        <!-- =================================================
+             PAGE CONTENT
+        ================================================== -->
+
+        <section class="risk-content">
+
+
+            <!-- PAGE HEADER -->
+
+            <div class="risk-page-header">
+
+
+                <div>
+
+                    <h1>
+                        Risk Monitor
+                    </h1>
+
+                    <p>
+                        Prioritized works requiring monitoring
+                        or investigation.
+                    </p>
+
+                </div>
+
+
+                <div class="header-actions">
+
+                    <button
+                        id="resetButton"
+                        class="secondary-button">
+
+                        ↻
+
+                        Reset
+
+                    </button>
+
+
+                    <button
+                        id="exportButton"
+                        class="export-button">
+
+                        ⇩
+
+                        Export Report
+
+                    </button>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 FILTER PANEL
+            ================================================== -->
+
+            <section class="filter-panel">
+
+
+                <div class="filter-heading">
+
+                    <span>
+                        ☷
+                    </span>
+
+                    Filters
+
+                </div>
+
+
+                <div class="filters-grid">
+
+
+                    <!-- SEARCH -->
+
+                    <div class="filter-field search-field">
+
+                        <label>
+                            SEARCH
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span>
+                                ⌕
+                            </span>
+
+                            <input
+                                type="text"
+                                id="workSearch"
+                                placeholder="Work ID, description..."
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- STATE -->
+
+                    <div class="filter-field">
+
+                        <label>
+                            STATE
+                        </label>
+
+                        <select id="stateFilter">
+
+                            <option value="all">
+                                All States
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- DISTRICT -->
+
+                    <div class="filter-field">
+
+                        <label>
+                            DISTRICT
+                        </label>
+
+                        <select id="districtFilter">
+
+                            <option value="all">
+                                All Districts
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- CATEGORY -->
+
+                    <div class="filter-field">
+
+                        <label>
+                            CATEGORY
+                        </label>
+
+                        <select id="categoryFilter">
+
+                            <option value="all">
+                                All Categories
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- AGENCY -->
+
+                    <div class="filter-field">
+
+                        <label>
+                            AGENCY
+                        </label>
+
+                        <select id="agencyFilter">
+
+                            <option value="all">
+                                All Agencies
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- RISK -->
+
+                    <div class="filter-field">
+
+                        <label>
+                            RISK LEVEL
+                        </label>
+
+                        <select id="riskFilter">
+
+                            <option value="all">
+                                All Levels
+                            </option>
+
+                            <option value="CRITICAL">
+                                Critical
+                            </option>
+
+                            <option value="HIGH">
+                                High
+                            </option>
+
+                            <option value="MEDIUM">
+                                Medium
+                            </option>
+
+                            <option value="LOW">
+                                Low
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- MIN SCORE -->
+
+                    <div class="score-filter">
+
+                        <label>
+                            MIN RISK SCORE:
+                            <strong id="scoreValue">
+                                0
+                            </strong>
+                        </label>
+
+
+                        <input
+                            type="range"
+                            id="scoreFilter"
+                            min="0"
+                            max="100"
+                            value="0"
+                            step="1"
+                        >
+
+                    </div>
+
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 LEGEND
+            ================================================== -->
+
+            <div class="risk-toolbar">
+
+
+                <div class="risk-legend">
+
+
+                    <span class="legend-item">
+
+                        <i class="critical"></i>
+
+                        Critical
+
+                        <small>
+                            80–100
+                        </small>
+
+                    </span>
+
+
+                    <span class="legend-item">
+
+                        <i class="high"></i>
+
+                        High
+
+                        <small>
+                            60–79
+                        </small>
+
+                    </span>
+
+
+                    <span class="legend-item">
+
+                        <i class="medium"></i>
+
+                        Medium
+
+                        <small>
+                            30–59
+                        </small>
+
+                    </span>
+
+
+                    <span class="legend-item">
+
+                        <i class="low"></i>
+
+                        Low
+
+                        <small>
+                            0–29
+                        </small>
+
+                    </span>
+
+
+                </div>
+
+
+                <div
+                    id="matchCount"
+                    class="match-count">
+
+                    Loading...
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 TABLE
+            ================================================== -->
+
+            <section class="risk-table-panel">
+
+
+                <div class="table-scroll">
+
+                    <table class="risk-table">
+
+
+                        <thead>
+
+                        <tr>
+
+                            <th data-sort="hybrid_risk_score">
+                                Risk ↕
+                            </th>
+
+                            <th data-sort="record_id">
+                                Work ID ↕
+                            </th>
+
+                            <th>
+                                Description
+                            </th>
+
+                            <th data-sort="state">
+                                State ↕
+                            </th>
+
+                            <th>
+                                Category
+                            </th>
+
+                            <th>
+                                Sanctioned
+                            </th>
+
+                            <th>
+                                Expenditure
+                            </th>
+
+                            <th data-sort="hybrid_risk_score">
+                                Score ↓
+                            </th>
+
+                            <th>
+                                Primary Signal
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                        </thead>
+
+
+                        <tbody id="riskTableBody">
+
+                        <tr>
+
+                            <td
+                                colspan="10"
+                                class="table-loading">
+
+                                Loading risk intelligence...
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+
+                    </table>
+
+                </div>
+
+
+
+                <!-- PAGINATION -->
+
+                <div class="pagination">
+
+                    <button
+                        id="previousPage"
+                        class="page-button">
+
+                        ←
+
+                    </button>
+
+
+                    <span id="pageInfo">
+                        Page 1
+                    </span>
+
+
+                    <button
+                        id="nextPage"
+                        class="page-button">
+
+                        →
+
+                    </button>
+
+                </div>
+
+
+            </section>
+
+
+            <!-- DATA NOTICE -->
+
+            <div class="data-notice">
+
+                <span>
+                    🧪
+                </span>
+
+                <div>
+
+                    <strong>
+                        Synthetic Demonstration Dataset
+                    </strong>
+
+                    <p>
+                        Risk classifications shown here are generated
+                        from synthetic demonstration records and are
+                        not official government findings.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+<script src="{{ url_for('static', filename='js/risk_monitor.js') }}"></script>
+
+</body>
+</html>

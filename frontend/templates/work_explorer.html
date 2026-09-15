@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Work Explorer | MPLADS SENTINEL
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/work_explorer.css') }}"
+    >
+</head>
+
+
+<body>
+
+<div class="app-shell">
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                🛡
+            </div>
+
+            <div>
+
+                <div class="brand-title">
+                    MPLADS <span>SENTINEL</span>
+                </div>
+
+                <div class="brand-subtitle">
+                    Risk & Anomaly Intelligence
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <nav class="navigation">
+
+            <div class="nav-section-title">
+                OVERVIEW
+            </div>
+
+            <a
+                href="/"
+                class="nav-item"
+            >
+                <span class="nav-icon">▦</span>
+                <span>Command Center</span>
+            </a>
+
+
+            <div class="nav-section-title">
+                INTELLIGENCE
+            </div>
+
+            <a
+                href="/risk-analysis"
+                class="nav-item"
+            >
+                <span class="nav-icon">◉</span>
+                <span>Risk Monitor</span>
+            </a>
+
+            <a
+                href="/projects"
+                class="nav-item active"
+            >
+                <span class="nav-icon">⌕</span>
+                <span>Work Explorer</span>
+            </a>
+
+            <a
+                href="/analytics"
+                class="nav-item"
+            >
+                <span class="nav-icon">▥</span>
+                <span>Analytics</span>
+            </a>
+
+            <a
+                href="/reports"
+                class="nav-item"
+            >
+                <span class="nav-icon">♧</span>
+                <span>Alerts</span>
+            </a>
+
+
+            <div class="nav-section-title">
+                OPERATIONS
+            </div>
+
+            <a
+                href="/"
+                class="nav-item"
+            >
+                <span class="nav-icon">▤</span>
+                <span>Agencies</span>
+            </a>
+
+            <a
+                href="/map"
+                class="nav-item"
+            >
+                <span class="nav-icon">⌖</span>
+                <span>Districts</span>
+            </a>
+
+            <a
+                href="/reports"
+                class="nav-item"
+            >
+                <span class="nav-icon">▣</span>
+                <span>Investigation Queue</span>
+            </a>
+
+
+            <div class="nav-section-title">
+                AI
+            </div>
+
+            <a
+                href="/"
+                class="nav-item"
+            >
+                <span class="nav-icon">✦</span>
+                <span>Sentinel AI</span>
+            </a>
+
+
+            <div class="nav-section-title">
+                SYSTEM
+            </div>
+
+            <a
+                href="/"
+                class="nav-item"
+            >
+                <span class="nav-icon">⌁</span>
+                <span>Data Health</span>
+            </a>
+
+            <a
+                href="/"
+                class="nav-item"
+            >
+                <span class="nav-icon">⚙</span>
+                <span>Settings</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="engine-status">
+
+                <span class="status-dot"></span>
+
+                <span>
+                    Data Engine Online
+                </span>
+
+            </div>
+
+
+            <div class="footer-small">
+                Real-time analysis active
+            </div>
+
+
+            <div class="footer-small">
+                Last updated
+            </div>
+
+
+            <div class="footer-time">
+                Today, 09:42 AM
+            </div>
+
+
+            <div class="prototype-badge">
+
+                <span>●</span>
+
+                Prototype · SIH 2026
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- =================================================
+             TOPBAR
+        ================================================== -->
+
+        <header class="topbar">
+
+            <div class="topbar-title">
+
+                <strong>
+                    Work Explorer
+                </strong>
+
+                <div class="live-status">
+
+                    <span class="live-dot"></span>
+
+                    LIVE ANALYTICS
+
+                </div>
+
+            </div>
+
+
+            <div class="global-search">
+
+                <span>
+                    ⌕
+                </span>
+
+                <input
+                    type="text"
+                    id="globalSearch"
+                    placeholder="Search work ID, district, agency..."
+                >
+
+                <span class="search-shortcut">
+                    /
+                </span>
+
+            </div>
+
+
+            <div class="topbar-actions">
+
+                <button class="icon-button">
+                    ♧
+                    <span class="notification-dot"></span>
+                </button>
+
+
+                <div class="authority">
+
+                    <div class="authority-avatar">
+                        MA
+                    </div>
+
+                    <div class="authority-text">
+
+                        <strong>
+                            Monitoring Authority
+                        </strong>
+
+                        <span>
+                            Decision Support
+                        </span>
+
+                    </div>
+
+                    <span>
+                        ⌄
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =================================================
+             CONTENT
+        ================================================== -->
+
+        <section class="page-content">
+
+
+            <div class="page-heading">
+
+                <div>
+
+                    <h1>
+                        Work Explorer
+                    </h1>
+
+                    <p>
+                        Browse and inspect individual MPLADS works across the programme.
+                    </p>
+
+                </div>
+
+
+                <div class="explorer-search">
+
+                    <span>
+                        ⌕
+                    </span>
+
+                    <input
+                        id="workSearch"
+                        type="text"
+                        placeholder="Search works..."
+                    >
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 CATEGORY FILTERS
+            ================================================== -->
+
+            <div class="category-tabs">
+
+                <button
+                    class="category-tab active"
+                    data-category="all"
+                >
+                    All
+                </button>
+
+                <button
+                    class="category-tab"
+                    data-category="Education"
+                >
+                    Education
+                </button>
+
+                <button
+                    class="category-tab"
+                    data-category="Health"
+                >
+                    Health
+                </button>
+
+                <button
+                    class="category-tab"
+                    data-category="Road Construction"
+                >
+                    Road Construction
+                </button>
+
+                <button
+                    class="category-tab"
+                    data-category="Water & Sanitation"
+                >
+                    Water & Sanitation
+                </button>
+
+                <button
+                    class="category-tab"
+                    data-category="Community Infrastructure"
+                >
+                    Community Infrastructure
+                </button>
+
+                <button
+                    class="category-tab"
+                    data-category="Public Amenities"
+                >
+                    Public Amenities
+                </button>
+
+                <button
+                    class="category-tab"
+                    data-category="Sports"
+                >
+                    Sports
+                </button>
+
+                <button
+                    class="category-tab"
+                    data-category="Other"
+                >
+                    Other
+                </button>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 PROJECT GRID
+            ================================================== -->
+
+            <div
+                id="projectGrid"
+                class="project-grid"
+            >
+
+                {% for project in projects %}
+
+                {% set risk_score = project.get(
+                    'risk_score',
+                    project.get(
+                        'hybrid_risk_score',
+                        0
+                    )
+                ) %}
+
+
+                {% set risk_level = project.get(
+                    'risk',
+                    project.get(
+                        'hybrid_risk_level',
+                        'Low'
+                    )
+                ) %}
+
+
+                <a
+                    href="{{ url_for(
+                        'project_details',
+                        project_id=project.get(
+                            'id',
+                            project.get(
+                                'record_id',
+                                ''
+                            )
+                        )
+                    ) }}"
+                    class="project-card"
+                    data-category="{{ project.get(
+                        'category',
+                        project.get(
+                            'work_category',
+                            'Other'
+                        )
+                    ) }}"
+                    data-search="{{ (
+                        project.get('id', '') ~ ' ' ~
+                        project.get('name', '') ~ ' ' ~
+                        project.get('work_name', '') ~ ' ' ~
+                        project.get('district', '') ~ ' ' ~
+                        project.get('state', '') ~ ' ' ~
+                        project.get('agency', '') ~ ' ' ~
+                        project.get('implementing_agency', '')
+                    ) | lower }}"
+                >
+
+                    <div class="card-top">
+
+                        <span class="work-id">
+
+                            {{ project.get(
+                                'id',
+                                project.get(
+                                    'record_id',
+                                    '—'
+                                )
+                            ) }}
+
+                        </span>
+
+
+                        <span class="
+                            risk-badge
+                            {% if risk_level|upper == 'CRITICAL' %}
+                                risk-critical
+                            {% elif risk_level|upper == 'HIGH' %}
+                                risk-high
+                            {% elif risk_level|upper == 'MEDIUM' %}
+                                risk-medium
+                            {% else %}
+                                risk-low
+                            {% endif %}
+                        ">
+
+                            {{ risk_level|upper }}
+
+                        </span>
+
+                    </div>
+
+
+
+                    <h3>
+
+                        {{ project.get(
+                            'name',
+                            project.get(
+                                'work_name',
+                                project.get(
+                                    'description',
+                                    'Work description unavailable'
+                                )
+                            )
+                        ) }}
+
+                    </h3>
+
+
+
+                    <div class="card-divider"></div>
+
+
+
+                    <div class="card-bottom">
+
+                        <div>
+
+                            <span class="location">
+
+                                {{ project.get(
+                                    'district',
+                                    '—'
+                                ) }}
+
+                                {% if project.get('state') %}
+                                    ,
+                                    {{ project.get('state') }}
+                                {% endif %}
+
+                            </span>
+
+
+                            <span class="signal">
+
+                                {% if project.get('anomalies') %}
+
+                                    {% if project.get('anomalies') is string %}
+
+                                        {{ project.get('anomalies') }}
+
+                                    {% else %}
+
+                                        {{ project.get('anomalies')[0] }}
+
+                                    {% endif %}
+
+                                {% elif project.get('hybrid_risk_reasons') %}
+
+                                    {% if project.get('hybrid_risk_reasons') is string %}
+
+                                        {{ project.get('hybrid_risk_reasons') }}
+
+                                    {% else %}
+
+                                        {{ project.get('hybrid_risk_reasons')[0] }}
+
+                                    {% endif %}
+
+                                {% else %}
+
+                                    Risk assessment available
+
+                                {% endif %}
+
+                            </span>
+
+                        </div>
+
+
+
+                        <div class="score-section">
+
+                            <span class="money">
+
+                                {% if project.get('sanctioned') is not none %}
+
+                                    ₹{{ project.get('sanctioned') }}
+
+                                {% elif project.get('sanction_amount') is not none %}
+
+                                    ₹{{ project.get('sanction_amount') }}
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </span>
+
+
+                            <strong class="risk-score">
+
+                                {{ "%.0f"|format(
+                                    risk_score|float
+                                ) }}
+
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="investigate-link">
+
+                        Open Investigation
+                        <span>→</span>
+
+                    </div>
+
+                </a>
+
+                {% endfor %}
+
+
+                {% if not projects %}
+
+                <div class="empty-state">
+
+                    <div>
+                        ◌
+                    </div>
+
+                    <h3>
+                        No works available
+                    </h3>
+
+                    <p>
+                        No project records are currently available.
+                    </p>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script
+    src="{{ url_for(
+        'static',
+        filename='js/work_explorer.js'
+    ) }}"
+></script>
+
+</body>
+
+</html>

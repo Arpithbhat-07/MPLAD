@@ -49,6 +49,7 @@ from backend.utils.data_processor import (
 # ==========================================================
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
 FRONTEND_ROOT = PROJECT_ROOT / "frontend"
 
 
@@ -118,15 +119,19 @@ def create_app() -> Flask:
 
         return render_template(
             "index.html",
+
             projects=projects[:10],
+
             alert_projects=[
                 project
                 for project in projects
                 if project.get("risk") == "High"
             ][:8],
+
             statistics=calculate_statistics(
                 projects
             ),
+
             filter_options=get_filter_options(
                 projects
             ),
@@ -147,6 +152,7 @@ def create_app() -> Flask:
         )
 
         try:
+
             page = max(
                 1,
                 int(
@@ -212,20 +218,29 @@ def create_app() -> Flask:
 
         return render_template(
             "project.html",
+
             project=None,
+
             projects=filtered[
                 start_idx:end_idx
             ],
+
             total_items=total_items,
+
             page=page,
+
             total_pages=total_pages,
+
             start_item=(
                 start_idx + 1
                 if total_items
                 else 0
             ),
+
             end_item=end_idx,
+
             active_filters=active_filters,
+
             filter_options=get_filter_options(
                 all_projects
             ),
@@ -248,29 +263,39 @@ def create_app() -> Flask:
 
             return render_template(
                 "project.html",
+
                 project=None,
+
                 projects=projects_data()[:15],
+
                 error_message=(
                     f"Project with ID "
                     f"'{project_id}' "
                     "was not found "
                     "in the monitoring records."
                 ),
+
                 filter_options=get_filter_options(
                     projects_data()
                 ),
+
                 total_items=len(
                     projects_data()
                 ),
+
                 page=1,
+
                 total_pages=1,
+
                 start_item=1,
+
                 end_item=min(
                     15,
                     len(
                         projects_data()
                     ),
                 ),
+
                 active_filters={
                     "risk": "All",
                     "status": "All",
@@ -279,11 +304,14 @@ def create_app() -> Flask:
                     "category": "All",
                     "search": "",
                 },
+
             ), 404
 
         return render_template(
             "project.html",
+
             project=project,
+
             projects=projects_data()[:10],
         )
 
@@ -292,33 +320,49 @@ def create_app() -> Flask:
     # ======================================================
 
     @app.get("/analytics")
-    @app.get("/risk-analysis")
     def analytics():
 
         projects = projects_data()
 
         return render_template(
             "analytics.html",
+
             statistics=calculate_statistics(
                 projects
             ),
+
             category_list=category_breakdown(
                 projects
             ),
+
             district_list=district_breakdown(
                 projects
             )[:12],
+
             statuses=status_breakdown(
                 projects
             ),
+
             top_anomalies=top_anomalies(
                 projects
             ),
+
             flagged_projects=[
                 project
                 for project in projects
                 if project.get("risk") == "High"
             ][:10],
+        )
+
+    # ======================================================
+    # RISK MONITOR PAGE
+    # ======================================================
+
+    @app.get("/risk-analysis")
+    def risk_analysis():
+
+        return render_template(
+            "risk_monitor.html"
         )
 
     # ======================================================
@@ -336,10 +380,13 @@ def create_app() -> Flask:
 
         return render_template(
             "map.html",
+
             statistics=calculate_statistics(
                 projects
             ),
+
             districts=districts,
+
             states=states,
         )
 
@@ -394,14 +441,17 @@ def create_app() -> Flask:
 
         return render_template(
             "reports.html",
+
             statistics=calculate_statistics(
                 projects
             ),
+
             high_risk_count=sum(
                 project.get("risk")
                 == "High"
                 for project in projects
             ),
+
             delayed_count=sum(
                 project.get("status")
                 in {
@@ -410,6 +460,7 @@ def create_app() -> Flask:
                 }
                 for project in projects
             ),
+
             categories=categories,
         )
 
@@ -424,9 +475,11 @@ def create_app() -> Flask:
 
         return jsonify(
             success=True,
+
             statistics=calculate_statistics(
                 projects
             ),
+
             projects=projects[:25],
         )
 
@@ -444,7 +497,9 @@ def create_app() -> Flask:
 
         return jsonify(
             success=True,
+
             count=len(filtered),
+
             projects=filtered,
         )
 
@@ -474,7 +529,7 @@ def create_app() -> Flask:
         )
 
     # ======================================================
-    # 🧠 AI RISK ANALYSIS API
+    # AI RISK ANALYSIS API
     # ======================================================
 
     @app.get("/api/risk-analysis")
@@ -499,22 +554,66 @@ def create_app() -> Flask:
 
         else:
 
-            return jsonify({
-                "success": False,
-                "error": (
-                    "source must be "
-                    "official or synthetic"
-                ),
-            }), 400
+            return jsonify(
+                {
+                    "success": False,
+                    "error": (
+                        "source must be "
+                        "official or synthetic"
+                    ),
+                }
+            ), 400
+
+        # --------------------------------------------------
+        # CHECK DATA
+        # --------------------------------------------------
+
+        if df is None:
+
+            return jsonify(
+                {
+                    "success": False,
+                    "error": (
+                        f"{source} dataset "
+                        "could not be loaded."
+                    ),
+                }
+            ), 500
+
+        if df.empty:
+
+            return jsonify(
+                {
+                    "success": False,
+                    "error": (
+                        f"{source} dataset "
+                        "is empty."
+                    ),
+                }
+            ), 404
 
         # --------------------------------------------------
         # RUN COMPLETE AI PIPELINE
         # --------------------------------------------------
 
-        result = analyze_dataset(
-            df,
-            source,
-        )
+        try:
+
+            result = analyze_dataset(
+                df,
+                source,
+            )
+
+        except Exception as exc:
+
+            return jsonify(
+                {
+                    "success": False,
+                    "error": (
+                        "AI risk analysis failed: "
+                        f"{exc}"
+                    ),
+                }
+            ), 500
 
         # --------------------------------------------------
         # GET SUMMARY
@@ -532,6 +631,7 @@ def create_app() -> Flask:
 
         # Convert datetime columns.
         # NaT becomes None.
+
         for column in records.columns:
 
             if pd.api.types.is_datetime64_any_dtype(
@@ -547,14 +647,18 @@ def create_app() -> Flask:
                     )
                 )
 
-        # Convert dataframe to object type
-        records = records.astype(object)
+        # --------------------------------------------------
+        # CONVERT DATAFRAME TO OBJECT
+        # --------------------------------------------------
 
-        # Replace:
-        # NaN
-        # NaT
-        # infinity
-        # with None
+        records = records.astype(
+            object
+        )
+
+        # --------------------------------------------------
+        # REPLACE INVALID VALUES
+        # --------------------------------------------------
+
         records = records.replace(
             [
                 float("inf"),
@@ -577,7 +681,7 @@ def create_app() -> Flask:
         )
 
         # --------------------------------------------------
-        # CONVERT NUMPY VALUES TO PYTHON VALUES
+        # CONVERT NUMPY VALUES
         # --------------------------------------------------
 
         for project in projects_json:
@@ -603,15 +707,56 @@ def create_app() -> Flask:
                         pass
 
         # --------------------------------------------------
+        # DATA LABEL
+        # --------------------------------------------------
+
+        if source == "synthetic":
+
+            data_label = (
+                "Synthetic Demonstration Dataset"
+            )
+
+            data_description = (
+                "AI risk intelligence generated "
+                "from synthetic demonstration "
+                "records. Not official government "
+                "findings."
+            )
+
+        else:
+
+            data_label = (
+                "Official MPLADS Dataset"
+            )
+
+            data_description = (
+                "Analysis based on data available "
+                "from the official MPLADS dataset. "
+                "Unavailable source fields are not "
+                "fabricated."
+            )
+
+        # --------------------------------------------------
         # RETURN JSON
         # --------------------------------------------------
 
-        return jsonify({
-            "success": True,
-            "source": source,
-            "summary": summary,
-            "projects": projects_json,
-        })
+        return jsonify(
+            {
+                "success": True,
+
+                "source": source,
+
+                "data_label": data_label,
+
+                "data_description": (
+                    data_description
+                ),
+
+                "summary": summary,
+
+                "projects": projects_json,
+            }
+        )
 
     # ======================================================
     # OLD ANALYZE API
@@ -627,6 +772,10 @@ def create_app() -> Flask:
                 "synthetic",
             ).lower()
 
+            # --------------------------------------------------
+            # SELECT DATASET
+            # --------------------------------------------------
+
             if source == "official":
 
                 df = load_official_data()
@@ -639,41 +788,54 @@ def create_app() -> Flask:
 
                 return jsonify(
                     success=False,
+
                     message=(
                         "source must be "
                         "official or synthetic"
                     ),
                 ), 400
 
-            # Run AI pipeline
+            # --------------------------------------------------
+            # RUN AI PIPELINE
+            # --------------------------------------------------
+
             result = analyze_dataset(
                 df,
                 source,
             )
 
-            # Summary
+            # --------------------------------------------------
+            # SUMMARY
+            # --------------------------------------------------
+
             summary = get_risk_summary(
                 result
             )
 
             return jsonify(
                 success=True,
+
                 message=(
                     "AI Risk Analysis "
                     "completed successfully."
                 ),
+
                 source=source,
+
                 analyzed_count=len(
                     result
                 ),
+
                 high_risk_count=summary.get(
                     "high_risk",
                     0,
                 ),
+
                 ml_anomalies=summary.get(
                     "ml_anomalies",
                     0,
                 ),
+
                 statistics=summary,
             )
 
@@ -681,6 +843,7 @@ def create_app() -> Flask:
 
             return jsonify(
                 success=False,
+
                 message=(
                     "Risk analysis failed: "
                     f"{exc}"
@@ -733,60 +896,74 @@ def create_app() -> Flask:
                         "id",
                         "",
                     ),
+
                     project.get(
                         "name",
                         "",
                     ),
+
                     project.get(
                         "district",
                         "",
                     ),
+
                     project.get(
                         "state",
                         "",
                     ),
+
                     project.get(
                         "category",
                         "",
                     ),
+
                     project.get(
                         "agency",
                         "",
                     ),
+
                     project.get(
                         "contractor",
                         "",
                     ),
+
                     project.get(
                         "sanctioned",
                         0,
                     ),
+
                     project.get(
                         "spent",
                         0,
                     ),
+
                     project.get(
                         "progress",
                         0,
                     ),
+
                     project.get(
                         "status",
                         "",
                     ),
+
                     project.get(
                         "risk",
                         "",
                     ),
+
                     project.get(
                         "risk_score",
                         0,
                     ),
+
                     "; ".join(
                         project.get(
                             "anomalies",
                             [],
                         )
                     ),
+
                     project.get(
                         "recommended_action",
                         "",
@@ -806,7 +983,9 @@ def create_app() -> Flask:
 
         return Response(
             output.getvalue(),
+
             mimetype="text/csv",
+
             headers={
                 "Content-Disposition":
                     f"attachment; filename={filename}"
@@ -822,10 +1001,12 @@ def create_app() -> Flask:
 
         return jsonify(
             status="healthy",
+
             service=(
                 "MPLAD AI Risk "
                 "Monitoring System"
             ),
+
             total_projects=len(
                 projects_data()
             ),
