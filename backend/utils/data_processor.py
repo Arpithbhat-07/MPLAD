@@ -10,6 +10,9 @@ BACKEND_DIR = Path(__file__).resolve().parents[1]
 
 DATA_DIR = BACKEND_DIR / "data"
 
+# Backward compatibility for existing services
+DATA_FOLDER = DATA_DIR
+
 OFFICIAL_DIR = DATA_DIR / "officials"
 SYNTHETIC_DIR = DATA_DIR / "synthtic"
 
