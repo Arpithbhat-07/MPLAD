@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MPLADS SENTINEL — Command Center</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-mark">
+                <div class="shield">S</div>
+            </div>
+
+            <div class="brand-text">
+                <div class="brand-name">
+                    MPLADS <span>SENTINEL</span>
+                </div>
+
+                <div class="brand-subtitle">
+                    Risk & Anomaly Intelligence
+                </div>
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <div class="nav-heading">
+                OVERVIEW
+            </div>
+
+            <a href="/" class="nav-link active">
+                <span class="nav-icon">▦</span>
+                <span>Command Center</span>
+            </a>
+
+
+            <div class="nav-heading">
+                INTELLIGENCE
+            </div>
+
+            <a href="/risk-analysis" class="nav-link">
+                <span class="nav-icon">♢</span>
+                <span>Risk Monitor</span>
+            </a>
+
+            <a href="/projects" class="nav-link">
+                <span class="nav-icon">⌕</span>
+                <span>Work Explorer</span>
+            </a>
+
+            <a href="/analytics" class="nav-link">
+                <span class="nav-icon">▥</span>
+                <span>Analytics</span>
+            </a>
+
+            <a href="/reports" class="nav-link">
+                <span class="nav-icon">♧</span>
+                <span>Alerts</span>
+            </a>
+
+
+            <div class="nav-heading">
+                OPERATIONS
+            </div>
+
+            <a href="/agencies" class="nav-link">
+                <span class="nav-icon">▥</span>
+                <span>Agencies</span>
+            </a>
+
+            <a href="/districts" class="nav-link">
+                <span class="nav-icon">⌖</span>
+                <span>Districts</span>
+            </a>
+
+            <a href="/investigation" class="nav-link">
+                <span class="nav-icon">▤</span>
+                <span>Investigation Queue</span>
+            </a>
+
+
+            <div class="nav-heading">
+                AI
+            </div>
+
+            <a href="/sentinel-ai" class="nav-link">
+                <span class="nav-icon">✧</span>
+                <span>Sentinel AI</span>
+            </a>
+
+
+            <div class="nav-heading">
+                SYSTEM
+            </div>
+
+            <a href="/data-health" class="nav-link">
+                <span class="nav-icon">⌁</span>
+                <span>Data Health</span>
+            </a>
+
+            <a href="/settings" class="nav-link">
+                <span class="nav-icon">⚙</span>
+                <span>Settings</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <div class="engine">
+
+                <span class="engine-dot"></span>
+
+                <div>
+                    <div class="engine-title">
+                        Data Engine Online
+                    </div>
+
+                    <div class="engine-subtitle">
+                        Real-time analysis active
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="last-updated">
+                Last updated
+                <strong id="lastUpdated">—</strong>
+            </div>
+
+
+            <div class="prototype">
+                <span></span>
+                Prototype · SIH 2026
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="main">
+
+        <!-- TOP BAR -->
+
+        <header class="topbar">
+
+            <div class="page-title">
+
+                <strong>Command Center</strong>
+
+                <span>
+                    <i></i>
+                    LIVE ANALYTICS
+                </span>
+
+            </div>
+
+
+            <div class="global-search">
+
+                <span class="search-icon">⌕</span>
+
+                <input
+                    id="globalSearch"
+                    type="text"
+                    placeholder="Search work ID, district, agency..."
+                >
+
+                <kbd>/</kbd>
+
+            </div>
+
+
+            <div class="authority">
+
+                <button class="notification">
+                    ♧
+                    <span></span>
+                </button>
+
+                <div class="authority-avatar">
+                    MA
+                </div>
+
+                <div class="authority-info">
+
+                    <strong>
+                        Monitoring Authority
+                    </strong>
+
+                    <small>
+                        Decision Support
+                    </small>
+
+                </div>
+
+                <span class="chevron">⌄</span>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             COMMAND CENTER CONTENT
+        ================================================== -->
+
+        <div class="content">
+
+
+            <!-- HERO -->
+
+            <section class="hero">
+
+                <div class="hero-left">
+
+                    <div class="dataset-badge">
+                        <span></span>
+                        🧪 Synthetic Demonstration Dataset
+                    </div>
+
+
+                    <h1>
+                        From thousands of records
+                        <br>
+                        to <span>prioritized action.</span>
+                    </h1>
+
+
+                    <p>
+                        Sentinel continuously analyzes project,
+                        financial and execution signals to identify
+                        where attention is needed most —
+                        we don't replace investigation,
+                        we tell authorities where to look first.
+                    </p>
+
+                </div>
+
+
+                <div class="filters">
+
+                    <div class="filter">
+
+                        <label>FINANCIAL YEAR</label>
+
+                        <select id="fyFilter">
+                            <option value="all">
+                                All Available
+                            </option>
+                        </select>
+
+                    </div>
+
+
+                    <div class="filter">
+
+                        <label>STATE</label>
+
+                        <select id="stateFilter">
+                            <option value="all">
+                                All States
+                            </option>
+                        </select>
+
+                    </div>
+
+
+                    <div class="filter">
+
+                        <label>CATEGORY</label>
+
+                        <select id="categoryFilter">
+                            <option value="all">
+                                All Categories
+                            </option>
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 KPI CARDS
+            ================================================== -->
+
+            <section class="kpi-grid">
+
+                <div class="kpi-card blue">
+
+                    <div class="kpi-top">
+                        <span>TOTAL WORKS</span>
+                        <div class="kpi-icon">▱</div>
+                    </div>
+
+                    <div
+                        id="totalWorks"
+                        class="kpi-number">
+                        —
+                    </div>
+
+                    <div class="kpi-bottom">
+                        Records analyzed
+                    </div>
+
+                </div>
+
+
+                <div class="kpi-card purple">
+
+                    <div class="kpi-top">
+                        <span>TOTAL SANCTIONED</span>
+                        <div class="kpi-icon">₹</div>
+                    </div>
+
+                    <div
+                        id="totalSanctioned"
+                        class="kpi-number">
+                        —
+                    </div>
+
+                    <div class="kpi-bottom">
+                        From available sanction records
+                    </div>
+
+                </div>
+
+
+                <div class="kpi-card red">
+
+                    <div class="kpi-top">
+                        <span>HIGH RISK WORKS</span>
+                        <div class="kpi-icon">♢</div>
+                    </div>
+
+                    <div
+                        id="highRisk"
+                        class="kpi-number">
+                        —
+                    </div>
+
+                    <div class="kpi-bottom">
+                        Priority review candidates
+                    </div>
+
+                </div>
+
+
+                <div class="kpi-card orange">
+
+                    <div class="kpi-top">
+                        <span>DELAYED WORKS</span>
+                        <div class="kpi-icon">◷</div>
+                    </div>
+
+                    <div
+                        id="delayedWorks"
+                        class="kpi-number">
+                        —
+                    </div>
+
+                    <div class="kpi-bottom">
+                        Based on available timeline data
+                    </div>
+
+                </div>
+
+
+                <div class="kpi-card yellow">
+
+                    <div class="kpi-top">
+                        <span>ML ANOMALIES</span>
+                        <div class="kpi-icon">✧</div>
+                    </div>
+
+                    <div
+                        id="mlAnomalies"
+                        class="kpi-number">
+                        —
+                    </div>
+
+                    <div class="kpi-bottom">
+                        Isolation Forest signals
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 RISK OVERVIEW + INTELLIGENCE
+            ================================================== -->
+
+            <section class="two-panels">
+
+
+                <!-- RISK -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <h2>National Risk Overview</h2>
+
+                            <p>
+                                Distribution of works by risk tier
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="risk-layout">
+
+                        <div class="donut">
+
+                            <canvas id="riskChart"></canvas>
+
+                            <div class="donut-center">
+
+                                <strong id="riskTotal">
+                                    —
+                                </strong>
+
+                                <span>
+                                    total works
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="risk-legend">
+
+                            <div class="risk-row">
+                                <span class="risk-point high"></span>
+                                <span>High</span>
+                                <strong id="riskHigh">—</strong>
+                            </div>
+
+                            <div class="risk-row">
+                                <span class="risk-point medium"></span>
+                                <span>Medium</span>
+                                <strong id="riskMedium">—</strong>
+                            </div>
+
+                            <div class="risk-row">
+                                <span class="risk-point low"></span>
+                                <span>Low</span>
+                                <strong id="riskLow">—</strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- INTELLIGENCE -->
+
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <h2>Risk Intelligence</h2>
+
+                            <p>
+                                System-generated summary of current posture
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="intelligence-list">
+
+                        <div class="intel-row">
+
+                            <div class="intel-icon red">
+                                !
+                            </div>
+
+                            <span>
+                                <strong id="intelHigh">—</strong>
+                                high-risk works require priority review.
+                            </span>
+
+                        </div>
+
+
+                        <div class="intel-row">
+
+                            <div class="intel-icon orange">
+                                ◷
+                            </div>
+
+                            <span>
+                                <strong id="intelDelay">—</strong>
+                                works show timeline delay signals.
+                            </span>
+
+                        </div>
+
+
+                        <div class="intel-row">
+
+                            <div class="intel-icon purple">
+                                ✧
+                            </div>
+
+                            <span>
+                                <strong id="intelML">—</strong>
+                                ML anomaly signals detected.
+                            </span>
+
+                        </div>
+
+
+                        <div class="intel-row">
+
+                            <div class="intel-icon green">
+                                ✓
+                            </div>
+
+                            <span id="intelLowText">
+                                Loading current risk posture...
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 STATE RISK INTELLIGENCE
+            ================================================== -->
+
+            <section class="panel state-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <h2>State Risk Intelligence</h2>
+
+                        <p>
+                            Geographic distribution of implementation risk
+                        </p>
+                    </div>
+
+                    <span class="panel-note">
+                        Based on available state records
+                    </span>
+
+                </div>
+
+
+                <div class="state-layout">
+
+                    <div class="india-map">
+
+                        <div id="indiaMap">
+
+                            <div class="map-placeholder">
+                                <div class="map-symbol">◉</div>
+
+                                <strong>
+                                    Geographic View
+                                </strong>
+
+                                <span>
+                                    State-level risk derived from
+                                    available records
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="state-ranking">
+
+                        <div class="ranking-title">
+                            HIGHEST RISK CONCENTRATION
+                        </div>
+
+                        <div id="stateList">
+
+                            <div class="loading">
+                                Loading state intelligence...
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 TREND + FUND FLOW
+            ================================================== -->
+
+            <section class="chart-grid">
+
+
+                <!-- TREND -->
+
+                <div class="panel chart-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <h2>Risk Trend — Available Period</h2>
+
+                            <p>
+                                Evolution of risk signals over time
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="chart-box">
+
+                        <canvas id="trendChart"></canvas>
+
+                        <div
+                            id="trendUnavailable"
+                            class="unavailable">
+                            Historical trend unavailable in
+                            the current dataset.
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FUND -->
+
+                <div class="panel chart-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+                            <h2>Sanctioned vs Expenditure</h2>
+
+                            <p>
+                                Available financial records
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="chart-box">
+
+                        <canvas id="fundChart"></canvas>
+
+                        <div
+                            id="fundUnavailable"
+                            class="unavailable">
+                            Sanction/expenditure comparison
+                            unavailable in the current dataset.
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 PRIORITY ALERTS
+            ================================================== -->
+
+            <section class="panel alerts-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <h2>Priority Alerts</h2>
+
+                        <p>
+                            Highest-priority works flagged for review
+                        </p>
+                    </div>
+
+                    <a href="/risk-analysis"
+                       class="view-link">
+                        View all →
+                    </a>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+                            <th>WORK ID</th>
+                            <th>LOCATION</th>
+                            <th>CATEGORY</th>
+                            <th>RISK</th>
+                            <th>PRIMARY SIGNAL</th>
+                            <th>STATUS</th>
+                            <th>ACTION</th>
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="alertsTable">
+
+                        <tr>
+                            <td colspan="7"
+                                class="loading">
+                                Loading priority alerts...
+                            </td>
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 SENTINEL AI
+            ================================================== -->
+
+            <section class="sentinel-ai">
+
+                <div class="ai-symbol">
+                    ✧
+                </div>
+
+
+                <div class="ai-content">
+
+                    <div class="ai-heading">
+
+                        Sentinel AI Insight
+
+                        <span>
+                            DATA-DERIVED
+                        </span>
+
+                    </div>
+
+                    <p id="aiInsight">
+                        Generating summary from current
+                        analytical signals...
+                    </p>
+
+                    <a href="/sentinel-ai">
+                        View Analysis →
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- DISCLAIMER -->
+
+            <div class="disclaimer">
+
+                Anomaly indicators represent analytical signals
+                and do not constitute proof of fraud or misconduct.
+                Final assessment requires authorized human investigation.
+
+            </div>
+
+
+            <footer>
+
+                <span>
+                    MPLADS SENTINEL · SIH 2026
+                </span>
+
+                <span>
+                    🧪 Synthetic demonstration data only
+                </span>
+
+            </footer>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+</body>
+</html>
