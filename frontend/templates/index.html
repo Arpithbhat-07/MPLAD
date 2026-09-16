@@ -6,6 +6,10 @@
 
     <title>MPLADS SENTINEL — Command Center</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/style.css') }}">
 
@@ -14,7 +18,7 @@
 
 <body>
 
-<div class="app">
+<div class="shell">
 
     <!-- =====================================================
          SIDEBAR
@@ -23,138 +27,91 @@
     <aside class="sidebar">
 
         <div class="brand">
-
-            <div class="brand-mark">
-                <div class="shield">S</div>
-            </div>
-
+            <div class="brand-seal">S</div>
             <div class="brand-text">
-                <div class="brand-name">
-                    MPLADS <span>SENTINEL</span>
-                </div>
-
-                <div class="brand-subtitle">
-                    Risk & Anomaly Intelligence
-                </div>
+                <div class="brand-name">MPLADS Sentinel</div>
+                <div class="brand-role">Risk &amp; anomaly intelligence</div>
             </div>
-
         </div>
-
 
         <nav class="sidebar-nav">
 
-            <div class="nav-heading">
-                OVERVIEW
+            <div class="nav-group">
+                <p class="nav-group-label">Overview</p>
+                <a href="/" class="nav-link is-active">
+                    <span class="nav-dot"></span>
+                    Command Center
+                </a>
             </div>
 
-            <a href="/" class="nav-link active">
-                <span class="nav-icon">▦</span>
-                <span>Command Center</span>
-            </a>
-
-
-            <div class="nav-heading">
-                INTELLIGENCE
+            <div class="nav-group">
+                <p class="nav-group-label">Intelligence</p>
+                <a href="/risk-analysis" class="nav-link">
+                    <span class="nav-dot"></span>
+                    Risk Monitor
+                </a>
+                <a href="/projects" class="nav-link">
+                    <span class="nav-dot"></span>
+                    Work Explorer
+                </a>
+                <a href="/analytics" class="nav-link">
+                    <span class="nav-dot"></span>
+                    Analytics
+                </a>
+                <a href="/alerts" class="nav-link">
+                    <span class="nav-dot"></span>
+                    Alerts
+                </a>
             </div>
 
-            <a href="/risk-analysis" class="nav-link">
-                <span class="nav-icon">♢</span>
-                <span>Risk Monitor</span>
-            </a>
-
-            <a href="/projects" class="nav-link">
-                <span class="nav-icon">⌕</span>
-                <span>Work Explorer</span>
-            </a>
-
-            <a href="/analytics" class="nav-link">
-                <span class="nav-icon">▥</span>
-                <span>Analytics</span>
-            </a>
-
-            <a href="/reports" class="nav-link">
-                <span class="nav-icon">♧</span>
-                <span>Alerts</span>
-            </a>
-
-
-            <div class="nav-heading">
-                OPERATIONS
+            <div class="nav-group">
+                <p class="nav-group-label">Operations</p>
+                <a href="/agencies" class="nav-link">
+                    <span class="nav-dot"></span>
+                    Agencies
+                </a>
+                <a href="/districts" class="nav-link">
+                    <span class="nav-dot"></span>
+                    Districts
+                </a>
+                <a href="/investigation" class="nav-link">
+                    <span class="nav-dot"></span>
+                    Investigation Queue
+                </a>
             </div>
 
-            <a href="/agencies" class="nav-link">
-                <span class="nav-icon">▥</span>
-                <span>Agencies</span>
-            </a>
-
-            <a href="/districts" class="nav-link">
-                <span class="nav-icon">⌖</span>
-                <span>Districts</span>
-            </a>
-
-            <a href="/investigation" class="nav-link">
-                <span class="nav-icon">▤</span>
-                <span>Investigation Queue</span>
-            </a>
-
-
-            <div class="nav-heading">
-                AI
+            <div class="nav-group">
+                <p class="nav-group-label">AI</p>
+                <a href="/sentinel-ai" class="nav-link">
+                    <span class="nav-dot"></span>
+                    Sentinel AI
+                </a>
             </div>
 
-            <a href="/sentinel-ai" class="nav-link">
-                <span class="nav-icon">✧</span>
-                <span>Sentinel AI</span>
-            </a>
-
-
-            <div class="nav-heading">
-                SYSTEM
+            <div class="nav-group">
+                <p class="nav-group-label">System</p>
+                <a href="/data-health" class="nav-link">
+                    <span class="nav-dot"></span>
+                    Data Health
+                </a>
+                <a href="/settings" class="nav-link">
+                    <span class="nav-dot"></span>
+                    Settings
+                </a>
             </div>
-
-            <a href="/data-health" class="nav-link">
-                <span class="nav-icon">⌁</span>
-                <span>Data Health</span>
-            </a>
-
-            <a href="/settings" class="nav-link">
-                <span class="nav-icon">⚙</span>
-                <span>Settings</span>
-            </a>
 
         </nav>
 
-
         <div class="sidebar-footer">
-
-            <div class="engine">
-
-                <span class="engine-dot"></span>
-
+            <div class="engine-status">
+                <span class="engine-pulse"></span>
                 <div>
-                    <div class="engine-title">
-                        Data Engine Online
-                    </div>
-
-                    <div class="engine-subtitle">
-                        Real-time analysis active
-                    </div>
+                    <p class="engine-title">Data engine online</p>
+                    <p class="engine-sub">Analysis active</p>
                 </div>
-
             </div>
-
-
-            <div class="last-updated">
-                Last updated
-                <strong id="lastUpdated">—</strong>
-            </div>
-
-
-            <div class="prototype">
-                <span></span>
-                Prototype · SIH 2026
-            </div>
-
+            <p class="updated-line">Last updated <strong id="lastUpdated">—</strong></p>
+            <p class="build-tag">Prototype build · SIH 2026</p>
         </div>
 
     </aside>
@@ -166,470 +123,230 @@
 
     <main class="main">
 
-        <!-- TOP BAR -->
-
         <header class="topbar">
 
             <div class="page-title">
-
-                <strong>Command Center</strong>
-
-                <span>
-                    <i></i>
-                    LIVE ANALYTICS
-                </span>
-
+                <h1>Command Center</h1>
+                <span class="live-tag"><i></i>Live analytics</span>
             </div>
 
-
-            <div class="global-search">
-
-                <span class="search-icon">⌕</span>
-
+            <form class="global-search" action="/projects" method="GET">
+                <svg class="search-glyph" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="8.5" cy="8.5" r="6" stroke="currentColor" stroke-width="1.6"/>
+                    <path d="M17 17L13.3 13.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
                 <input
                     id="globalSearch"
+                    name="search"
                     type="text"
                     placeholder="Search work ID, district, agency..."
-                >
-
+                    autocomplete="off">
                 <kbd>/</kbd>
-
-            </div>
-
+            </form>
 
             <div class="authority">
-
-                <button class="notification">
-                    ♧
-                    <span></span>
+                <button class="bell-btn" type="button" aria-label="Notifications">
+                    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 2.5c-2.5 0-4.3 2-4.3 4.6v2.3c0 .6-.2 1.2-.6 1.7l-1 1.2c-.5.6-.1 1.5.7 1.5h10.4c.8 0 1.2-.9.7-1.5l-1-1.2a2.7 2.7 0 0 1-.6-1.7V7.1c0-2.6-1.8-4.6-4.3-4.6Z" stroke="currentColor" stroke-width="1.4"/>
+                        <path d="M8.3 16.5a1.8 1.8 0 0 0 3.4 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                    </svg>
+                    <span class="bell-badge"></span>
                 </button>
-
-                <div class="authority-avatar">
-                    MA
+                <div class="authority-id">
+                    <div class="authority-mark">MA</div>
+                    <div class="authority-text">
+                        <strong>Monitoring Authority</strong>
+                        <small>Decision support</small>
+                    </div>
+                    <svg class="chev" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 1.5 6 6.5 11 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </div>
-
-                <div class="authority-info">
-
-                    <strong>
-                        Monitoring Authority
-                    </strong>
-
-                    <small>
-                        Decision Support
-                    </small>
-
-                </div>
-
-                <span class="chevron">⌄</span>
-
             </div>
 
         </header>
 
 
-        <!-- =================================================
-             COMMAND CENTER CONTENT
-        ================================================== -->
-
         <div class="content">
 
-
             <!-- HERO -->
-
             <section class="hero">
 
-                <div class="hero-left">
+                <div class="hero-copy">
+                    <p class="dataset-tag">Synthetic demonstration dataset</p>
 
-                    <div class="dataset-badge">
-                        <span></span>
-                        🧪 Synthetic Demonstration Dataset
-                    </div>
+                    <h2 class="hero-heading">
+                        From thousands of works to the ones that need a look first.
+                    </h2>
 
-
-                    <h1>
-                        From thousands of records
-                        <br>
-                        to <span>prioritized action.</span>
-                    </h1>
-
-
-                    <p>
-                        Sentinel continuously analyzes project,
-                        financial and execution signals to identify
-                        where attention is needed most —
-                        we don't replace investigation,
-                        we tell authorities where to look first.
+                    <p class="hero-sub">
+                        Sentinel reads project, financial and execution signals continuously
+                        and ranks where attention belongs. It does not replace an investigation —
+                        it decides what gets investigated first.
                     </p>
-
                 </div>
 
-
-                <div class="filters">
-
-                    <div class="filter">
-
-                        <label>FINANCIAL YEAR</label>
-
+                <div class="filter-row">
+                    <label class="filter-field">
+                        <span>Financial year</span>
                         <select id="fyFilter">
-                            <option value="all">
-                                All Available
-                            </option>
+                            <option value="all">All available</option>
                         </select>
+                    </label>
 
-                    </div>
-
-
-                    <div class="filter">
-
-                        <label>STATE</label>
-
+                    <label class="filter-field">
+                        <span>State</span>
                         <select id="stateFilter">
-                            <option value="all">
-                                All States
-                            </option>
+                            <option value="all">All states</option>
                         </select>
+                    </label>
 
-                    </div>
-
-
-                    <div class="filter">
-
-                        <label>CATEGORY</label>
-
+                    <label class="filter-field">
+                        <span>Category</span>
                         <select id="categoryFilter">
-                            <option value="all">
-                                All Categories
-                            </option>
+                            <option value="all">All categories</option>
                         </select>
-
-                    </div>
-
+                    </label>
                 </div>
 
             </section>
 
 
-            <!-- =================================================
-                 KPI CARDS
-            ================================================== -->
+            <!-- STAT STRIP -->
+            <section class="stat-strip">
 
-            <section class="kpi-grid">
-
-                <div class="kpi-card blue">
-
-                    <div class="kpi-top">
-                        <span>TOTAL WORKS</span>
-                        <div class="kpi-icon">▱</div>
-                    </div>
-
-                    <div
-                        id="totalWorks"
-                        class="kpi-number">
-                        —
-                    </div>
-
-                    <div class="kpi-bottom">
-                        Records analyzed
-                    </div>
-
+                <div class="stat" data-tone="blue">
+                    <p class="stat-label">Total works</p>
+                    <p class="stat-value" id="totalWorks">—</p>
+                    <p class="stat-note">Records analyzed</p>
                 </div>
 
-
-                <div class="kpi-card purple">
-
-                    <div class="kpi-top">
-                        <span>TOTAL SANCTIONED</span>
-                        <div class="kpi-icon">₹</div>
-                    </div>
-
-                    <div
-                        id="totalSanctioned"
-                        class="kpi-number">
-                        —
-                    </div>
-
-                    <div class="kpi-bottom">
-                        From available sanction records
-                    </div>
-
+                <div class="stat" data-tone="purple">
+                    <p class="stat-label">Total sanctioned</p>
+                    <p class="stat-value" id="totalSanctioned">—</p>
+                    <p class="stat-note">From available sanction records</p>
                 </div>
 
-
-                <div class="kpi-card red">
-
-                    <div class="kpi-top">
-                        <span>HIGH RISK WORKS</span>
-                        <div class="kpi-icon">♢</div>
-                    </div>
-
-                    <div
-                        id="highRisk"
-                        class="kpi-number">
-                        —
-                    </div>
-
-                    <div class="kpi-bottom">
-                        Priority review candidates
-                    </div>
-
+                <div class="stat" data-tone="red">
+                    <p class="stat-label">High risk works</p>
+                    <p class="stat-value" id="highRisk">—</p>
+                    <p class="stat-note">Priority review candidates</p>
                 </div>
 
-
-                <div class="kpi-card orange">
-
-                    <div class="kpi-top">
-                        <span>DELAYED WORKS</span>
-                        <div class="kpi-icon">◷</div>
-                    </div>
-
-                    <div
-                        id="delayedWorks"
-                        class="kpi-number">
-                        —
-                    </div>
-
-                    <div class="kpi-bottom">
-                        Based on available timeline data
-                    </div>
-
+                <div class="stat" data-tone="orange">
+                    <p class="stat-label">Delayed works</p>
+                    <p class="stat-value" id="delayedWorks">—</p>
+                    <p class="stat-note">Based on available timeline data</p>
                 </div>
 
-
-                <div class="kpi-card yellow">
-
-                    <div class="kpi-top">
-                        <span>ML ANOMALIES</span>
-                        <div class="kpi-icon">✧</div>
-                    </div>
-
-                    <div
-                        id="mlAnomalies"
-                        class="kpi-number">
-                        —
-                    </div>
-
-                    <div class="kpi-bottom">
-                        Isolation Forest signals
-                    </div>
-
+                <div class="stat" data-tone="yellow">
+                    <p class="stat-label">ML anomalies</p>
+                    <p class="stat-value" id="mlAnomalies">—</p>
+                    <p class="stat-note">Isolation Forest signals</p>
                 </div>
 
             </section>
 
 
-            <!-- =================================================
-                 RISK OVERVIEW + INTELLIGENCE
-            ================================================== -->
+            <!-- RISK OVERVIEW + INTELLIGENCE -->
+            <section class="grid-two">
 
-            <section class="two-panels">
-
-
-                <!-- RISK -->
-
-                <div class="panel">
-
+                <div class="panel" data-accent="blue">
                     <div class="panel-header">
-
                         <div>
-                            <h2>National Risk Overview</h2>
-
-                            <p>
-                                Distribution of works by risk tier
-                            </p>
+                            <h3>National risk overview</h3>
+                            <p>Distribution of works by risk tier</p>
                         </div>
-
                     </div>
-
 
                     <div class="risk-layout">
-
                         <div class="donut">
-
                             <canvas id="riskChart"></canvas>
-
                             <div class="donut-center">
-
-                                <strong id="riskTotal">
-                                    —
-                                </strong>
-
-                                <span>
-                                    total works
-                                </span>
-
+                                <strong id="riskTotal">—</strong>
+                                <span>total works</span>
                             </div>
-
                         </div>
 
-
                         <div class="risk-legend">
-
                             <div class="risk-row">
                                 <span class="risk-point high"></span>
                                 <span>High</span>
                                 <strong id="riskHigh">—</strong>
                             </div>
-
                             <div class="risk-row">
                                 <span class="risk-point medium"></span>
                                 <span>Medium</span>
                                 <strong id="riskMedium">—</strong>
                             </div>
-
                             <div class="risk-row">
                                 <span class="risk-point low"></span>
                                 <span>Low</span>
                                 <strong id="riskLow">—</strong>
                             </div>
-
                         </div>
-
                     </div>
-
                 </div>
 
-
-                <!-- INTELLIGENCE -->
-
-                <div class="panel">
-
+                <div class="panel" data-accent="ink">
                     <div class="panel-header">
-
                         <div>
-                            <h2>Risk Intelligence</h2>
-
-                            <p>
-                                System-generated summary of current posture
-                            </p>
+                            <h3>Risk intelligence</h3>
+                            <p>System-generated summary of current posture</p>
                         </div>
-
                     </div>
 
-
-                    <div class="intelligence-list">
-
+                    <div class="intel-list">
                         <div class="intel-row">
-
-                            <div class="intel-icon red">
-                                !
-                            </div>
-
-                            <span>
-                                <strong id="intelHigh">—</strong>
-                                high-risk works require priority review.
-                            </span>
-
+                            <span class="intel-mark red">!</span>
+                            <span><strong id="intelHigh">—</strong> high-risk works require priority review.</span>
                         </div>
-
-
                         <div class="intel-row">
-
-                            <div class="intel-icon orange">
-                                ◷
-                            </div>
-
-                            <span>
-                                <strong id="intelDelay">—</strong>
-                                works show timeline delay signals.
-                            </span>
-
+                            <span class="intel-mark orange">◷</span>
+                            <span><strong id="intelDelay">—</strong> works show timeline delay signals.</span>
                         </div>
-
-
                         <div class="intel-row">
-
-                            <div class="intel-icon purple">
-                                ✧
-                            </div>
-
-                            <span>
-                                <strong id="intelML">—</strong>
-                                ML anomaly signals detected.
-                            </span>
-
+                            <span class="intel-mark purple">✧</span>
+                            <span><strong id="intelML">—</strong> ML anomaly signals detected.</span>
                         </div>
-
-
                         <div class="intel-row">
-
-                            <div class="intel-icon green">
-                                ✓
-                            </div>
-
-                            <span id="intelLowText">
-                                Loading current risk posture...
-                            </span>
-
+                            <span class="intel-mark green">✓</span>
+                            <span id="intelLowText">Loading current risk posture...</span>
                         </div>
-
                     </div>
-
                 </div>
 
             </section>
 
 
-            <!-- =================================================
-                 STATE RISK INTELLIGENCE
-            ================================================== -->
-
+            <!-- STATE RISK INTELLIGENCE -->
             <section class="panel state-panel">
 
                 <div class="panel-header">
-
                     <div>
-                        <h2>State Risk Intelligence</h2>
-
-                        <p>
-                            Geographic distribution of implementation risk
-                        </p>
+                        <h3>State risk intelligence</h3>
+                        <p>Geographic distribution of implementation risk</p>
                     </div>
-
-                    <span class="panel-note">
-                        Based on available state records
-                    </span>
-
+                    <span class="panel-note">Based on available state records</span>
                 </div>
-
 
                 <div class="state-layout">
 
                     <div class="india-map">
-
                         <div id="indiaMap">
-
                             <div class="map-placeholder">
                                 <div class="map-symbol">◉</div>
-
-                                <strong>
-                                    Geographic View
-                                </strong>
-
-                                <span>
-                                    State-level risk derived from
-                                    available records
-                                </span>
+                                <strong>Geographic view</strong>
+                                <span>State-level risk derived from available records</span>
                             </div>
-
                         </div>
-
                     </div>
-
 
                     <div class="state-ranking">
-
-                        <div class="ranking-title">
-                            HIGHEST RISK CONCENTRATION
-                        </div>
-
+                        <p class="ranking-title">Highest risk concentration</p>
                         <div id="stateList">
-
-                            <div class="loading">
-                                Loading state intelligence...
-                            </div>
-
+                            <div class="loading">Loading state intelligence...</div>
                         </div>
-
                     </div>
 
                 </div>
@@ -637,199 +354,98 @@
             </section>
 
 
-            <!-- =================================================
-                 TREND + FUND FLOW
-            ================================================== -->
-
-            <section class="chart-grid">
-
-
-                <!-- TREND -->
+            <!-- TREND + FUND FLOW -->
+            <section class="grid-two">
 
                 <div class="panel chart-panel">
-
                     <div class="panel-header">
-
                         <div>
-                            <h2>Risk Trend — Available Period</h2>
-
-                            <p>
-                                Evolution of risk signals over time
-                            </p>
+                            <h3>Risk trend — available period</h3>
+                            <p>Evolution of risk signals over time</p>
                         </div>
-
                     </div>
 
-
                     <div class="chart-box">
-
                         <canvas id="trendChart"></canvas>
-
-                        <div
-                            id="trendUnavailable"
-                            class="unavailable">
-                            Historical trend unavailable in
-                            the current dataset.
+                        <div id="trendUnavailable" class="unavailable">
+                            Historical trend unavailable in the current dataset.
                         </div>
-
                     </div>
-
                 </div>
 
-
-                <!-- FUND -->
-
                 <div class="panel chart-panel">
-
                     <div class="panel-header">
-
                         <div>
-                            <h2>Sanctioned vs Expenditure</h2>
-
-                            <p>
-                                Available financial records
-                            </p>
+                            <h3>Sanctioned vs expenditure</h3>
+                            <p>Available financial records</p>
                         </div>
-
                     </div>
-
 
                     <div class="chart-box">
-
                         <canvas id="fundChart"></canvas>
-
-                        <div
-                            id="fundUnavailable"
-                            class="unavailable">
-                            Sanction/expenditure comparison
-                            unavailable in the current dataset.
+                        <div id="fundUnavailable" class="unavailable">
+                            Sanction/expenditure comparison unavailable in the current dataset.
                         </div>
-
                     </div>
-
                 </div>
 
             </section>
 
 
-            <!-- =================================================
-                 PRIORITY ALERTS
-            ================================================== -->
-
+            <!-- PRIORITY ALERTS -->
             <section class="panel alerts-panel">
 
                 <div class="panel-header">
-
                     <div>
-                        <h2>Priority Alerts</h2>
-
-                        <p>
-                            Highest-priority works flagged for review
-                        </p>
+                        <h3>Priority alerts</h3>
+                        <p>Highest-priority works flagged for review</p>
                     </div>
-
-                    <a href="/risk-analysis"
-                       class="view-link">
-                        View all →
-                    </a>
-
+                    <a href="/risk-analysis" class="text-link">View all</a>
                 </div>
-
 
                 <div class="table-wrapper">
-
                     <table>
-
                         <thead>
-
                         <tr>
-                            <th>WORK ID</th>
-                            <th>LOCATION</th>
-                            <th>CATEGORY</th>
-                            <th>RISK</th>
-                            <th>PRIMARY SIGNAL</th>
-                            <th>STATUS</th>
-                            <th>ACTION</th>
+                            <th>Work ID</th>
+                            <th>Location</th>
+                            <th>Category</th>
+                            <th>Risk</th>
+                            <th>Primary signal</th>
+                            <th>Status</th>
+                            <th>Action</th>
                         </tr>
-
                         </thead>
-
                         <tbody id="alertsTable">
-
                         <tr>
-                            <td colspan="7"
-                                class="loading">
-                                Loading priority alerts...
-                            </td>
+                            <td colspan="7" class="loading">Loading priority alerts...</td>
                         </tr>
-
                         </tbody>
-
                     </table>
-
                 </div>
 
             </section>
 
 
-            <!-- =================================================
-                 SENTINEL AI
-            ================================================== -->
-
-            <section class="sentinel-ai">
-
-                <div class="ai-symbol">
-                    ✧
+            <!-- SENTINEL AI -->
+            <section class="ai-panel">
+                <div class="ai-mark">✧</div>
+                <div class="ai-body">
+                    <p class="ai-heading">Sentinel AI insight <span>Data-derived</span></p>
+                    <p id="aiInsight">Generating summary from current analytical signals...</p>
+                    <a href="/sentinel-ai" class="text-link">View analysis</a>
                 </div>
-
-
-                <div class="ai-content">
-
-                    <div class="ai-heading">
-
-                        Sentinel AI Insight
-
-                        <span>
-                            DATA-DERIVED
-                        </span>
-
-                    </div>
-
-                    <p id="aiInsight">
-                        Generating summary from current
-                        analytical signals...
-                    </p>
-
-                    <a href="/sentinel-ai">
-                        View Analysis →
-                    </a>
-
-                </div>
-
             </section>
 
 
-            <!-- DISCLAIMER -->
+            <p class="disclaimer">
+                Anomaly indicators represent analytical signals and do not constitute proof of
+                fraud or misconduct. Final assessment requires authorized human investigation.
+            </p>
 
-            <div class="disclaimer">
-
-                Anomaly indicators represent analytical signals
-                and do not constitute proof of fraud or misconduct.
-                Final assessment requires authorized human investigation.
-
-            </div>
-
-
-            <footer>
-
-                <span>
-                    MPLADS SENTINEL · SIH 2026
-                </span>
-
-                <span>
-                    🧪 Synthetic demonstration data only
-                </span>
-
+            <footer class="page-footer">
+                <span>MPLADS Sentinel — SIH 2026 prototype</span>
+                <span>Synthetic demonstration data only</span>
             </footer>
 
         </div>
@@ -837,7 +453,6 @@
     </main>
 
 </div>
-
 
 <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
 <script src="{{ url_for('static', filename='js/map.js') }}"></script>

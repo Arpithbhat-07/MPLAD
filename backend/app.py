@@ -15,6 +15,7 @@ from flask import (
     redirect,
     render_template,
     request,
+    send_from_directory,
     url_for,
 )
 
@@ -64,11 +65,47 @@ def create_app() -> Flask:
         template_folder=str(
             FRONTEND_ROOT / "templates"
         ),
-        static_folder=str(
-            FRONTEND_ROOT / "static"
-        ),
-        static_url_path="/static",
+        # Static files are served by the explicit /static/<path:filename>
+        # route below. This avoids the catch-all 404 redirect swallowing
+        # missing/unsaved JavaScript files during development.
+        static_folder=None,
     )
+
+    # ======================================================
+    # STATIC FILES
+    # ======================================================
+
+    @app.get("/static/<path:filename>", endpoint="static")
+    def static_files(filename: str):
+        """Serve frontend static files reliably.
+
+        This explicit route prevents the application's 404 redirect from
+        turning a missing JavaScript/CSS request into an HTML response.
+        During development, JS/CSS responses are also marked no-cache so
+        browser refreshes pick up the latest files.
+        """
+        static_root = FRONTEND_ROOT / "static"
+        requested_file = static_root / filename
+
+        # Return a real 404 for a missing asset instead of allowing the
+        # application's catch-all 404 handler to redirect it to /projects.
+        if not requested_file.is_file():
+            return Response("Static file not found", status=404)
+
+        response = send_from_directory(
+            str(static_root),
+            filename,
+            conditional=True,
+        )
+
+        if filename.lower().endswith((".js", ".css")):
+            response.headers["Cache-Control"] = (
+                "no-cache, no-store, must-revalidate"
+            )
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+
+        return response
 
     # ======================================================
     # JINJA GLOBALS
@@ -811,6 +848,10 @@ def create_app() -> Flask:
 
                 "summary": summary,
 
+                # Keep both keys for frontend compatibility.
+                # Newer pages can use "data" while existing pages
+                # can continue using "projects".
+                "data": projects_json,
                 "projects": projects_json,
             }
         )
