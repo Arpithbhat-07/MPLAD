@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # =========================
 # Python
 # =========================
@@ -65,3 +66,7 @@ coverage/
 # =========================
 backend/data/*_runtime.csv
 backend/data/duplicate_detection_results.csv
+=======
+venv
+.venv
+>>>>>>> mplad/main
